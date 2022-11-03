@@ -160,13 +160,13 @@ pub fn generate_func_struct_and_impls(
         );
 
         impl CdkActTryIntoVmValue<&mut boa_engine::Context, boa_engine::JsValue> for #type_alias_name {
-            fn try_into_vm_value(self, context: &mut boa_engine::Context) -> boa_engine::JsValue {
+            fn try_into_vm_value(self, context: &mut boa_engine::Context) -> Result<boa_engine::JsValue, CdkActTryIntoVmValueError> {
                 self.0.try_into_vm_value(context)
             }
         }
 
         impl CdkActTryIntoVmValue<&mut boa_engine::Context, boa_engine::JsValue> for Vec<#type_alias_name> {
-            fn try_into_vm_value(self, context: &mut boa_engine::Context) -> boa_engine::JsValue {
+            fn try_into_vm_value(self, context: &mut boa_engine::Context) -> Result<boa_engine::JsValue, CdkActTryIntoVmValueError> {
                 try_into_vm_value_generic_array(self, context)
             }
         }
