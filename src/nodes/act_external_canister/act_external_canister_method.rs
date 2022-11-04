@@ -3,6 +3,7 @@ use quote::{format_ident, quote};
 
 use crate::{nodes::ActFnParam, ActDataType, ToTokenStream, ToTokenStreams};
 
+#[derive(Clone, Debug)]
 pub struct ActExternalCanisterMethod {
     pub name: String,
     pub params: Vec<ActFnParam>,

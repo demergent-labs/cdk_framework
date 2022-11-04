@@ -7,6 +7,7 @@ pub use act_external_canister_method::ActExternalCanisterMethod;
 
 pub mod act_external_canister_method;
 
+#[derive(Clone, Debug)]
 pub struct ActExternalCanister {
     pub name: String,
     pub methods: Vec<ActExternalCanisterMethod>,
