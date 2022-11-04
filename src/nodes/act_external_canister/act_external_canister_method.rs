@@ -3,6 +3,7 @@ use quote::{format_ident, quote};
 
 use crate::{nodes::ActFnParam, ActDataType, ToTokenStream, ToTokenStreams};
 
+#[derive(Clone, Debug)]
 pub struct ActExternalCanisterMethod {
     pub name: String,
     pub params: Vec<ActFnParam>,
@@ -53,6 +54,7 @@ impl ActExternalCanisterMethod {
         let args = self.params_as_tuple();
 
         quote! {
+            #[allow(non_snake_case)]
             async fn #function_name(#(#params),*) -> CallResult<(#function_return_type,)> {
                 ic_cdk::api::call::call(
                     canister_id_principal,
@@ -79,6 +81,7 @@ impl ActExternalCanisterMethod {
         let args = self.params_as_tuple();
 
         quote! {
+            #[allow(non_snake_case)]
             async fn #function_name(#(#params),*) -> CallResult<(#function_return_type,)> {
                 ic_cdk::api::call::call_with_payment(
                     canister_id_principal,
@@ -109,6 +112,7 @@ impl ActExternalCanisterMethod {
         let args = self.params_as_tuple();
 
         quote! {
+            #[allow(non_snake_case)]
             async fn #function_name(#(#params),*) -> CallResult<(#function_return_type,)> {
                 ic_cdk::api::call::call_with_payment128(
                     canister_id_principal,
@@ -133,6 +137,7 @@ impl ActExternalCanisterMethod {
         let args = self.params_as_tuple();
 
         quote! {
+            #[allow(non_snake_case)]
             fn #function_name(#(#params),*) -> Result<(), ic_cdk::api::call::RejectionCode> {
                 ic_cdk::api::call::notify(
                     canister_id_principal,
@@ -161,6 +166,7 @@ impl ActExternalCanisterMethod {
         let args = self.params_as_tuple();
 
         quote! {
+            #[allow(non_snake_case)]
             fn #function_name(#(#params),*) -> Result<(), ic_cdk::api::call::RejectionCode> {
                 ic_cdk::api::call::notify_with_payment128(
                     canister_id_principal,
