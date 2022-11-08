@@ -14,6 +14,10 @@ pub struct Func {
     pub params: Vec<ActDataType>,
     pub return_type: Box<Option<ActDataType>>,
     pub mode: String,
+    pub to_vm_value: TokenStream,
+    pub list_to_vm_value: TokenStream,
+    pub from_vm_value: TokenStream,
+    pub list_from_vm_value: TokenStream,
 }
 
 #[derive(Clone, Debug)]
@@ -62,10 +66,7 @@ impl ToTokenStream for FuncLiteral {
 impl ToTokenStream for FuncTypeAlias {
     fn to_token_stream(&self) -> TokenStream {
         generate_func_struct_and_impls(
-            &self.func.name,
-            &self.func.mode,
-            &self.func.params,
-            &*self.func.return_type,
+            &self.func,
         )
     }
 }
@@ -91,21 +92,18 @@ pub fn generate_func_arg_token() -> TokenStream {
     }
 }
 
-pub fn generate_func_struct_and_impls(
-    type_alias_name: &String,
-    func_mode: &String,
-    param_types: &Vec<ActDataType>,
-    return_type: &Option<ActDataType>,
+fn generate_func_struct_and_impls(
+    func: &Func
 ) -> TokenStream {
-    let type_alias_name = type_alias_name.to_identifier().to_token_stream();
-    let func_mode = if func_mode == "Query" {
+    let type_alias_name = func.name.to_identifier().to_token_stream();
+    let func_mode = if func.mode == "Query" {
         quote! {candid::parser::types::FuncMode::Query }
-    } else if func_mode == "Oneway" {
+    } else if func.mode == "Oneway" {
         quote! {candid::parser::types::FuncMode::Oneway }
     } else {
         quote! {}
     };
-    let param_type_strings: Vec<String> = param_types
+    let param_type_strings: Vec<String> = func.params
         .iter()
         .map(|param| param.to_token_stream().to_string())
         .collect();
@@ -134,7 +132,7 @@ pub fn generate_func_struct_and_impls(
             quote! {#modified_rust_type_token_stream::_ty()}
         })
         .collect();
-    let return_type_string = match &return_type {
+    let return_type_string = match &*func.return_type {
         Some(return_type) => return_type.to_token_stream().to_string(),
         None => "".to_string(),
     };
@@ -152,6 +150,11 @@ pub fn generate_func_struct_and_impls(
         quote! { #return_type_token_stream::_ty()}
     };
 
+    let func_to_vm_value = &func.to_vm_value;
+    let func_list_to_vm_value = &func.list_to_vm_value;
+    let func_from_vm_value = &func.from_vm_value;
+    let func_list_from_vm_value = &func.list_from_vm_value;
+
     quote! {
         #[derive(Debug, Clone)]
         struct #type_alias_name<ArgToken = self::ArgToken>(
@@ -159,30 +162,10 @@ pub fn generate_func_struct_and_impls(
             pub std::marker::PhantomData<ArgToken>,
         );
 
-        impl CdkActTryIntoVmValue<&mut boa_engine::Context, boa_engine::JsValue> for #type_alias_name {
-            fn try_into_vm_value(self, context: &mut boa_engine::Context) -> Result<boa_engine::JsValue, CdkActTryIntoVmValueError> {
-                self.0.try_into_vm_value(context)
-            }
-        }
-
-        impl CdkActTryIntoVmValue<&mut boa_engine::Context, boa_engine::JsValue> for Vec<#type_alias_name> {
-            fn try_into_vm_value(self, context: &mut boa_engine::Context) -> Result<boa_engine::JsValue, CdkActTryIntoVmValueError> {
-                try_into_vm_value_generic_array(self, context)
-            }
-        }
-
-        impl CdkActTryFromVmValue<#type_alias_name, &mut boa_engine::Context> for boa_engine::JsValue {
-            fn try_from_vm_value(self, context: &mut boa_engine::Context) -> Result<#type_alias_name, CdkActTryFromVmValueError> {
-                let candid_func: candid::Func = self.try_from_vm_value(context).unwrap();
-                Ok(candid_func.into())
-            }
-        }
-
-        impl CdkActTryFromVmValue<Vec<#type_alias_name>, &mut boa_engine::Context> for boa_engine::JsValue {
-            fn try_from_vm_value(self, context: &mut boa_engine::Context) -> Result<Vec<#type_alias_name>, CdkActTryFromVmValueError> {
-                try_from_vm_value_generic_array(self, context)
-            }
-        }
+        #func_to_vm_value
+        #func_list_to_vm_value
+        #func_from_vm_value
+        #func_list_from_vm_value
 
         impl candid::CandidType for #type_alias_name {
             fn _ty() -> candid::types::Type {
