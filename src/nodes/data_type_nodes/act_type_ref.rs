@@ -41,7 +41,7 @@ impl ToTokenStream for ActTypeRefLit {
 
 impl ToTokenStream for ActTypeRefTypeAlias {
     fn to_token_stream(&self) -> TokenStream {
-        let name = self.name.to_identifier().to_token_stream();
+        let name = self.name.to_identifier();
         let alias = self.aliased_type.to_token_stream();
         quote!(type #name = #alias;)
     }

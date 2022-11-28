@@ -1,7 +1,7 @@
 use super::{ActDataType, LiteralOrTypeAlias, ToIdent};
 use crate::{ToActDataType, ToTokenStream};
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 
 #[derive(Clone, Debug)]
 pub struct ActPrimitive {
@@ -54,7 +54,7 @@ pub struct ActPrimitiveTypeAlias {
 
 impl ToTokenStream for ActPrimitiveTypeAlias {
     fn to_token_stream(&self) -> TokenStream {
-        let name = self.name.to_identifier().to_token_stream();
+        let name = self.name.to_identifier();
         let alias = self.aliased_type.to_token_stream();
         quote!(type #name = #alias;)
     }

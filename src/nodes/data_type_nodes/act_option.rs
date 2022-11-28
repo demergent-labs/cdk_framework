@@ -1,7 +1,7 @@
 use super::{ActDataType, HasMembers, LiteralOrTypeAlias, ToIdent};
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 
 #[derive(Clone, Debug)]
 pub struct ActOption {
@@ -52,7 +52,7 @@ impl ToTokenStream for ActOptionLiteral {
 
 impl ToTokenStream for ActOptionTypeAlias {
     fn to_token_stream(&self) -> TokenStream {
-        let name = self.name.to_identifier().to_token_stream();
+        let name = self.name.to_identifier();
         let enclosed_type = self.enclosed_type.to_token_stream();
         quote!(type #name = Option<#enclosed_type>;)
     }

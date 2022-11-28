@@ -1,6 +1,8 @@
 use crate::{nodes::ActFnParam, ActDataType, ToTokenStream, ToTokenStreams};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
+
+use super::data_type_nodes::ToIdent;
 
 #[derive(Debug, Clone)]
 pub enum ActCanisterMethod {
@@ -107,7 +109,7 @@ impl ActCanisterMethod {
 }
 
 fn generate_function(canister_method: &CanisterMethod) -> TokenStream {
-    let function_name = format_ident!("{}", canister_method.name);
+    let function_name = canister_method.name.to_identifier();
     let params = canister_method.params.to_token_streams();
 
     let function_body = &canister_method.body;

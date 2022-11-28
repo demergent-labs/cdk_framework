@@ -65,9 +65,7 @@ impl ToTokenStream for FuncLiteral {
 
 impl ToTokenStream for FuncTypeAlias {
     fn to_token_stream(&self) -> TokenStream {
-        generate_func_struct_and_impls(
-            &self.func,
-        )
+        generate_func_struct_and_impls(&self.func)
     }
 }
 
@@ -92,10 +90,8 @@ pub fn generate_func_arg_token() -> TokenStream {
     }
 }
 
-fn generate_func_struct_and_impls(
-    func: &Func
-) -> TokenStream {
-    let type_alias_name = func.name.to_identifier().to_token_stream();
+fn generate_func_struct_and_impls(func: &Func) -> TokenStream {
+    let type_alias_name = func.name.to_identifier();
     let func_mode = if func.mode == "Query" {
         quote! {candid::parser::types::FuncMode::Query }
     } else if func.mode == "Oneway" {
@@ -103,7 +99,8 @@ fn generate_func_struct_and_impls(
     } else {
         quote! {}
     };
-    let param_type_strings: Vec<String> = func.params
+    let param_type_strings: Vec<String> = func
+        .params
         .iter()
         .map(|param| param.to_token_stream().to_string())
         .collect();
