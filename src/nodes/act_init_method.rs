@@ -9,10 +9,10 @@ pub struct ActInitMethod {
     pub body: TokenStream,
 }
 
-impl ToTokenStream for ActInitMethod {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActInitMethod {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
         let body = &self.body;
-        let params = &self.params.to_token_streams();
+        let params = &self.params.to_token_streams(context);
         quote! {
             #[ic_cdk_macros::init]
             #[candid::candid_method(init)]

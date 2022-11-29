@@ -33,10 +33,11 @@ pub struct AbstractCanisterTree {
     pub type_refs: Vec<ActDataType>,
     pub update_methods: Vec<ActCanisterMethod>,
     pub variants: Vec<ActDataType>,
+    pub keywords: Vec<String>,
 }
 
-impl ToTokenStream for AbstractCanisterTree {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<()> for AbstractCanisterTree {
+    fn to_token_stream(&self, context: ()) -> TokenStream {
         let randomness_implementation = random::generate_randomness_implementation();
 
         let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
@@ -46,30 +47,34 @@ impl ToTokenStream for AbstractCanisterTree {
 
         let func_arg_token = data_type_nodes::generate_func_arg_token();
 
-        let cross_canister_functions = self.external_canisters.to_token_streams();
+        let cross_canister_functions = self.external_canisters.to_token_streams(&self.keywords);
 
         let user_defined_code = &self.rust_code;
 
-        let heartbeat_method = self.heartbeat_method.to_token_stream();
-        let init_method = self.init_method.to_token_stream();
-        let inspect_message_method = self.inspect_message_method.to_token_stream();
-        let post_upgrade_method = self.post_upgrade_method.to_token_stream();
-        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream();
+        let heartbeat_method = self.heartbeat_method.to_token_stream(context);
+        let init_method = self.init_method.to_token_stream(&self.keywords);
+        let inspect_message_method = self.inspect_message_method.to_token_stream(context);
+        let post_upgrade_method = self.post_upgrade_method.to_token_stream(&self.keywords);
+        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(context);
 
-        let query_methods = self.query_methods.to_token_streams();
-        let update_methods = self.update_methods.to_token_streams();
+        let query_methods = self.query_methods.to_token_streams(&self.keywords);
+        let update_methods = self.update_methods.to_token_streams(&self.keywords);
 
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code();
 
-        let arrays: Vec<TokenStream> = self.arrays.to_token_streams();
-        let funcs: Vec<TokenStream> = self.funcs.iter().map(|act| act.to_token_stream()).collect();
-        let options: Vec<TokenStream> = self.options.to_token_streams();
-        let primitives: Vec<TokenStream> = self.primitives.to_token_streams();
-        let records: Vec<TokenStream> = self.records.to_token_streams();
-        let tuples: Vec<TokenStream> = self.tuples.to_token_streams();
-        let type_refs: Vec<TokenStream> = self.type_refs.to_token_streams();
-        let variants: Vec<TokenStream> = self.variants.to_token_streams();
+        let arrays: Vec<TokenStream> = self.arrays.to_token_streams(&self.keywords);
+        let funcs: Vec<TokenStream> = self
+            .funcs
+            .iter()
+            .map(|act| act.to_token_stream(&self.keywords))
+            .collect();
+        let options: Vec<TokenStream> = self.options.to_token_streams(&self.keywords);
+        let primitives: Vec<TokenStream> = self.primitives.to_token_streams(&self.keywords);
+        let records: Vec<TokenStream> = self.records.to_token_streams(&self.keywords);
+        let tuples: Vec<TokenStream> = self.tuples.to_token_streams(&self.keywords);
+        let type_refs: Vec<TokenStream> = self.type_refs.to_token_streams(&self.keywords);
+        let variants: Vec<TokenStream> = self.variants.to_token_streams(&self.keywords);
 
         quote::quote! {
             #randomness_implementation

@@ -11,9 +11,9 @@ pub use nodes::CanisterMethod;
 pub mod abstract_canister_tree;
 pub mod actable;
 pub mod generators;
+pub mod keyword;
 pub mod nodes;
 pub mod traits;
-pub mod keyword;
 
 #[derive(Clone)]
 pub enum CanisterMethodType {
@@ -52,24 +52,26 @@ pub trait ToAct {
     fn to_act(&self) -> AbstractCanisterTree;
 }
 
-pub trait ToTokenStream {
-    fn to_token_stream(&self) -> TokenStream;
+pub trait ToTokenStream<C> {
+    fn to_token_stream(&self, context: C) -> TokenStream;
 }
 
-pub trait ToTokenStreams {
-    fn to_token_streams(&self) -> Vec<TokenStream>;
+pub trait ToTokenStreams<C> {
+    fn to_token_streams(&self, context: C) -> Vec<TokenStream>;
 }
 
-impl<T: ToTokenStream> ToTokenStreams for Vec<T> {
-    fn to_token_streams(&self) -> Vec<TokenStream> {
-        self.iter().map(|t| t.to_token_stream()).collect()
+impl<T: ToTokenStream<C>, C: Clone> ToTokenStreams<C> for Vec<T> {
+    fn to_token_streams(&self, context: C) -> Vec<TokenStream> {
+        self.iter()
+            .map(|t| t.to_token_stream(context.clone()))
+            .collect()
     }
 }
 
-impl<T: ToTokenStream> ToTokenStream for Option<T> {
-    fn to_token_stream(&self) -> TokenStream {
+impl<T: ToTokenStream<C>, C> ToTokenStream<C> for Option<T> {
+    fn to_token_stream(&self, context: C) -> TokenStream {
         match self {
-            Some(t) => t.to_token_stream(),
+            Some(t) => t.to_token_stream(context),
             None => quote::quote! {},
         }
     }

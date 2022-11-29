@@ -11,14 +11,15 @@ pub struct ActExternalCanisterMethod {
 }
 
 impl ActExternalCanisterMethod {
-    pub fn to_token_stream(&self, canister_name: &String) -> TokenStream {
-        let call_function = self.generate_call_function(canister_name);
-        let call_with_payment_function = self.generate_call_with_payment_function(canister_name);
+    pub fn to_token_stream(&self, canister_name: &String, context: &Vec<String>) -> TokenStream {
+        let call_function = self.generate_call_function(canister_name, context);
+        let call_with_payment_function =
+            self.generate_call_with_payment_function(canister_name, context);
         let call_with_payment128_function =
-            self.generate_call_with_payment128_function(canister_name);
-        let notify_function = self.generate_notify_function(canister_name);
+            self.generate_call_with_payment128_function(canister_name, context);
+        let notify_function = self.generate_notify_function(canister_name, context);
         let notify_with_payment128_function =
-            self.generate_notify_with_payment128_function(canister_name);
+            self.generate_notify_with_payment128_function(canister_name, context);
 
         quote! {
             #call_function
@@ -40,16 +41,16 @@ impl ActExternalCanisterMethod {
         return quote! { #(#param_names),*#comma };
     }
 
-    fn generate_call_function(&self, canister_name: &String) -> TokenStream {
+    fn generate_call_function(&self, canister_name: &String, context: &Vec<String>) -> TokenStream {
         let function_name = format_ident!("_azle_call_{}_{}", canister_name, &self.name);
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(),
+            self.params.to_token_streams(context),
         ]
         .concat();
 
-        let function_return_type = self.return_type.to_token_stream();
+        let function_return_type = self.return_type.to_token_stream(context);
         let method_name = &self.name;
         let args = self.params_as_tuple();
 
@@ -65,18 +66,22 @@ impl ActExternalCanisterMethod {
         }
     }
 
-    fn generate_call_with_payment_function(&self, canister_name: &String) -> TokenStream {
+    fn generate_call_with_payment_function(
+        &self,
+        canister_name: &String,
+        context: &Vec<String>,
+    ) -> TokenStream {
         let function_name =
             format_ident!("_azle_call_with_payment_{}_{}", canister_name, &self.name);
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(),
+            self.params.to_token_streams(context),
             vec![quote! { cycles: u64 }],
         ]
         .concat();
 
-        let function_return_type = self.return_type.to_token_stream();
+        let function_return_type = self.return_type.to_token_stream(context);
         let method_name = &self.name;
         let args = self.params_as_tuple();
 
@@ -93,7 +98,11 @@ impl ActExternalCanisterMethod {
         }
     }
 
-    fn generate_call_with_payment128_function(&self, canister_name: &String) -> TokenStream {
+    fn generate_call_with_payment128_function(
+        &self,
+        canister_name: &String,
+        context: &Vec<String>,
+    ) -> TokenStream {
         let function_name = format_ident!(
             "_azle_call_with_payment128_{}_{}",
             canister_name,
@@ -102,12 +111,12 @@ impl ActExternalCanisterMethod {
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(),
+            self.params.to_token_streams(context),
             vec![quote! { cycles: u128 }],
         ]
         .concat();
 
-        let function_return_type = self.return_type.to_token_stream();
+        let function_return_type = self.return_type.to_token_stream(context);
         let method_name = &self.name;
         let args = self.params_as_tuple();
 
@@ -124,12 +133,16 @@ impl ActExternalCanisterMethod {
         }
     }
 
-    fn generate_notify_function(&self, canister_name: &String) -> TokenStream {
+    fn generate_notify_function(
+        &self,
+        canister_name: &String,
+        context: &Vec<String>,
+    ) -> TokenStream {
         let function_name = format_ident!("_azle_notify_{}_{}", canister_name, &self.name);
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(),
+            self.params.to_token_streams(context),
         ]
         .concat();
 
@@ -148,7 +161,11 @@ impl ActExternalCanisterMethod {
         }
     }
 
-    fn generate_notify_with_payment128_function(&self, canister_name: &String) -> TokenStream {
+    fn generate_notify_with_payment128_function(
+        &self,
+        canister_name: &String,
+        context: &Vec<String>,
+    ) -> TokenStream {
         let function_name = format_ident!(
             "_azle_notify_with_payment128_{}_{}",
             canister_name,
@@ -157,7 +174,7 @@ impl ActExternalCanisterMethod {
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(),
+            self.params.to_token_streams(context),
             vec![quote! { cycles: u128 }],
         ]
         .concat();

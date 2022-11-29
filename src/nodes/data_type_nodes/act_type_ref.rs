@@ -33,16 +33,16 @@ impl ToActDataType for String {
     }
 }
 
-impl ToTokenStream for ActTypeRefLit {
-    fn to_token_stream(&self) -> TokenStream {
+impl<C> ToTokenStream<C> for ActTypeRefLit {
+    fn to_token_stream(&self, _context: C) -> TokenStream {
         self.name.to_identifier().to_token_stream()
     }
 }
 
-impl ToTokenStream for ActTypeRefTypeAlias {
-    fn to_token_stream(&self) -> TokenStream {
+impl<C> ToTokenStream<C> for ActTypeRefTypeAlias {
+    fn to_token_stream(&self, context: C) -> TokenStream {
         let name = self.name.to_identifier();
-        let alias = self.aliased_type.to_token_stream();
+        let alias = self.aliased_type.to_token_stream(context);
         quote!(type #name = #alias;)
     }
 }

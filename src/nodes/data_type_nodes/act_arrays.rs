@@ -35,17 +35,17 @@ impl ActArray {
     }
 }
 
-impl ToTokenStream for ActArrayLiteral {
-    fn to_token_stream(&self) -> TokenStream {
-        let enclosed_rust_ident = self.enclosed_type.to_token_stream();
+impl ToTokenStream<&Vec<String>> for ActArrayLiteral {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        let enclosed_rust_ident = self.enclosed_type.to_token_stream(context);
         quote!(Vec<#enclosed_rust_ident>)
     }
 }
 
-impl ToTokenStream for ActArrayTypeAlias {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActArrayTypeAlias {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
         let name = self.name.to_identifier();
-        let enclosed_type = self.enclosed_type.to_token_stream();
+        let enclosed_type = self.enclosed_type.to_token_stream(context);
         quote!(type #name = Vec<#enclosed_type>;)
     }
 }

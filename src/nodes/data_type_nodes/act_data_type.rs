@@ -80,17 +80,19 @@ impl ActDataType {
     }
 }
 
-impl ToTokenStream for ActDataType {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActDataType {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
         match self {
-            ActDataType::Record(act_record) => act_record.act_type.to_token_stream(),
-            ActDataType::Variant(act_variant) => act_variant.act_type.to_token_stream(),
-            ActDataType::Func(act_func) => act_func.act_type.to_token_stream(),
-            ActDataType::Tuple(act_tuple) => act_tuple.act_type.to_token_stream(),
-            ActDataType::Primitive(act_primitive) => act_primitive.act_type.to_token_stream(),
-            ActDataType::TypeRef(act_type_ref) => act_type_ref.act_type.to_token_stream(),
-            ActDataType::Option(act_option) => act_option.to_token_stream(),
-            ActDataType::Array(act_array) => act_array.act_type.to_token_stream(),
+            ActDataType::Record(act_record) => act_record.act_type.to_token_stream(context),
+            ActDataType::Variant(act_variant) => act_variant.act_type.to_token_stream(context),
+            ActDataType::Func(act_func) => act_func.act_type.to_token_stream(context),
+            ActDataType::Tuple(act_tuple) => act_tuple.act_type.to_token_stream(context),
+            ActDataType::Primitive(act_primitive) => {
+                act_primitive.act_type.to_token_stream(context)
+            }
+            ActDataType::TypeRef(act_type_ref) => act_type_ref.act_type.to_token_stream(context),
+            ActDataType::Option(act_option) => act_option.to_token_stream(context),
+            ActDataType::Array(act_array) => act_array.act_type.to_token_stream(context),
         }
     }
 }
@@ -101,15 +103,21 @@ pub fn build_inline_type_acts(type_aliases: &Vec<ActDataType>) -> Vec<ActDataTyp
     })
 }
 
-pub fn deduplicate(act_data_type_nodes: Vec<ActDataType>) -> Vec<ActDataType> {
+pub fn deduplicate(
+    act_data_type_nodes: Vec<ActDataType>,
+    context: &Vec<String>,
+) -> Vec<ActDataType> {
     let map: HashMap<String, ActDataType> =
         act_data_type_nodes
             .iter()
             .fold(HashMap::new(), |mut acc, act_node| {
-                match acc.get(&act_node.to_token_stream().to_string()) {
+                match acc.get(&act_node.to_token_stream(context).to_string()) {
                     Some(_) => acc,
                     None => {
-                        acc.insert(act_node.to_token_stream().to_string(), act_node.clone());
+                        acc.insert(
+                            act_node.to_token_stream(context).to_string(),
+                            act_node.clone(),
+                        );
                         acc
                     }
                 }

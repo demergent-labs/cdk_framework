@@ -31,11 +31,11 @@ pub fn get_all_types_from_canister_method_acts(
         })
 }
 
-impl ToTokenStream for ActCanisterMethod {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActCanisterMethod {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
         match self {
             ActCanisterMethod::QueryMethod(query_method) => {
-                let function_signature = generate_function(query_method);
+                let function_signature = generate_function(query_method, context);
 
                 let manual_reply_arg = if query_method.is_manual {
                     quote! {(manual_reply = true)}
@@ -50,7 +50,7 @@ impl ToTokenStream for ActCanisterMethod {
                 }
             }
             ActCanisterMethod::UpdateMethod(update_method) => {
-                let function_signature = generate_function(update_method);
+                let function_signature = generate_function(update_method, context);
 
                 let manual_reply_arg = if update_method.is_manual {
                     quote! {(manual_reply = true)}
@@ -108,13 +108,13 @@ impl ActCanisterMethod {
     }
 }
 
-fn generate_function(canister_method: &CanisterMethod) -> TokenStream {
+fn generate_function(canister_method: &CanisterMethod, context: &Vec<String>) -> TokenStream {
     let function_name = canister_method.name.to_identifier();
-    let params = canister_method.params.to_token_streams();
+    let params = canister_method.params.to_token_streams(context);
 
     let function_body = &canister_method.body;
 
-    let return_type_token = canister_method.return_type.to_token_stream();
+    let return_type_token = canister_method.return_type.to_token_stream(context);
     let wrapped_return_type = if canister_method.is_manual {
         quote! {
             ic_cdk::api::call::ManualReply<#return_type_token>

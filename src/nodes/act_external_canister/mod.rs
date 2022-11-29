@@ -15,12 +15,12 @@ pub struct ActExternalCanister {
 
 impl ActExternalCanister {}
 
-impl ToTokenStream for ActExternalCanister {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActExternalCanister {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
         let cross_canister_call_functions: Vec<TokenStream> = self
             .methods
             .iter()
-            .map(|method| method.to_token_stream(&self.name))
+            .map(|method| method.to_token_stream(&self.name, context))
             .collect();
         quote! { #(#cross_canister_call_functions)*}
     }

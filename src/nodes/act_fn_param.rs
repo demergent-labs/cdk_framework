@@ -12,10 +12,10 @@ pub struct ActFnParam {
     pub data_type: ActDataType,
 }
 
-impl ToTokenStream for ActFnParam {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActFnParam {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
         let name = self.name.to_identifier();
-        let data_type = &self.data_type.to_token_stream();
+        let data_type = &self.data_type.to_token_stream(context);
         quote::quote! {
             #name: #data_type
         }
