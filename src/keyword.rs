@@ -1,7 +1,7 @@
 use regex::Regex;
 
 pub fn restore(name: &String, keywords: &Vec<String>) -> String {
-    let keyword_list = to_regex(keywords);
+    let keyword_list = to_regex_list(keywords);
 
     let matches = keyword_list.iter().fold(false, |acc, keyword_regex| {
         acc || keyword_regex.is_match(name)
@@ -14,12 +14,12 @@ pub fn restore(name: &String, keywords: &Vec<String>) -> String {
     }
 }
 
-pub fn to_regex(keywords: &Vec<String>) -> Vec<Regex> {
+pub fn to_regex_list(keywords: &Vec<String>) -> Vec<Regex> {
     keywords
         .iter()
         .map(|keyword| {
             let keyword = regex::escape(keyword);
-            Regex::new(format!(r#"{}"#, keyword).as_str()).unwrap()
+            Regex::new(format!(r#"^{}_+$"#, keyword).as_str()).unwrap()
         })
         .collect()
 }

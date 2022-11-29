@@ -58,14 +58,14 @@ impl HasMembers for ActFunc {
 }
 
 impl<C> ToTokenStream<C> for FuncLiteral {
-    fn to_token_stream(&self, _context: C) -> TokenStream {
+    fn to_token_stream(&self, _: C) -> TokenStream {
         self.func.name.to_identifier().to_token_stream()
     }
 }
 
 impl ToTokenStream<&Vec<String>> for FuncTypeAlias {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        generate_func_struct_and_impls(&self.func, context)
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+        generate_func_struct_and_impls(&self.func, keyword_list)
     }
 }
 

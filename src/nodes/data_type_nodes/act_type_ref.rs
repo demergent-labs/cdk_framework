@@ -34,7 +34,7 @@ impl ToActDataType for String {
 }
 
 impl<C> ToTokenStream<C> for ActTypeRefLit {
-    fn to_token_stream(&self, _context: C) -> TokenStream {
+    fn to_token_stream(&self, _: C) -> TokenStream {
         self.name.to_identifier().to_token_stream()
     }
 }

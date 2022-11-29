@@ -57,7 +57,7 @@ impl HasMembers for ActVariant {
 }
 
 impl<C> ToTokenStream<C> for VariantLiteral {
-    fn to_token_stream(&self, _context: C) -> TokenStream {
+    fn to_token_stream(&self, _: C) -> TokenStream {
         self.variant.name.to_identifier().to_token_stream()
     }
 }

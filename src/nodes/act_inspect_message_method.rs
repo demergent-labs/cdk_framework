@@ -10,7 +10,7 @@ pub struct ActInspectMessageMethod {
 }
 
 impl ToTokenStream<()> for ActInspectMessageMethod {
-    fn to_token_stream(&self, _context: ()) -> TokenStream {
+    fn to_token_stream(&self, _: ()) -> TokenStream {
         let name = format_ident!("_azle_inspect_message_{}", &self.name);
         let body = &self.body;
         quote! {

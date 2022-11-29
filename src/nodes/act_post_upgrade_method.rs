@@ -10,9 +10,9 @@ pub struct ActPostUpgradeMethod {
 }
 
 impl ToTokenStream<&Vec<String>> for ActPostUpgradeMethod {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let body = &self.body;
-        let params = &self.params.to_token_streams(context);
+        let params = &self.params.to_token_streams(keyword_list);
         quote! {
             #[ic_cdk_macros::post_upgrade]
             fn _azle_post_upgrade(#(#params),*) {

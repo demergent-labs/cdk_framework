@@ -60,7 +60,7 @@ pub trait ToTokenStreams<C> {
     fn to_token_streams(&self, context: C) -> Vec<TokenStream>;
 }
 
-impl<T: ToTokenStream<C>, C: Clone> ToTokenStreams<C> for Vec<T> {
+impl<C: Clone, T: ToTokenStream<C>> ToTokenStreams<C> for Vec<T> {
     fn to_token_streams(&self, context: C) -> Vec<TokenStream> {
         self.iter()
             .map(|t| t.to_token_stream(context.clone()))
@@ -68,7 +68,7 @@ impl<T: ToTokenStream<C>, C: Clone> ToTokenStreams<C> for Vec<T> {
     }
 }
 
-impl<T: ToTokenStream<C>, C> ToTokenStream<C> for Option<T> {
+impl<C, T: ToTokenStream<C>> ToTokenStream<C> for Option<T> {
     fn to_token_stream(&self, context: C) -> TokenStream {
         match self {
             Some(t) => t.to_token_stream(context),

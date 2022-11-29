@@ -61,7 +61,7 @@ impl<C> ToTokenStream<C> for ActPrimitiveTypeAlias {
 }
 
 impl<C> ToTokenStream<C> for ActPrimitiveLit {
-    fn to_token_stream(&self, _context: C) -> TokenStream {
+    fn to_token_stream(&self, _: C) -> TokenStream {
         match self {
             ActPrimitiveLit::Bool => quote!(bool),
             ActPrimitiveLit::Blob => quote!(Vec<u8>),

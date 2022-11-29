@@ -37,7 +37,7 @@ pub struct AbstractCanisterTree {
 }
 
 impl ToTokenStream<()> for AbstractCanisterTree {
-    fn to_token_stream(&self, context: ()) -> TokenStream {
+    fn to_token_stream(&self, _: ()) -> TokenStream {
         let randomness_implementation = random::generate_randomness_implementation();
 
         let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
@@ -51,11 +51,11 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
         let user_defined_code = &self.rust_code;
 
-        let heartbeat_method = self.heartbeat_method.to_token_stream(context);
+        let heartbeat_method = self.heartbeat_method.to_token_stream(());
         let init_method = self.init_method.to_token_stream(&self.keywords);
-        let inspect_message_method = self.inspect_message_method.to_token_stream(context);
+        let inspect_message_method = self.inspect_message_method.to_token_stream(());
         let post_upgrade_method = self.post_upgrade_method.to_token_stream(&self.keywords);
-        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(context);
+        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(());
 
         let query_methods = self.query_methods.to_token_streams(&self.keywords);
         let update_methods = self.update_methods.to_token_streams(&self.keywords);

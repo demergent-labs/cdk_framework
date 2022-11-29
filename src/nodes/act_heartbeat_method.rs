@@ -8,7 +8,7 @@ pub struct ActHeartbeatMethod {
 }
 
 impl ToTokenStream<()> for ActHeartbeatMethod {
-    fn to_token_stream(&self, _context: ()) -> TokenStream {
+    fn to_token_stream(&self, _: ()) -> TokenStream {
         let body = &self.body;
         quote::quote! {
             #[ic_cdk_macros::heartbeat]

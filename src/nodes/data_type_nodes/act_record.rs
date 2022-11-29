@@ -72,19 +72,19 @@ impl ActRecord {
 }
 
 impl<C> ToTokenStream<C> for RecordLiteral {
-    fn to_token_stream(&self, _context: C) -> TokenStream {
+    fn to_token_stream(&self, _: C) -> TokenStream {
         self.record.name.to_identifier().to_token_stream()
     }
 }
 
 impl ToTokenStream<&Vec<String>> for RecordTypeAlias {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let type_ident = self.record.name.to_identifier();
         let member_token_streams: Vec<TokenStream> = self
             .record
             .members
             .iter()
-            .map(|member| member.to_token_stream(context))
+            .map(|member| member.to_token_stream(keyword_list))
             .collect();
         quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
@@ -96,14 +96,14 @@ impl ToTokenStream<&Vec<String>> for RecordTypeAlias {
 }
 
 impl ToTokenStream<&Vec<String>> for ActRecordMember {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
-            let ident = self.member_type.to_token_stream(context);
+            let ident = self.member_type.to_token_stream(keyword_list);
             quote!(Box<#ident>)
         } else {
             quote!(self.member_type.to_token_stream())
         };
-        let member_name = keyword::restore(&self.member_name, context).to_identifier();
+        let member_name = keyword::restore(&self.member_name, keyword_list).to_identifier();
         quote!(#member_name: #member_type_token_stream)
     }
 }

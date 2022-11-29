@@ -9,7 +9,7 @@ pub struct ActPreUpgradeMethod {
 }
 
 impl ToTokenStream<()> for ActPreUpgradeMethod {
-    fn to_token_stream(&self, _context: ()) -> TokenStream {
+    fn to_token_stream(&self, _: ()) -> TokenStream {
         let body = &self.body;
         quote! {
             #[ic_cdk_macros::pre_upgrade]
