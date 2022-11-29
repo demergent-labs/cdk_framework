@@ -13,6 +13,7 @@ pub mod actable;
 pub mod generators;
 pub mod nodes;
 pub mod traits;
+pub mod keyword;
 
 #[derive(Clone)]
 pub enum CanisterMethodType {

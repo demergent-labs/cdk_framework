@@ -1,5 +1,5 @@
 use super::{ActDataType, HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize};
-use crate::ToTokenStream;
+use crate::{keyword, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -101,7 +101,7 @@ impl ToTokenStream for ActVariantMember {
                 quote!((#member_type_token_stream))
             }
         };
-        let member_name = &self.member_name.to_identifier();
+        let member_name = keyword::to_candid(&self.member_name).to_identifier();
         quote! {#member_name#member_type_token_stream}
     }
 }
