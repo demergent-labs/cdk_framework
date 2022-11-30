@@ -57,17 +57,15 @@ impl HasMembers for ActFunc {
     }
 }
 
-impl ToTokenStream for FuncLiteral {
-    fn to_token_stream(&self) -> TokenStream {
+impl<C> ToTokenStream<C> for FuncLiteral {
+    fn to_token_stream(&self, _: C) -> TokenStream {
         self.func.name.to_identifier().to_token_stream()
     }
 }
 
-impl ToTokenStream for FuncTypeAlias {
-    fn to_token_stream(&self) -> TokenStream {
-        generate_func_struct_and_impls(
-            &self.func,
-        )
+impl ToTokenStream<&Vec<String>> for FuncTypeAlias {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+        generate_func_struct_and_impls(&self.func, keyword_list)
     }
 }
 
@@ -92,10 +90,8 @@ pub fn generate_func_arg_token() -> TokenStream {
     }
 }
 
-fn generate_func_struct_and_impls(
-    func: &Func
-) -> TokenStream {
-    let type_alias_name = func.name.to_identifier().to_token_stream();
+fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenStream {
+    let type_alias_name = func.name.to_identifier();
     let func_mode = if func.mode == "Query" {
         quote! {candid::parser::types::FuncMode::Query }
     } else if func.mode == "Oneway" {
@@ -103,9 +99,10 @@ fn generate_func_struct_and_impls(
     } else {
         quote! {}
     };
-    let param_type_strings: Vec<String> = func.params
+    let param_type_strings: Vec<String> = func
+        .params
         .iter()
-        .map(|param| param.to_token_stream().to_string())
+        .map(|param| param.to_token_stream(context).to_string())
         .collect();
     let func_param_types: Vec<TokenStream> = param_type_strings
         .iter()
@@ -133,7 +130,7 @@ fn generate_func_struct_and_impls(
         })
         .collect();
     let return_type_string = match &*func.return_type {
-        Some(return_type) => return_type.to_token_stream().to_string(),
+        Some(return_type) => return_type.to_token_stream(context).to_string(),
         None => "".to_string(),
     };
     let func_return_type = if return_type_string == "()" || return_type_string == "" {

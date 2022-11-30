@@ -1,7 +1,8 @@
 use proc_macro2::TokenStream;
-use quote::format_ident;
 
 use crate::{ActDataType, ToTokenStream};
+
+use super::data_type_nodes::ToIdent;
 
 // TODO Consider having access to both strings and idents as necessary
 
@@ -11,10 +12,10 @@ pub struct ActFnParam {
     pub data_type: ActDataType,
 }
 
-impl ToTokenStream for ActFnParam {
-    fn to_token_stream(&self) -> TokenStream {
-        let name = format_ident!("{}", &self.name);
-        let data_type = &self.data_type.to_token_stream();
+impl ToTokenStream<&Vec<String>> for ActFnParam {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let name = self.name.to_identifier();
+        let data_type = &self.data_type.to_token_stream(keyword_list);
         quote::quote! {
             #name: #data_type
         }

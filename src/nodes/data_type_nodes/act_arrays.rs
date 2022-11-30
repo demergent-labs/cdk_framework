@@ -1,7 +1,7 @@
 use super::{ActDataType, HasMembers, LiteralOrTypeAlias, ToIdent};
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 
 #[derive(Clone, Debug)]
 pub struct ActArray {
@@ -35,17 +35,17 @@ impl ActArray {
     }
 }
 
-impl ToTokenStream for ActArrayLiteral {
-    fn to_token_stream(&self) -> TokenStream {
-        let enclosed_rust_ident = self.enclosed_type.to_token_stream();
+impl ToTokenStream<&Vec<String>> for ActArrayLiteral {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let enclosed_rust_ident = self.enclosed_type.to_token_stream(keyword_list);
         quote!(Vec<#enclosed_rust_ident>)
     }
 }
 
-impl ToTokenStream for ActArrayTypeAlias {
-    fn to_token_stream(&self) -> TokenStream {
-        let name = self.name.to_identifier().to_token_stream();
-        let enclosed_type = self.enclosed_type.to_token_stream();
+impl ToTokenStream<&Vec<String>> for ActArrayTypeAlias {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let name = self.name.to_identifier();
+        let enclosed_type = self.enclosed_type.to_token_stream(keyword_list);
         quote!(type #name = Vec<#enclosed_type>;)
     }
 }

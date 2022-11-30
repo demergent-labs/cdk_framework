@@ -57,20 +57,20 @@ impl HasMembers for ActTuple {
     }
 }
 
-impl ToTokenStream for TupleLiteral {
-    fn to_token_stream(&self) -> TokenStream {
+impl<C> ToTokenStream<C> for TupleLiteral {
+    fn to_token_stream(&self, _: C) -> TokenStream {
         self.tuple.name.to_identifier().to_token_stream()
     }
 }
 
-impl ToTokenStream for TupleTypeAlias {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for TupleTypeAlias {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let type_ident = self.tuple.name.to_identifier();
         let elem_idents: Vec<TokenStream> = self
             .tuple
             .elems
             .iter()
-            .map(|elem| elem.to_token_stream())
+            .map(|elem| elem.to_token_stream(keyword_list))
             .collect();
 
         let elem_idents = if elem_idents.len() == 1 {
@@ -89,10 +89,10 @@ impl ToTokenStream for TupleTypeAlias {
     }
 }
 
-impl ToTokenStream for ActTupleElem {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActTupleElem {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         if self.elem_type.needs_to_be_boxed() {
-            let ident = self.elem_type.to_token_stream();
+            let ident = self.elem_type.to_token_stream(keyword_list);
             quote!(Box<#ident>)
         } else {
             quote!(self.elem_type.to_token_stream())

@@ -7,7 +7,7 @@ pub use act_record::{ActRecord, ActRecordMember};
 pub use act_tuple::{ActTuple, ActTupleElem};
 pub use act_type_ref::{ActTypeRef, ActTypeRefLit, ActTypeRefTypeAlias};
 pub use act_variants::{ActVariant, ActVariantMember};
-use proc_macro2::Ident;
+use proc_macro2::{Ident, TokenStream};
 use quote::format_ident;
 
 use crate::ToTokenStream;
@@ -50,11 +50,11 @@ pub enum LiteralOrTypeAlias<L, T> {
     TypeAlias(T),
 }
 
-impl<L: ToTokenStream, T: ToTokenStream> ToTokenStream for LiteralOrTypeAlias<L, T> {
-    fn to_token_stream(&self) -> proc_macro2::TokenStream {
+impl<L: ToTokenStream<C>, T: ToTokenStream<C>, C> ToTokenStream<C> for LiteralOrTypeAlias<L, T> {
+    fn to_token_stream(&self, context: C) -> TokenStream {
         match self {
-            LiteralOrTypeAlias::Literal(literal) => literal.to_token_stream(),
-            LiteralOrTypeAlias::TypeAlias(type_alias) => type_alias.to_token_stream(),
+            LiteralOrTypeAlias::Literal(literal) => literal.to_token_stream(context),
+            LiteralOrTypeAlias::TypeAlias(type_alias) => type_alias.to_token_stream(context),
         }
     }
 }

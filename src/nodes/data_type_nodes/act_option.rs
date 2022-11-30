@@ -1,7 +1,7 @@
 use super::{ActDataType, HasMembers, LiteralOrTypeAlias, ToIdent};
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 
 #[derive(Clone, Debug)]
 pub struct ActOption {
@@ -34,26 +34,26 @@ impl ActOption {
     }
 }
 
-impl ToTokenStream for ActOption {
-    fn to_token_stream(&self) -> TokenStream {
+impl ToTokenStream<&Vec<String>> for ActOption {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         match &self.act_type {
-            LiteralOrTypeAlias::Literal(literal) => literal.to_token_stream(),
-            LiteralOrTypeAlias::TypeAlias(type_alias) => type_alias.to_token_stream(),
+            LiteralOrTypeAlias::Literal(literal) => literal.to_token_stream(keyword_list),
+            LiteralOrTypeAlias::TypeAlias(type_alias) => type_alias.to_token_stream(keyword_list),
         }
     }
 }
 
-impl ToTokenStream for ActOptionLiteral {
-    fn to_token_stream(&self) -> TokenStream {
-        let enclosed_rust_ident = self.enclosed_type.to_token_stream();
+impl ToTokenStream<&Vec<String>> for ActOptionLiteral {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let enclosed_rust_ident = self.enclosed_type.to_token_stream(keyword_list);
         quote!(Option<#enclosed_rust_ident>)
     }
 }
 
-impl ToTokenStream for ActOptionTypeAlias {
-    fn to_token_stream(&self) -> TokenStream {
-        let name = self.name.to_identifier().to_token_stream();
-        let enclosed_type = self.enclosed_type.to_token_stream();
+impl ToTokenStream<&Vec<String>> for ActOptionTypeAlias {
+    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let name = self.name.to_identifier();
+        let enclosed_type = self.enclosed_type.to_token_stream(keyword_list);
         quote!(type #name = Option<#enclosed_type>;)
     }
 }
