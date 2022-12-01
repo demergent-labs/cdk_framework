@@ -54,7 +54,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
         let user_defined_code = &self.rust_code;
 
-        let heartbeat_method = self.heartbeat_method.to_token_stream(());
+        let heartbeat_method = self.heartbeat_method.to_token_stream(&self.cdk_name);
         let init_method = self.init_method.to_token_stream(Context {
             cdk_name: &self.cdk_name,
             keyword_list: &self.keywords,

@@ -1,4 +1,5 @@
 use proc_macro2::TokenStream;
+use quote::{format_ident, quote};
 
 use crate::ToTokenStream;
 
@@ -7,12 +8,13 @@ pub struct ActHeartbeatMethod {
     pub body: TokenStream,
 }
 
-impl ToTokenStream<()> for ActHeartbeatMethod {
-    fn to_token_stream(&self, _: ()) -> TokenStream {
+impl ToTokenStream<&String> for ActHeartbeatMethod {
+    fn to_token_stream(&self, cdk_name: &String) -> TokenStream {
+        let function_name = format_ident!("_{}_heartbeat", cdk_name.to_lowercase());
         let body = &self.body;
-        quote::quote! {
+        quote! {
             #[ic_cdk_macros::heartbeat]
-            fn _azle_heartbeat() {
+            fn #function_name() {
                 #body
             }
         }
