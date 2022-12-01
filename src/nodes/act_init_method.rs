@@ -1,5 +1,5 @@
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 
 use crate::{nodes::ActFnParam, ToTokenStream, ToTokenStreams};
 
@@ -9,14 +9,20 @@ pub struct ActInitMethod {
     pub body: TokenStream,
 }
 
-impl ToTokenStream<&Vec<String>> for ActInitMethod {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+pub struct Context<'a> {
+    pub keyword_list: &'a Vec<String>,
+    pub cdk_name: &'a String,
+}
+
+impl ToTokenStream<Context<'_>> for ActInitMethod {
+    fn to_token_stream(&self, context: Context) -> TokenStream {
+        let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
         let body = &self.body;
-        let params = &self.params.to_token_streams(keyword_list);
+        let params = &self.params.to_token_streams(context.keyword_list);
         quote! {
             #[ic_cdk_macros::init]
             #[candid::candid_method(init)]
-            fn _azle_init(#(#params),*) {
+            fn #function_name(#(#params),*) {
                 #body
             }
         }

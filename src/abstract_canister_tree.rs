@@ -1,5 +1,7 @@
 use proc_macro2::TokenStream;
 
+use crate::nodes::act_init_method::Context;
+
 use super::{
     generators::{candid_file_generation, random, vm_value_conversion},
     nodes::{
@@ -14,6 +16,7 @@ use super::{
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
+    pub cdk_name: String,
     pub arrays: Vec<ActDataType>,
     pub external_canisters: Vec<ActExternalCanister>,
     pub funcs: Vec<ActDataType>,
@@ -52,7 +55,10 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let user_defined_code = &self.rust_code;
 
         let heartbeat_method = self.heartbeat_method.to_token_stream(());
-        let init_method = self.init_method.to_token_stream(&self.keywords);
+        let init_method = self.init_method.to_token_stream(Context {
+            cdk_name: &self.cdk_name,
+            keyword_list: &self.keywords,
+        });
         let inspect_message_method = self.inspect_message_method.to_token_stream(());
         let post_upgrade_method = self.post_upgrade_method.to_token_stream(&self.keywords);
         let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(());
