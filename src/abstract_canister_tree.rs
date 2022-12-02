@@ -79,7 +79,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let update_methods = self.update_methods.to_token_streams(&self.keywords);
 
         let candid_file_generation_code =
-            candid_file_generation::generate_candid_file_generation_code();
+            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
         let arrays: Vec<TokenStream> = self.arrays.to_token_streams(&self.keywords);
         let funcs: Vec<TokenStream> = self

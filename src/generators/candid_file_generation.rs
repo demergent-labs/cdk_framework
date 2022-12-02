@@ -1,9 +1,13 @@
-pub fn generate_candid_file_generation_code() -> proc_macro2::TokenStream {
-    quote::quote! {
+use quote::{format_ident, quote};
+
+pub fn generate_candid_file_generation_code(cdk_name: &String) -> proc_macro2::TokenStream {
+    let function_name = format_ident!("_{}_export_candid", cdk_name.to_lowercase());
+
+    quote! {
         candid::export_service!();
 
         #[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
-        fn export_candid() -> String {
+        fn #function_name() -> String {
             __export_service()
         }
 
@@ -14,7 +18,7 @@ pub fn generate_candid_file_generation_code() -> proc_macro2::TokenStream {
 
             #[test]
             fn write_candid_to_disk() {
-                std::fs::write("index.did", export_candid()).unwrap();
+                std::fs::write("index.did", #function_name()).unwrap();
             }
         }
     }
