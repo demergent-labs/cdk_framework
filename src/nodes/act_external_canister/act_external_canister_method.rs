@@ -13,21 +13,35 @@ pub struct ActExternalCanisterMethod {
 pub struct ActEcmContext<'a> {
     pub canister_name: String,
     pub keyword_list: &'a Vec<String>,
+    pub cdk_name: &'a String,
 }
 
 impl ToTokenStream<ActEcmContext<'_>> for ActExternalCanisterMethod {
     fn to_token_stream(&self, context: ActEcmContext) -> TokenStream {
-        let call_function =
-            self.generate_call_function(&context.canister_name, &context.keyword_list);
-        let call_with_payment_function =
-            self.generate_call_with_payment_function(&context.canister_name, &context.keyword_list);
-        let call_with_payment128_function = self
-            .generate_call_with_payment128_function(&context.canister_name, &context.keyword_list);
-        let notify_function =
-            self.generate_notify_function(&context.canister_name, &context.keyword_list);
+        let call_function = self.generate_call_function(
+            &context.canister_name,
+            &context.keyword_list,
+            &context.cdk_name,
+        );
+        let call_with_payment_function = self.generate_call_with_payment_function(
+            &context.canister_name,
+            &context.keyword_list,
+            &context.cdk_name,
+        );
+        let call_with_payment128_function = self.generate_call_with_payment128_function(
+            &context.canister_name,
+            &context.keyword_list,
+            &context.cdk_name,
+        );
+        let notify_function = self.generate_notify_function(
+            &context.canister_name,
+            &context.keyword_list,
+            &context.cdk_name,
+        );
         let notify_with_payment128_function = self.generate_notify_with_payment128_function(
             &context.canister_name,
             &context.keyword_list,
+            &context.cdk_name,
         );
 
         quote! {
@@ -56,8 +70,9 @@ impl ActExternalCanisterMethod {
         &self,
         canister_name: &String,
         keyword_list: &Vec<String>,
+        cdk_name: &String,
     ) -> TokenStream {
-        let function_name = format_ident!("_azle_call_{}_{}", canister_name, &self.name);
+        let function_name = format_ident!("_{}_call_{}_{}", cdk_name, canister_name, &self.name);
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
@@ -85,9 +100,14 @@ impl ActExternalCanisterMethod {
         &self,
         canister_name: &String,
         keyword_list: &Vec<String>,
+        cdk_name: &String,
     ) -> TokenStream {
-        let function_name =
-            format_ident!("_azle_call_with_payment_{}_{}", canister_name, &self.name);
+        let function_name = format_ident!(
+            "_{}_call_with_payment_{}_{}",
+            cdk_name,
+            canister_name,
+            &self.name
+        );
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
@@ -117,9 +137,11 @@ impl ActExternalCanisterMethod {
         &self,
         canister_name: &String,
         keyword_list: &Vec<String>,
+        cdk_name: &String,
     ) -> TokenStream {
         let function_name = format_ident!(
-            "_azle_call_with_payment128_{}_{}",
+            "_{}_call_with_payment128_{}_{}",
+            cdk_name,
             canister_name,
             &self.name
         );
@@ -152,8 +174,9 @@ impl ActExternalCanisterMethod {
         &self,
         canister_name: &String,
         keyword_list: &Vec<String>,
+        cdk_name: &String,
     ) -> TokenStream {
-        let function_name = format_ident!("_azle_notify_{}_{}", canister_name, &self.name);
+        let function_name = format_ident!("_{}_notify_{}_{}", cdk_name, canister_name, &self.name);
 
         let params = vec![
             vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
@@ -180,9 +203,11 @@ impl ActExternalCanisterMethod {
         &self,
         canister_name: &String,
         keyword_list: &Vec<String>,
+        cdk_name: &String,
     ) -> TokenStream {
         let function_name = format_ident!(
-            "_azle_notify_with_payment128_{}_{}",
+            "_{}_notify_with_payment128_{}_{}",
+            cdk_name,
             canister_name,
             &self.name
         );
