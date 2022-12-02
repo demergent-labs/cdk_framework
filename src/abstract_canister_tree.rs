@@ -61,7 +61,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         });
         let inspect_message_method = self.inspect_message_method.to_token_stream(&self.cdk_name);
         let post_upgrade_method = self.post_upgrade_method.to_token_stream(&self.keywords);
-        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(());
+        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(&self.cdk_name);
 
         let query_methods = self.query_methods.to_token_streams(&self.keywords);
         let update_methods = self.update_methods.to_token_streams(&self.keywords);
