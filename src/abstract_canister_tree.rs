@@ -41,7 +41,7 @@ pub struct AbstractCanisterTree {
 
 impl ToTokenStream<()> for AbstractCanisterTree {
     fn to_token_stream(&self, _: ()) -> TokenStream {
-        let randomness_implementation = random::generate_randomness_implementation();
+        let randomness_implementation = random::generate_randomness_implementation(&self.cdk_name);
 
         let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
         let try_into_vm_value_impls = &self.try_into_vm_value_impls;
