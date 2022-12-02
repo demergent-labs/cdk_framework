@@ -1,5 +1,7 @@
 use proc_macro2::TokenStream;
 
+use crate::nodes::{act_external_canister, act_init_method, act_post_upgrade_method};
+
 use super::{
     generators::{candid_file_generation, random, vm_value_conversion},
     nodes::{
@@ -14,6 +16,7 @@ use super::{
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
+    pub cdk_name: String,
     pub arrays: Vec<ActDataType>,
     pub external_canisters: Vec<ActExternalCanister>,
     pub funcs: Vec<ActDataType>,
@@ -47,15 +50,30 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
         let func_arg_token = data_type_nodes::generate_func_arg_token();
 
-        let cross_canister_functions = self.external_canisters.to_token_streams(&self.keywords);
+        let cross_canister_functions =
+            self.external_canisters
+                .to_token_streams(act_external_canister::TokenStreamContext {
+                    cdk_name: &self.cdk_name,
+                    keyword_list: &self.keywords,
+                });
 
         let user_defined_code = &self.rust_code;
 
-        let heartbeat_method = self.heartbeat_method.to_token_stream(());
-        let init_method = self.init_method.to_token_stream(&self.keywords);
-        let inspect_message_method = self.inspect_message_method.to_token_stream(());
-        let post_upgrade_method = self.post_upgrade_method.to_token_stream(&self.keywords);
-        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(());
+        let heartbeat_method = self.heartbeat_method.to_token_stream(&self.cdk_name);
+        let init_method = self
+            .init_method
+            .to_token_stream(act_init_method::TokenStreamContext {
+                cdk_name: &self.cdk_name,
+                keyword_list: &self.keywords,
+            });
+        let inspect_message_method = self.inspect_message_method.to_token_stream(&self.cdk_name);
+        let post_upgrade_method =
+            self.post_upgrade_method
+                .to_token_stream(act_post_upgrade_method::TokenStreamContext {
+                    cdk_name: &self.cdk_name,
+                    keyword_list: &self.keywords,
+                });
+        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(&self.cdk_name);
 
         let query_methods = self.query_methods.to_token_streams(&self.keywords);
         let update_methods = self.update_methods.to_token_streams(&self.keywords);

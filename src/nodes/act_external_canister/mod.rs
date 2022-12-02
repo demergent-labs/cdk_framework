@@ -15,17 +15,22 @@ pub struct ActExternalCanister {
     pub methods: Vec<ActExternalCanisterMethod>,
 }
 
-impl ActExternalCanister {}
+#[derive(Clone)]
+pub struct TokenStreamContext<'a> {
+    pub keyword_list: &'a Vec<String>,
+    pub cdk_name: &'a String,
+}
 
-impl ToTokenStream<&Vec<String>> for ActExternalCanister {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+impl ToTokenStream<TokenStreamContext<'_>> for ActExternalCanister {
+    fn to_token_stream(&self, context: TokenStreamContext) -> TokenStream {
         let cross_canister_call_functions: Vec<TokenStream> = self
             .methods
             .iter()
             .map(|method| {
                 method.to_token_stream(ActEcmContext {
                     canister_name: self.name.clone(),
-                    keyword_list: &keyword_list,
+                    keyword_list: &context.keyword_list,
+                    cdk_name: context.cdk_name,
                 })
             })
             .collect();
