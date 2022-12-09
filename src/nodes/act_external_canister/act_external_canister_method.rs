@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::{nodes::ActFnParam, ActDataType, ToTokenStream, ToTokenStreams};
+use crate::{nodes::ActFnParam, ActDataType, ToTokenStream};
 
 #[derive(Clone, Debug)]
 pub struct ActExternalCanisterMethod {
@@ -18,31 +18,13 @@ pub struct ActEcmContext<'a> {
 
 impl ToTokenStream<ActEcmContext<'_>> for ActExternalCanisterMethod {
     fn to_token_stream(&self, context: ActEcmContext) -> TokenStream {
-        let call_function = self.generate_call_function(
-            &context.canister_name,
-            &context.keyword_list,
-            &context.cdk_name,
-        );
-        let call_with_payment_function = self.generate_call_with_payment_function(
-            &context.canister_name,
-            &context.keyword_list,
-            &context.cdk_name,
-        );
-        let call_with_payment128_function = self.generate_call_with_payment128_function(
-            &context.canister_name,
-            &context.keyword_list,
-            &context.cdk_name,
-        );
-        let notify_function = self.generate_notify_function(
-            &context.canister_name,
-            &context.keyword_list,
-            &context.cdk_name,
-        );
-        let notify_with_payment128_function = self.generate_notify_with_payment128_function(
-            &context.canister_name,
-            &context.keyword_list,
-            &context.cdk_name,
-        );
+        let call_function = self.generate_function("call", &context);
+        let call_with_payment_function = self.generate_function("call_with_payment", &context);
+        let call_with_payment128_function =
+            self.generate_function("call_with_payment128", &context);
+        let notify_function = self.generate_function("notify", &context);
+        let notify_with_payment128_function =
+            self.generate_function("notify_with_payment128", &context);
 
         quote! {
             #call_function
@@ -55,204 +37,86 @@ impl ToTokenStream<ActEcmContext<'_>> for ActExternalCanisterMethod {
 }
 
 impl ActExternalCanisterMethod {
-    pub fn params_as_args_list(&self) -> TokenStream {
-        let param_names = self.param_names();
+    fn generate_function(&self, function_type: &str, context: &ActEcmContext) -> TokenStream {
+        let is_oneway = function_type.contains("notify");
 
-        let comma = if param_names.len() == 0 {
+        let async_or_not = if is_oneway {
             quote! {}
         } else {
-            quote! {,}
+            quote! {async}
         };
-        return quote! { #(#param_names),*#comma };
-    }
 
-    fn generate_call_function(
-        &self,
-        canister_name: &String,
-        keyword_list: &Vec<String>,
-        cdk_name: &String,
-    ) -> TokenStream {
-        let function_name = format_ident!("_{}_call_{}_{}", cdk_name, canister_name, &self.name);
-
-        let params = vec![
-            vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(keyword_list),
-        ]
-        .concat();
-
-        let function_return_type = self.return_type.to_token_stream(keyword_list);
-        let method_name = &self.name;
-        let args = self.params_as_tuple();
-
-        quote! {
-            #[allow(non_snake_case)]
-            async fn #function_name(#(#params),*) -> CallResult<(#function_return_type,)> {
-                ic_cdk::api::call::call(
-                    canister_id_principal,
-                    #method_name,
-                    #args
-                ).await
-            }
-        }
-    }
-
-    fn generate_call_with_payment_function(
-        &self,
-        canister_name: &String,
-        keyword_list: &Vec<String>,
-        cdk_name: &String,
-    ) -> TokenStream {
         let function_name = format_ident!(
-            "_{}_call_with_payment_{}_{}",
-            cdk_name,
-            canister_name,
+            "_{}_{}_{}_{}",
+            context.cdk_name,
+            function_type,
+            context.canister_name,
             &self.name
         );
 
-        let params = vec![
-            vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(keyword_list),
-            vec![quote! { cycles: u64 }],
-        ]
-        .concat();
+        let param_types = self.param_types_as_tuple(context.keyword_list);
 
-        let function_return_type = self.return_type.to_token_stream(keyword_list);
+        let cycles_param = if function_type.contains("with_payment128") {
+            quote! { , cycles: u128 }
+        } else if function_type.contains("with_payment") {
+            quote! { , cycles: u64 }
+        } else {
+            quote! {}
+        };
+
+        let function_return_type = self.return_type.to_token_stream(context.keyword_list);
+        let return_type = if is_oneway {
+            quote! {Result<(), ic_cdk::api::call::RejectionCode>}
+        } else {
+            quote! {CallResult<(#function_return_type,)>}
+        };
+
+        let function_type_ident = format_ident!("{}", function_type);
+        let api_call = quote! { ic_cdk::api::call::#function_type_ident };
+
         let method_name = &self.name;
-        let args = self.params_as_tuple();
+
+        let cycles_arg = if function_type.contains("with_payment") {
+            quote! { , cycles }
+        } else {
+            quote! {}
+        };
+
+        let await_or_not = if is_oneway {
+            quote! {}
+        } else {
+            quote! {.await}
+        };
 
         quote! {
             #[allow(non_snake_case)]
-            async fn #function_name(#(#params),*) -> CallResult<(#function_return_type,)> {
-                ic_cdk::api::call::call_with_payment(
+            #async_or_not fn #function_name(
+                canister_id_principal: ic_cdk::export::Principal,
+                params: #param_types
+                #cycles_param
+            ) -> #return_type {
+                #api_call(
                     canister_id_principal,
                     #method_name,
-                    #args,
-                    cycles
-                ).await
+                    params
+                    #cycles_arg
+                )#await_or_not
             }
         }
     }
 
-    fn generate_call_with_payment128_function(
-        &self,
-        canister_name: &String,
-        keyword_list: &Vec<String>,
-        cdk_name: &String,
-    ) -> TokenStream {
-        let function_name = format_ident!(
-            "_{}_call_with_payment128_{}_{}",
-            cdk_name,
-            canister_name,
-            &self.name
-        );
+    fn param_types_as_tuple(&self, keywords: &Vec<String>) -> TokenStream {
+        let param_types: Vec<TokenStream> = self
+            .params
+            .iter()
+            .map(|param| param.data_type.to_token_stream(keywords))
+            .collect();
 
-        let params = vec![
-            vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(keyword_list),
-            vec![quote! { cycles: u128 }],
-        ]
-        .concat();
-
-        let function_return_type = self.return_type.to_token_stream(keyword_list);
-        let method_name = &self.name;
-        let args = self.params_as_tuple();
-
-        quote! {
-            #[allow(non_snake_case)]
-            async fn #function_name(#(#params),*) -> CallResult<(#function_return_type,)> {
-                ic_cdk::api::call::call_with_payment128(
-                    canister_id_principal,
-                    #method_name,
-                    #args,
-                    cycles
-                ).await
-            }
-        }
-    }
-
-    fn generate_notify_function(
-        &self,
-        canister_name: &String,
-        keyword_list: &Vec<String>,
-        cdk_name: &String,
-    ) -> TokenStream {
-        let function_name = format_ident!("_{}_notify_{}_{}", cdk_name, canister_name, &self.name);
-
-        let params = vec![
-            vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(keyword_list),
-        ]
-        .concat();
-
-        let method_name = &self.name;
-        let args = self.params_as_tuple();
-
-        quote! {
-            #[allow(non_snake_case)]
-            fn #function_name(#(#params),*) -> Result<(), ic_cdk::api::call::RejectionCode> {
-                ic_cdk::api::call::notify(
-                    canister_id_principal,
-                    #method_name,
-                    #args
-                )
-            }
-        }
-    }
-
-    fn generate_notify_with_payment128_function(
-        &self,
-        canister_name: &String,
-        keyword_list: &Vec<String>,
-        cdk_name: &String,
-    ) -> TokenStream {
-        let function_name = format_ident!(
-            "_{}_notify_with_payment128_{}_{}",
-            cdk_name,
-            canister_name,
-            &self.name
-        );
-
-        let params = vec![
-            vec![quote! { canister_id_principal: ic_cdk::export::Principal }],
-            self.params.to_token_streams(keyword_list),
-            vec![quote! { cycles: u128 }],
-        ]
-        .concat();
-
-        let method_name = &self.name;
-        let args = self.params_as_tuple();
-
-        quote! {
-            #[allow(non_snake_case)]
-            fn #function_name(#(#params),*) -> Result<(), ic_cdk::api::call::RejectionCode> {
-                ic_cdk::api::call::notify_with_payment128(
-                    canister_id_principal,
-                    #method_name,
-                    #args,
-                    cycles
-                )
-            }
-        }
-    }
-
-    fn params_as_tuple(&self) -> TokenStream {
-        let param_names = self.param_names();
-
-        let comma = if param_names.len() == 1 {
+        let comma = if param_types.len() == 1 {
             quote! { , }
         } else {
             quote! {}
         };
-        return quote! { (#(#param_names),*#comma) };
-    }
-
-    fn param_names(&self) -> Vec<TokenStream> {
-        self.params
-            .iter()
-            .map(|param| {
-                let param_ident = format_ident!("{}", param.name);
-                quote! { #param_ident }
-            })
-            .collect()
+        return quote! { (#(#param_types),*#comma) };
     }
 }
