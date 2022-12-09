@@ -103,8 +103,8 @@ impl ToTokenStream<&Vec<String>> for ActVariantMember {
                 quote!((#member_type_token_stream))
             }
         };
-        let member_name = self.member_name.to_identifier();
-        let rename = keyword::generate_rename_token_stream(&self.member_name, keyword_list);
+        let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
+        let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
         quote! {#rename#member_name#member_type_token_stream}
     }
 }
