@@ -16,7 +16,6 @@ pub struct CanisterMethod {
     pub body: TokenStream,
     pub params: Vec<ActFnParam>,
     pub is_manual: bool,
-    pub is_promise: bool,
     pub name: String,
     pub return_type: ActDataType,
 }
@@ -53,7 +52,7 @@ impl ToTokenStream<&Vec<String>> for ActCanisterMethod {
             ActCanisterMethod::UpdateMethod(update_method) => {
                 let function_signature = generate_function(update_method, keyword_list);
 
-                let manual_reply_arg = if update_method.is_manual || update_method.is_promise {
+                let manual_reply_arg = if update_method.is_manual {
                     quote! {(manual_reply = true)}
                 } else {
                     quote! {}
@@ -116,7 +115,7 @@ fn generate_function(canister_method: &CanisterMethod, keyword_list: &Vec<String
     let function_body = &canister_method.body;
 
     let return_type_token = canister_method.return_type.to_token_stream(keyword_list);
-    let wrapped_return_type = if canister_method.is_manual || canister_method.is_promise {
+    let wrapped_return_type = if canister_method.is_manual {
         quote! {
             ic_cdk::api::call::ManualReply<#return_type_token>
         }
