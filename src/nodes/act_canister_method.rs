@@ -105,7 +105,13 @@ impl ActCanisterMethod {
             ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_manual,
             ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_manual,
         }
-        .clone()
+    }
+
+    pub fn is_promise(&self) -> bool {
+        match self {
+            ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_promise,
+            ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_promise,
+        }
     }
 }
 
