@@ -6,10 +6,7 @@ use super::data_type_nodes::ToIdent;
 
 #[derive(Debug, Clone)]
 pub enum ActCanisterMethod {
-    QueryMethod {
-        query_method: CanisterMethod,
-        is_composite: bool,
-    },
+    QueryMethod(CanisterMethod),
     UpdateMethod(CanisterMethod),
 }
 
@@ -38,36 +35,19 @@ pub fn get_all_types_from_canister_method_acts(
 impl ToTokenStream<&Vec<String>> for ActCanisterMethod {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         match self {
-            ActCanisterMethod::QueryMethod {
-                query_method,
-                is_composite,
-            } => {
+            ActCanisterMethod::QueryMethod(query_method) => {
                 let function_signature = generate_function(query_method, keyword_list);
 
-                let composite_arg = if *is_composite {
-                    quote! {composite = true}
-                } else {
-                    quote!()
-                };
-                let manual_reply_arg = if query_method.is_manual || query_method.is_promise {
+                let macro_args = if query_method.is_promise {
+                    quote! {composite = true, manual_reply = true}
+                } else if query_method.is_manual {
                     quote! {manual_reply = true}
                 } else {
                     quote! {}
                 };
 
-                // If both are true then we need a comma separated list.
-                // Otherwise we can just join them together because they are
-                // both empty quotes or one is an empty quote and the other
-                // needs to go in the parenthesis
-                let macro_args =
-                    if *is_composite && (query_method.is_manual || query_method.is_promise) {
-                        quote! {(#composite_arg, #manual_reply_arg)}
-                    } else {
-                        quote! {(#composite_arg#manual_reply_arg)}
-                    };
-
                 quote! {
-                    #[ic_cdk_macros::query#macro_args]
+                    #[ic_cdk_macros::query(#macro_args)]
                     #[candid::candid_method(query)]
                     #function_signature
                 }
@@ -98,7 +78,7 @@ impl ActCanisterMethod {
 
     pub fn get_name(&self) -> String {
         match self {
-            ActCanisterMethod::QueryMethod { query_method, .. } => &query_method.name,
+            ActCanisterMethod::QueryMethod(canister_method) => &canister_method.name,
             ActCanisterMethod::UpdateMethod(canister_method) => &canister_method.name,
         }
         .clone()
@@ -106,7 +86,7 @@ impl ActCanisterMethod {
 
     pub fn get_return_type(&self) -> ActDataType {
         match self {
-            ActCanisterMethod::QueryMethod { query_method, .. } => &query_method.return_type,
+            ActCanisterMethod::QueryMethod(canister_method) => &canister_method.return_type,
             ActCanisterMethod::UpdateMethod(canister_method) => &canister_method.return_type,
         }
         .clone()
@@ -114,7 +94,7 @@ impl ActCanisterMethod {
 
     pub fn get_param_types(&self) -> Vec<ActDataType> {
         match self {
-            ActCanisterMethod::QueryMethod { query_method, .. } => &query_method.params,
+            ActCanisterMethod::QueryMethod(query) => &query.params,
             ActCanisterMethod::UpdateMethod(update) => &update.params,
         }
         .iter()
@@ -124,14 +104,14 @@ impl ActCanisterMethod {
 
     pub fn is_manual(&self) -> bool {
         match self {
-            ActCanisterMethod::QueryMethod { query_method, .. } => query_method.is_manual,
+            ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_manual,
             ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_manual,
         }
     }
 
     pub fn is_promise(&self) -> bool {
         match self {
-            ActCanisterMethod::QueryMethod { query_method, .. } => query_method.is_promise,
+            ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_promise,
             ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_promise,
         }
     }
