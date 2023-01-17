@@ -16,31 +16,35 @@ use super::{
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
-    pub cdk_name: String,
     pub arrays: Vec<ActDataType>,
+    pub body: TokenStream,
+    pub cdk_name: String,
     pub external_canisters: Vec<ActExternalCanister>,
     pub funcs: Vec<ActDataType>,
+    pub header: TokenStream,
     pub heartbeat_method: Option<ActHeartbeatMethod>,
     pub init_method: ActInitMethod,
     pub inspect_message_method: Option<ActInspectMessageMethod>,
+    pub keywords: Vec<String>,
     pub options: Vec<ActDataType>,
     pub post_upgrade_method: ActPostUpgradeMethod,
     pub pre_upgrade_method: ActPreUpgradeMethod,
     pub primitives: Vec<ActDataType>,
     pub query_methods: Vec<ActCanisterMethod>,
     pub records: Vec<ActDataType>,
-    pub rust_code: TokenStream,
     pub try_from_vm_value_impls: TokenStream,
     pub try_into_vm_value_impls: TokenStream,
     pub tuples: Vec<ActDataType>,
     pub type_refs: Vec<ActDataType>,
     pub update_methods: Vec<ActCanisterMethod>,
     pub variants: Vec<ActDataType>,
-    pub keywords: Vec<String>,
 }
 
 impl ToTokenStream<()> for AbstractCanisterTree {
     fn to_token_stream(&self, _: ()) -> TokenStream {
+        let body = &self.body;
+        let header = &self.header;
+
         let randomness_implementation = random::generate_randomness_implementation(&self.cdk_name);
 
         let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
@@ -56,8 +60,6 @@ impl ToTokenStream<()> for AbstractCanisterTree {
                     cdk_name: &self.cdk_name,
                     keyword_list: &self.keywords,
                 });
-
-        let user_defined_code = &self.rust_code;
 
         let heartbeat_method = self.heartbeat_method.to_token_stream(&self.cdk_name);
         let init_method = self
@@ -95,13 +97,14 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let variants: Vec<TokenStream> = self.variants.to_token_streams(&self.keywords);
 
         quote::quote! {
+            #header
+
             #randomness_implementation
 
             #try_into_vm_value_trait
             #try_into_vm_value_impls
             #try_from_vm_value_trait
             #try_from_vm_value_impls
-
 
             #heartbeat_method
             #init_method
@@ -124,7 +127,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
             #(#cross_canister_functions)*
 
-            #user_defined_code
+            #body
 
             #candid_file_generation_code
         }
