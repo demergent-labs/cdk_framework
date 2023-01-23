@@ -16,9 +16,10 @@ pub struct CanisterMethod {
     pub body: TokenStream,
     pub params: Vec<ActFnParam>,
     pub is_manual: bool,
-    pub is_promise: bool,
+    pub is_async: bool,
     pub name: String,
     pub return_type: ActDataType,
+    pub cdk_name: String,
 }
 
 pub fn get_all_types_from_canister_method_acts(
@@ -32,20 +33,51 @@ pub fn get_all_types_from_canister_method_acts(
         })
 }
 
+fn generate_kybra_version(query_method: &CanisterMethod) -> TokenStream {
+    let composite_arg = if query_method.is_async {
+        quote! {composite = true}
+    } else {
+        quote!()
+    };
+    let manual_reply_arg = if query_method.is_manual {
+        quote! {manual_reply = true}
+    } else {
+        quote! {}
+    };
+
+    // If both are true then we need a comma separated list.
+    // Otherwise we can just join them together because they are
+    // both empty quotes or one is an empty quote and the other
+    // needs to go in the parenthesis
+    if query_method.is_async && query_method.is_manual {
+        quote! {#composite_arg, #manual_reply_arg}
+    } else {
+        quote! {#composite_arg#manual_reply_arg}
+    }
+}
+
+fn generate_not_kybra_version(query_method: &CanisterMethod) -> TokenStream {
+    if query_method.is_async {
+        quote! {composite = true, manual_reply = true}
+    } else if query_method.is_manual {
+        quote! {manual_reply = true}
+    } else {
+        quote! {}
+    }
+}
+
 impl ToTokenStream<&Vec<String>> for ActCanisterMethod {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         match self {
             ActCanisterMethod::QueryMethod(query_method) => {
                 let function_signature = generate_function(query_method, keyword_list);
-
-                let manual_reply_arg = if query_method.is_manual {
-                    quote! {(manual_reply = true)}
+                let macro_args = if query_method.cdk_name == "kybra" {
+                    generate_kybra_version(query_method)
                 } else {
-                    quote! {}
+                    generate_not_kybra_version(query_method)
                 };
-
                 quote! {
-                    #[ic_cdk_macros::query#manual_reply_arg]
+                    #[ic_cdk_macros::query(#macro_args)]
                     #[candid::candid_method(query)]
                     #function_signature
                 }
@@ -53,7 +85,9 @@ impl ToTokenStream<&Vec<String>> for ActCanisterMethod {
             ActCanisterMethod::UpdateMethod(update_method) => {
                 let function_signature = generate_function(update_method, keyword_list);
 
-                let manual_reply_arg = if update_method.is_manual || update_method.is_promise {
+                let manual_reply_arg = if update_method.is_manual
+                    || (update_method.is_async && update_method.cdk_name != "kybra")
+                {
                     quote! {(manual_reply = true)}
                 } else {
                     quote! {}
@@ -107,10 +141,10 @@ impl ActCanisterMethod {
         }
     }
 
-    pub fn is_promise(&self) -> bool {
+    pub fn is_async(&self) -> bool {
         match self {
-            ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_promise,
-            ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_promise,
+            ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_async,
+            ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_async,
         }
     }
 }
@@ -122,7 +156,9 @@ fn generate_function(canister_method: &CanisterMethod, keyword_list: &Vec<String
     let function_body = &canister_method.body;
 
     let return_type_token = canister_method.return_type.to_token_stream(keyword_list);
-    let wrapped_return_type = if canister_method.is_manual || canister_method.is_promise {
+    let wrapped_return_type = if canister_method.is_manual
+        || (canister_method.is_async && canister_method.cdk_name != "kybra")
+    {
         quote! {
             ic_cdk::api::call::ManualReply<#return_type_token>
         }
