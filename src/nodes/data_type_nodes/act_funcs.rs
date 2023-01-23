@@ -135,6 +135,8 @@ fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenSt
     };
     let func_return_type = if return_type_string == "()" || return_type_string == "" {
         quote! {}
+    } else if return_type_string == "(())" {
+        quote! { candid::types::Type::Null}
     } else {
         let return_type_token_stream: TokenStream = return_type_string
             .parse()
