@@ -113,6 +113,12 @@ fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenSt
                     .filter(|c| !c.is_whitespace())
                     .collect::<String>()
                     .replacen("Vec<", "Vec::<", 1)
+            } else if rust_type.starts_with("Option") {
+                rust_type
+                    .chars()
+                    .filter(|c| !c.is_whitespace())
+                    .collect::<String>()
+                    .replacen("Option<", "Option::<", 1)
             } else {
                 rust_type.clone()
             };
