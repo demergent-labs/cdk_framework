@@ -1,14 +1,12 @@
 use proc_macro2::TokenStream;
 
-use crate::nodes::{act_external_canister, act_init_method, act_post_upgrade_method};
-
 use super::{
     generators::{candid_file_generation, random, vm_value_conversion},
     nodes::{
-        data_type_nodes, ActExternalCanister,
+        act_external_canister, act_init_method, act_post_upgrade_method, data_type_nodes,
         {
-            ActCanisterMethod, ActHeartbeatMethod, ActInitMethod, ActInspectMessageMethod,
-            ActPostUpgradeMethod, ActPreUpgradeMethod,
+            ActCanisterMethod, ActExternalCanister, ActFunctionGuard, ActHeartbeatMethod,
+            ActInitMethod, ActInspectMessageMethod, ActPostUpgradeMethod, ActPreUpgradeMethod,
         },
     },
     ActDataType, ToTokenStream, ToTokenStreams,
@@ -37,6 +35,7 @@ pub struct AbstractCanisterTree {
     pub tuples: Vec<ActDataType>,
     pub type_refs: Vec<ActDataType>,
     pub update_methods: Vec<ActCanisterMethod>,
+    pub function_guards: Vec<ActFunctionGuard>,
     pub variants: Vec<ActDataType>,
 }
 
@@ -79,6 +78,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
         let query_methods = self.query_methods.to_token_streams(&self.keywords);
         let update_methods = self.update_methods.to_token_streams(&self.keywords);
+        let function_guards = self.function_guards.to_token_streams(&self.keywords);
 
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
@@ -114,6 +114,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
             #(#query_methods)*
             #(#update_methods)*
+            #(#function_guards)*
             #func_arg_token
 
             #(#arrays)*

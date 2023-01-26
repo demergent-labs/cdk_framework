@@ -20,6 +20,7 @@ pub struct CanisterMethod {
     pub name: String,
     pub return_type: ActDataType,
     pub cdk_name: String,
+    pub function_guard_name: Option<String>,
 }
 
 pub fn get_all_types_from_canister_method_acts(
@@ -34,26 +35,18 @@ pub fn get_all_types_from_canister_method_acts(
 }
 
 fn generate_kybra_version(query_method: &CanisterMethod) -> TokenStream {
-    let composite_arg = if query_method.is_async {
-        quote! {composite = true}
-    } else {
-        quote!()
+    let mut args: Vec<TokenStream> = vec![];
+    if query_method.is_async {
+        args.push(quote! {composite = true});
     };
-    let manual_reply_arg = if query_method.is_manual {
-        quote! {manual_reply = true}
-    } else {
-        quote! {}
+    if query_method.is_manual {
+        args.push(quote! {manual_reply = true});
+    };
+    if let Some(guard_function) = &query_method.function_guard_name {
+        args.push(quote! {guard = #guard_function});
     };
 
-    // If both are true then we need a comma separated list.
-    // Otherwise we can just join them together because they are
-    // both empty quotes or one is an empty quote and the other
-    // needs to go in the parenthesis
-    if query_method.is_async && query_method.is_manual {
-        quote! {#composite_arg, #manual_reply_arg}
-    } else {
-        quote! {#composite_arg#manual_reply_arg}
-    }
+    quote!(#(#args),*)
 }
 
 fn generate_not_kybra_version(query_method: &CanisterMethod) -> TokenStream {
