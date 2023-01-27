@@ -4,8 +4,7 @@ use std::fmt;
 pub use abstract_canister_tree::AbstractCanisterTree;
 pub use actable::Actable;
 pub use actable::ToActDataType;
-pub use nodes::data_type_nodes::ActDataType;
-pub use nodes::ActCanisterMethod;
+pub use nodes::ActDataType;
 pub use nodes::CanisterMethod;
 
 pub mod abstract_canister_tree;
