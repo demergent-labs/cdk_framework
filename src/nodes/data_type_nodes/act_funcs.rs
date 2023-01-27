@@ -132,7 +132,11 @@ fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenSt
                     modified_rust_type, type_alias_name
                 ));
 
-            quote! {#modified_rust_type_token_stream::_ty()}
+            if rust_type == "(())" {
+                quote! { candid::types::Type::Null }
+            } else {
+                quote! { #modified_rust_type_token_stream::_ty() }
+            }
         })
         .collect();
     let return_type_string = match &*func.return_type {
