@@ -1,5 +1,5 @@
 use crate::{
-    act::nodes::{
+    act::node::{
         canister_methods::{
             ActFnParam, HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
             PreUpgradeMethod, QueryMethod, UpdateMethod,

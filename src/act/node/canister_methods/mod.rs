@@ -28,7 +28,7 @@ pub enum ActCanisterMethod {
     Heartbeat(HeartbeatMethod),
 }
 
-trait GetAllTypes {
+pub trait GetAllTypes {
     fn get_all_types(&self) -> Vec<ActDataType>;
 }
 

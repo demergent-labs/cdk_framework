@@ -1,18 +1,18 @@
 pub mod actable;
-pub mod nodes;
+pub mod node;
 
 use proc_macro2::TokenStream;
 
-use nodes::canister_methods::{
+use node::canister_methods::{
     init_method, post_upgrade_method,
     {
         HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
         QueryMethod, UpdateMethod,
     },
 };
-use nodes::{data_types, external_canister, ActFunctionGuard, ExternalCanister};
+use node::{data_types, external_canister, ActFunctionGuard, ExternalCanister};
 
-use self::nodes::data_types::{
+use self::node::data_types::{
     ActArray, ActFunc, ActOption, ActPrimitive, ActRecord, ActTuple, ActTypeRef, ActVariant,
 };
 
