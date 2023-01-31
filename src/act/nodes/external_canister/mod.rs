@@ -3,16 +3,16 @@ use quote::quote;
 
 use crate::ToTokenStream;
 
-pub use act_external_canister_method::ActExternalCanisterMethod;
+pub use external_canister_method::ExternalCanisterMethod;
 
-use self::act_external_canister_method::ActEcmContext;
+use self::external_canister_method::ActEcmContext;
 
-pub mod act_external_canister_method;
+pub mod external_canister_method;
 
 #[derive(Clone, Debug)]
 pub struct ActExternalCanister {
     pub name: String,
-    pub methods: Vec<ActExternalCanisterMethod>,
+    pub methods: Vec<ExternalCanisterMethod>,
 }
 
 #[derive(Clone)]

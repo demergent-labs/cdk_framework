@@ -1,7 +1,7 @@
 use super::{
-    act_arrays::ActArray, act_funcs::ActFunc, act_option::ActOption, act_primitives::ActPrimitive,
-    act_record::ActRecord, act_tuple::ActTuple, act_type_ref::ActTypeRef, act_variants::ActVariant,
-    HasMembers, Literally, TypeAliasize,
+    arrays::ActArray, funcs::ActFunc, option::ActOption, primitives::ActPrimitive,
+    record::ActRecord, tuple::ActTuple, type_ref::ActTypeRef, variants::ActVariant, HasMembers,
+    Literally, TypeAliasize,
 };
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
@@ -20,6 +20,19 @@ pub enum ActDataType {
 }
 
 impl ActDataType {
+    pub fn as_array(&self) -> Option<&ActArray> {
+        match self {
+            ActDataType::Array(array) => Some(&array),
+            ActDataType::Func(_) => None,
+            ActDataType::Option(_) => None,
+            ActDataType::Primitive(_) => None,
+            ActDataType::Record(_) => None,
+            ActDataType::Tuple(_) => None,
+            ActDataType::TypeRef(_) => None,
+            ActDataType::Variant(_) => None,
+        }
+    }
+
     pub fn needs_definition(&self) -> bool {
         match self {
             ActDataType::Primitive(_) => false,

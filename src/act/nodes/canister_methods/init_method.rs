@@ -1,10 +1,11 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::{nodes::ActFnParam, ToTokenStream, ToTokenStreams};
+use super::ActFnParam;
+use crate::{ToTokenStream, ToTokenStreams};
 
 #[derive(Clone)]
-pub struct ActInitMethod {
+pub struct InitMethod {
     pub params: Vec<ActFnParam>,
     pub body: TokenStream,
 }
@@ -14,7 +15,7 @@ pub struct TokenStreamContext<'a> {
     pub cdk_name: &'a String,
 }
 
-impl ToTokenStream<TokenStreamContext<'_>> for ActInitMethod {
+impl ToTokenStream<TokenStreamContext<'_>> for InitMethod {
     fn to_token_stream(&self, context: TokenStreamContext) -> TokenStream {
         let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
         let body = &self.body;

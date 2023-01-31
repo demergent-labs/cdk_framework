@@ -1,17 +1,13 @@
 use proc_macro2::TokenStream;
 use std::fmt;
 
-pub use abstract_canister_tree::AbstractCanisterTree;
-pub use actable::Actable;
-pub use actable::ToActDataType;
-pub use nodes::ActDataType;
-pub use nodes::CanisterMethod;
+pub use act::actable::Actable;
+pub use act::actable::ToActDataType;
+pub use act::AbstractCanisterTree;
 
-pub mod abstract_canister_tree;
-pub mod actable;
+pub mod act;
 pub mod generators;
 pub mod keyword;
-pub mod nodes;
 pub mod traits;
 
 #[derive(Clone)]

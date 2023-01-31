@@ -1,10 +1,13 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::{nodes::ActFnParam, ActDataType, ToTokenStream};
+use crate::{
+    act::nodes::{canister_methods::ActFnParam, ActDataType},
+    ToTokenStream,
+};
 
 #[derive(Clone, Debug)]
-pub struct ActExternalCanisterMethod {
+pub struct ExternalCanisterMethod {
     pub name: String,
     pub params: Vec<ActFnParam>,
     pub return_type: ActDataType,
@@ -16,7 +19,7 @@ pub struct ActEcmContext<'a> {
     pub cdk_name: &'a String,
 }
 
-impl ToTokenStream<ActEcmContext<'_>> for ActExternalCanisterMethod {
+impl ToTokenStream<ActEcmContext<'_>> for ExternalCanisterMethod {
     fn to_token_stream(&self, context: ActEcmContext) -> TokenStream {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
@@ -36,7 +39,7 @@ impl ToTokenStream<ActEcmContext<'_>> for ActExternalCanisterMethod {
     }
 }
 
-impl ActExternalCanisterMethod {
+impl ExternalCanisterMethod {
     fn generate_function(&self, function_type: &str, context: &ActEcmContext) -> TokenStream {
         let is_oneway = function_type.contains("notify");
 

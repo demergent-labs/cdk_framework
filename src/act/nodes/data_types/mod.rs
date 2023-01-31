@@ -1,26 +1,26 @@
-pub use act_arrays::{ActArray, ActArrayLiteral, ActArrayTypeAlias};
 pub use act_data_type::{build_inline_type_acts, deduplicate, ActDataType};
-pub use act_funcs::{generate_func_arg_token, ActFunc};
-pub use act_option::{ActOption, ActOptionLiteral, ActOptionTypeAlias};
-pub use act_primitives::{ActPrimitive, ActPrimitiveLit, ActPrimitiveTypeAlias};
-pub use act_record::{ActRecord, ActRecordMember};
-pub use act_tuple::{ActTuple, ActTupleElem};
-pub use act_type_ref::{ActTypeRef, ActTypeRefLit, ActTypeRefTypeAlias};
-pub use act_variants::{ActVariant, ActVariantMember};
+pub use arrays::{ActArray, ActArrayLiteral, ActArrayTypeAlias};
+pub use funcs::{generate_func_arg_token, Func};
+pub use option::{ActOption, ActOptionLiteral, ActOptionTypeAlias};
+pub use primitives::{ActPrimitive, ActPrimitiveLit, ActPrimitiveTypeAlias};
 use proc_macro2::{Ident, TokenStream};
 use quote::format_ident;
+pub use record::{ActRecordMember, Record};
+pub use tuple::{ActTupleElem, Tuple};
+pub use type_ref::{ActTypeRef, ActTypeRefLit, ActTypeRefTypeAlias};
+pub use variants::{ActVariantMember, Variant};
 
 use crate::ToTokenStream;
 
-pub mod act_arrays;
 pub mod act_data_type;
-pub mod act_funcs;
-pub mod act_option;
-pub mod act_primitives;
-pub mod act_record;
-pub mod act_tuple;
-pub mod act_type_ref;
-pub mod act_variants;
+pub mod arrays;
+pub mod funcs;
+pub mod option;
+pub mod primitives;
+pub mod record;
+pub mod tuple;
+pub mod type_ref;
+pub mod variants;
 
 pub trait ToIdent {
     fn to_identifier(&self) -> Ident;

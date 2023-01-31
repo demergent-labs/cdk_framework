@@ -1,15 +1,21 @@
+pub mod actable;
+pub mod nodes;
+
 use proc_macro2::TokenStream;
 
+use nodes::canister_methods::{
+    init_method, post_upgrade_method,
+    {
+        HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
+        QueryMethod, UpdateMethod,
+    },
+};
+use nodes::{data_types, external_canister, ActDataType, ActExternalCanister, ActFunctionGuard};
+
+// TODO watch out for which is super and which is crate
 use super::{
     generators::{candid_file_generation, random, vm_value_conversion},
-    nodes::{
-        act_external_canister, act_init_method, act_post_upgrade_method, data_type_nodes,
-        {
-            ActCanisterMethod, ActExternalCanister, ActFunctionGuard, ActHeartbeatMethod,
-            ActInitMethod, ActInspectMessageMethod, ActPostUpgradeMethod, ActPreUpgradeMethod,
-        },
-    },
-    ActDataType, ToTokenStream, ToTokenStreams,
+    ToTokenStream, ToTokenStreams,
 };
 
 /// An easily traversable representation of a rust canister
@@ -20,21 +26,21 @@ pub struct AbstractCanisterTree {
     pub external_canisters: Vec<ActExternalCanister>,
     pub funcs: Vec<ActDataType>,
     pub header: TokenStream,
-    pub heartbeat_method: Option<ActHeartbeatMethod>,
-    pub init_method: ActInitMethod,
-    pub inspect_message_method: Option<ActInspectMessageMethod>,
+    pub heartbeat_method: Option<HeartbeatMethod>,
+    pub init_method: InitMethod,
+    pub inspect_message_method: Option<InspectMessageMethod>,
     pub keywords: Vec<String>,
     pub options: Vec<ActDataType>,
-    pub post_upgrade_method: ActPostUpgradeMethod,
-    pub pre_upgrade_method: ActPreUpgradeMethod,
+    pub post_upgrade_method: PostUpgradeMethod,
+    pub pre_upgrade_method: PreUpgradeMethod,
     pub primitives: Vec<ActDataType>,
-    pub query_methods: Vec<ActCanisterMethod>,
+    pub query_methods: Vec<QueryMethod>,
     pub records: Vec<ActDataType>,
     pub try_from_vm_value_impls: TokenStream,
     pub try_into_vm_value_impls: TokenStream,
     pub tuples: Vec<ActDataType>,
     pub type_refs: Vec<ActDataType>,
-    pub update_methods: Vec<ActCanisterMethod>,
+    pub update_methods: Vec<UpdateMethod>,
     pub function_guards: Vec<ActFunctionGuard>,
     pub variants: Vec<ActDataType>,
 }
@@ -51,11 +57,11 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
         let try_from_vm_value_impls = &self.try_from_vm_value_impls;
 
-        let func_arg_token = data_type_nodes::generate_func_arg_token();
+        let func_arg_token = data_types::generate_func_arg_token();
 
         let cross_canister_functions =
             self.external_canisters
-                .to_token_streams(act_external_canister::TokenStreamContext {
+                .to_token_streams(external_canister::TokenStreamContext {
                     cdk_name: &self.cdk_name,
                     keyword_list: &self.keywords,
                 });
@@ -63,14 +69,14 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let heartbeat_method = self.heartbeat_method.to_token_stream(&self.cdk_name);
         let init_method = self
             .init_method
-            .to_token_stream(act_init_method::TokenStreamContext {
+            .to_token_stream(init_method::TokenStreamContext {
                 cdk_name: &self.cdk_name,
                 keyword_list: &self.keywords,
             });
         let inspect_message_method = self.inspect_message_method.to_token_stream(&self.cdk_name);
         let post_upgrade_method =
             self.post_upgrade_method
-                .to_token_stream(act_post_upgrade_method::TokenStreamContext {
+                .to_token_stream(post_upgrade_method::TokenStreamContext {
                     cdk_name: &self.cdk_name,
                     keyword_list: &self.keywords,
                 });
