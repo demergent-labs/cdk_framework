@@ -1,4 +1,7 @@
-use super::{ActDataType, LiteralOrTypeAlias, ToIdent};
+use super::{
+    traits::{LiteralOrTypeAlias, ToIdent},
+    ActDataType,
+};
 use crate::{act::actable::ToActDataType, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};

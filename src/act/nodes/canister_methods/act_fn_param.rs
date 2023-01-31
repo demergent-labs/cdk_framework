@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 
 use crate::{
-    act::nodes::{data_types::ToIdent, ActDataType},
+    act::nodes::{data_types::traits::ToIdent, ActDataType},
     ToTokenStream,
 };
 

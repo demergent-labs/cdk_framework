@@ -1,4 +1,7 @@
-use super::{ActDataType, HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize};
+use super::{
+    traits::{HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize},
+    ActDataType,
+};
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -90,7 +93,7 @@ pub fn generate_func_arg_token() -> TokenStream {
     }
 }
 
-fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenStream {
+pub fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenStream {
     let type_alias_name = func.name.to_identifier();
     let func_mode = if func.mode == "Query" {
         quote! {candid::parser::types::FuncMode::Query }

@@ -57,7 +57,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
         let try_from_vm_value_impls = &self.try_from_vm_value_impls;
 
-        let func_arg_token = data_types::generate_func_arg_token();
+        let func_arg_token = data_types::funcs::generate_func_arg_token();
 
         let cross_canister_functions =
             self.external_canisters
