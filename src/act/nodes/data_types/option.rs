@@ -1,6 +1,6 @@
 use super::{
-    traits::{HasMembers, LiteralOrTypeAlias, ToIdent},
-    ActDataType,
+    traits::{HasMembers, ToIdent},
+    ActDataType, LiteralOrTypeAlias,
 };
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;

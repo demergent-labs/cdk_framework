@@ -1,6 +1,6 @@
 use super::{
-    traits::{HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize},
-    ActDataType,
+    traits::{HasMembers, ToIdent, TypeAliasize},
+    ActDataType, LiteralOrTypeAlias,
 };
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
@@ -100,5 +100,11 @@ impl ToTokenStream<&Vec<String>> for ActTupleElem {
         } else {
             quote!(self.elem_type.to_token_stream())
         }
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActTuple {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }

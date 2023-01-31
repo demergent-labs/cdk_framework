@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::format_ident;
 
-use super::ActDataType;
+use super::{ActDataType, LiteralOrTypeAlias};
 use crate::ToTokenStream;
 
 pub trait ToIdent {
@@ -24,12 +24,6 @@ pub trait Literally {
 
 pub trait HasMembers {
     fn get_members(&self) -> Vec<ActDataType>;
-}
-
-#[derive(Clone, Debug)]
-pub enum LiteralOrTypeAlias<L, T> {
-    Literal(L),
-    TypeAlias(T),
 }
 
 impl<L: ToTokenStream<C>, T: ToTokenStream<C>, C> ToTokenStream<C> for LiteralOrTypeAlias<L, T> {

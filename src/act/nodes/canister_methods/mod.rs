@@ -18,7 +18,7 @@ pub use update_method::UpdateMethod;
 
 use super::ActDataType;
 
-pub enum ActCanisterMethodNew {
+pub enum ActCanisterMethod {
     Update(UpdateMethod),
     Query(QueryMethod),
     Init(InitMethod),

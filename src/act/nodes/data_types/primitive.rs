@@ -1,10 +1,8 @@
-use super::{
-    traits::{LiteralOrTypeAlias, ToIdent},
-    ActDataType,
-};
-use crate::{act::actable::ToActDataType, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::quote;
+
+use super::{traits::ToIdent, ActDataType, LiteralOrTypeAlias};
+use crate::{act::actable::ToActDataType, ToTokenStream};
 
 #[derive(Clone, Debug)]
 pub struct ActPrimitive {
@@ -87,5 +85,11 @@ impl<C> ToTokenStream<C> for ActPrimitiveLit {
             ActPrimitiveLit::String => quote!(String),
             ActPrimitiveLit::Void => quote! {()},
         }
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActPrimitive {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }

@@ -10,7 +10,7 @@ use self::external_canister_method::ActEcmContext;
 pub mod external_canister_method;
 
 #[derive(Clone, Debug)]
-pub struct ActExternalCanister {
+pub struct ExternalCanister {
     pub name: String,
     pub methods: Vec<ExternalCanisterMethod>,
 }
@@ -21,7 +21,7 @@ pub struct TokenStreamContext<'a> {
     pub cdk_name: &'a String,
 }
 
-impl ToTokenStream<TokenStreamContext<'_>> for ActExternalCanister {
+impl ToTokenStream<TokenStreamContext<'_>> for ExternalCanister {
     fn to_token_stream(&self, context: TokenStreamContext) -> TokenStream {
         let cross_canister_call_functions: Vec<TokenStream> = self
             .methods

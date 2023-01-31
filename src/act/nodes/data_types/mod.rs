@@ -8,28 +8,28 @@
 // use type_ref::{ActTypeRefLit, ActTypeRefTypeAlias};
 // use variants::{ActVariantMember, Variant};
 
-pub mod arrays;
-pub mod funcs;
+pub mod array;
+pub mod func;
 pub mod option;
-pub mod primitives;
+pub mod primitive;
 pub mod record;
 pub mod traits;
 pub mod tuple;
 pub mod type_ref;
-pub mod variants;
+pub mod variant;
 
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
-pub use arrays::ActArray;
-pub use funcs::ActFunc;
+pub use array::ActArray;
+pub use func::ActFunc;
 pub use option::ActOption;
-pub use primitives::ActPrimitive;
+pub use primitive::ActPrimitive;
 pub use record::ActRecord;
 pub use tuple::ActTuple;
 pub use type_ref::ActTypeRef;
-pub use variants::ActVariant;
+pub use variant::ActVariant;
 
 use self::traits::{HasMembers, Literally, TypeAliasize};
 
@@ -43,6 +43,12 @@ pub enum ActDataType {
     Tuple(ActTuple),
     TypeRef(ActTypeRef),
     Variant(ActVariant),
+}
+
+#[derive(Clone, Debug)]
+pub enum LiteralOrTypeAlias<L, T> {
+    Literal(L),
+    TypeAlias(T),
 }
 
 impl ActDataType {
@@ -97,6 +103,56 @@ impl ActDataType {
         }
     }
 
+    pub fn is_array(&self) -> bool {
+        match self {
+            ActDataType::Array(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_func(&self) -> bool {
+        match self {
+            ActDataType::Func(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_option(&self) -> bool {
+        match self {
+            ActDataType::Option(_) => true,
+            _ => false,
+        }
+    }
+    pub fn is_primitive(&self) -> bool {
+        match self {
+            ActDataType::Primitive(_) => true,
+            _ => false,
+        }
+    }
+    pub fn is_record(&self) -> bool {
+        match self {
+            ActDataType::Record(_) => true,
+            _ => false,
+        }
+    }
+    pub fn is_tuple(&self) -> bool {
+        match self {
+            ActDataType::Tuple(_) => true,
+            _ => false,
+        }
+    }
+    pub fn is_type_ref(&self) -> bool {
+        match self {
+            ActDataType::TypeRef(_) => true,
+            _ => false,
+        }
+    }
+    pub fn is_variant(&self) -> bool {
+        match self {
+            ActDataType::Variant(_) => true,
+            _ => false,
+        }
+    }
     pub fn needs_definition(&self) -> bool {
         match self {
             ActDataType::Primitive(_) => false,
@@ -160,18 +216,14 @@ impl ActDataType {
 impl ToTokenStream<&Vec<String>> for ActDataType {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         match self {
-            ActDataType::Record(act_record) => act_record.act_type.to_token_stream(keyword_list),
-            ActDataType::Variant(act_variant) => act_variant.act_type.to_token_stream(keyword_list),
-            ActDataType::Func(act_func) => act_func.act_type.to_token_stream(keyword_list),
-            ActDataType::Tuple(act_tuple) => act_tuple.act_type.to_token_stream(keyword_list),
-            ActDataType::Primitive(act_primitive) => {
-                act_primitive.act_type.to_token_stream(keyword_list)
-            }
-            ActDataType::TypeRef(act_type_ref) => {
-                act_type_ref.act_type.to_token_stream(keyword_list)
-            }
+            ActDataType::Record(act_record) => act_record.to_token_stream(keyword_list),
+            ActDataType::Variant(act_variant) => act_variant.to_token_stream(keyword_list),
+            ActDataType::Func(act_func) => act_func.to_token_stream(keyword_list),
+            ActDataType::Tuple(act_tuple) => act_tuple.to_token_stream(keyword_list),
+            ActDataType::Primitive(act_primitive) => act_primitive.to_token_stream(keyword_list),
+            ActDataType::TypeRef(act_type_ref) => act_type_ref.to_token_stream(keyword_list),
             ActDataType::Option(act_option) => act_option.to_token_stream(keyword_list),
-            ActDataType::Array(act_array) => act_array.act_type.to_token_stream(keyword_list),
+            ActDataType::Array(act_array) => act_array.to_token_stream(keyword_list),
         }
     }
 }

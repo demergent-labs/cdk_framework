@@ -1,6 +1,6 @@
 use super::{
-    traits::{HasMembers, LiteralOrTypeAlias, ToIdent},
-    ActDataType,
+    traits::{HasMembers, ToIdent},
+    ActDataType, LiteralOrTypeAlias,
 };
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
@@ -50,5 +50,11 @@ impl ToTokenStream<&Vec<String>> for ActArrayTypeAlias {
         let name = self.name.to_identifier();
         let enclosed_type = self.enclosed_type.to_token_stream(keyword_list);
         quote!(type #name = Vec<#enclosed_type>;)
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActArray {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }

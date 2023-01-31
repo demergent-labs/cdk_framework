@@ -1,6 +1,6 @@
 use super::{
-    traits::{HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize},
-    ActDataType,
+    traits::{HasMembers, ToIdent, TypeAliasize},
+    ActDataType, LiteralOrTypeAlias,
 };
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
@@ -223,5 +223,11 @@ pub fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> Tok
                 &mut self.0
             }
         }
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActFunc {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }

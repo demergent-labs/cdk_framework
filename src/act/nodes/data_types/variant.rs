@@ -1,6 +1,6 @@
 use super::{
-    traits::{HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize},
-    ActDataType,
+    traits::{HasMembers, ToIdent, TypeAliasize},
+    ActDataType, LiteralOrTypeAlias,
 };
 use crate::{keyword, ToTokenStream};
 use proc_macro2::TokenStream;
@@ -109,5 +109,11 @@ impl ToTokenStream<&Vec<String>> for ActVariantMember {
         let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
         let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
         quote! {#rename#member_name#member_type_token_stream}
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActVariant {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }

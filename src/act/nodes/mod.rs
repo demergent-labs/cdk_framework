@@ -5,15 +5,15 @@ pub mod external_canister;
 
 pub use act_function_guard::ActFunctionGuard;
 pub use data_types::ActDataType;
-pub use external_canister::ActExternalCanister;
+pub use external_canister::ExternalCanister;
 pub use external_canister::ExternalCanisterMethod;
 
-use self::canister_methods::ActCanisterMethodNew;
+use self::canister_methods::ActCanisterMethod;
 
 pub enum ActNode {
-    CanisterMethod(ActCanisterMethodNew),
+    CanisterMethod(ActCanisterMethod),
     DataType(ActDataType),
-    ExternalCanister(ActExternalCanister),
+    ExternalCanister(ExternalCanister),
     StableBTreeMap,
     FunctionGuard(ActFunctionGuard),
 }

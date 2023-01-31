@@ -10,7 +10,11 @@ use nodes::canister_methods::{
         QueryMethod, UpdateMethod,
     },
 };
-use nodes::{data_types, external_canister, ActDataType, ActExternalCanister, ActFunctionGuard};
+use nodes::{data_types, external_canister, ActFunctionGuard, ExternalCanister};
+
+use self::nodes::data_types::{
+    ActArray, ActFunc, ActOption, ActPrimitive, ActRecord, ActTuple, ActTypeRef, ActVariant,
+};
 
 // TODO watch out for which is super and which is crate
 use super::{
@@ -20,29 +24,29 @@ use super::{
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
-    pub arrays: Vec<ActDataType>,
+    pub arrays: Vec<ActArray>,
     pub body: TokenStream,
     pub cdk_name: String,
-    pub external_canisters: Vec<ActExternalCanister>,
-    pub funcs: Vec<ActDataType>,
+    pub external_canisters: Vec<ExternalCanister>,
+    pub funcs: Vec<ActFunc>,
     pub header: TokenStream,
     pub heartbeat_method: Option<HeartbeatMethod>,
     pub init_method: InitMethod,
     pub inspect_message_method: Option<InspectMessageMethod>,
     pub keywords: Vec<String>,
-    pub options: Vec<ActDataType>,
+    pub options: Vec<ActOption>,
     pub post_upgrade_method: PostUpgradeMethod,
     pub pre_upgrade_method: PreUpgradeMethod,
-    pub primitives: Vec<ActDataType>,
+    pub primitives: Vec<ActPrimitive>,
     pub query_methods: Vec<QueryMethod>,
-    pub records: Vec<ActDataType>,
+    pub records: Vec<ActRecord>,
     pub try_from_vm_value_impls: TokenStream,
     pub try_into_vm_value_impls: TokenStream,
-    pub tuples: Vec<ActDataType>,
-    pub type_refs: Vec<ActDataType>,
+    pub tuples: Vec<ActTuple>,
+    pub type_refs: Vec<ActTypeRef>,
     pub update_methods: Vec<UpdateMethod>,
     pub function_guards: Vec<ActFunctionGuard>,
-    pub variants: Vec<ActDataType>,
+    pub variants: Vec<ActVariant>,
 }
 
 impl ToTokenStream<()> for AbstractCanisterTree {
@@ -57,7 +61,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
         let try_from_vm_value_impls = &self.try_from_vm_value_impls;
 
-        let func_arg_token = data_types::funcs::generate_func_arg_token();
+        let func_arg_token = data_types::func::generate_func_arg_token();
 
         let cross_canister_functions =
             self.external_canisters
