@@ -1,5 +1,8 @@
-use super::{ActDataType, HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize};
-use crate::ToTokenStream;
+use super::{
+    traits::{HasMembers, TypeAliasize},
+    DataType, LiteralOrTypeAlias,
+};
+use crate::{traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -11,8 +14,8 @@ pub struct ActFunc {
 #[derive(Clone, Debug)]
 pub struct Func {
     pub name: String,
-    pub params: Vec<ActDataType>,
-    pub return_type: Box<Option<ActDataType>>,
+    pub params: Vec<DataType>,
+    pub return_type: Box<Option<DataType>>,
     pub mode: String,
     pub to_vm_value: TokenStream,
     pub list_to_vm_value: TokenStream,
@@ -44,7 +47,7 @@ impl TypeAliasize<ActFunc> for ActFunc {
 }
 
 impl HasMembers for ActFunc {
-    fn get_members(&self) -> Vec<ActDataType> {
+    fn get_members(&self) -> Vec<DataType> {
         let act_func = match &self.act_type {
             LiteralOrTypeAlias::Literal(literal) => &literal.func,
             LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.func,
@@ -90,7 +93,7 @@ pub fn generate_func_arg_token() -> TokenStream {
     }
 }
 
-fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenStream {
+pub fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenStream {
     let type_alias_name = func.name.to_identifier();
     let func_mode = if func.mode == "Query" {
         quote! {candid::parser::types::FuncMode::Query }
@@ -220,5 +223,11 @@ fn generate_func_struct_and_impls(func: &Func, context: &Vec<String>) -> TokenSt
                 &mut self.0
             }
         }
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActFunc {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }

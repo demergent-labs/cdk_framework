@@ -1,5 +1,8 @@
-use super::{ActDataType, HasMembers, LiteralOrTypeAlias, ToIdent, TypeAliasize};
-use crate::{keyword, ToTokenStream};
+use super::{
+    traits::{HasMembers, TypeAliasize},
+    DataType, LiteralOrTypeAlias,
+};
+use crate::{keyword, traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -27,7 +30,7 @@ pub struct RecordTypeAlias {
 #[derive(Clone, Debug)]
 pub struct ActRecordMember {
     pub member_name: String,
-    pub member_type: ActDataType,
+    pub member_type: DataType,
 }
 
 impl TypeAliasize<ActRecord> for ActRecord {
@@ -53,13 +56,13 @@ impl TypeAliasize<RecordTypeAlias> for RecordLiteral {
 }
 
 impl HasMembers for ActRecord {
-    fn get_members(&self) -> Vec<ActDataType> {
+    fn get_members(&self) -> Vec<DataType> {
         self.get_member_types()
     }
 }
 
 impl ActRecord {
-    pub fn get_member_types(&self) -> Vec<ActDataType> {
+    pub fn get_member_types(&self) -> Vec<DataType> {
         match &self.act_type {
             LiteralOrTypeAlias::Literal(literal) => &literal.record,
             LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.record,
@@ -106,5 +109,11 @@ impl ToTokenStream<&Vec<String>> for ActRecordMember {
         let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
         let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
         quote!(#rename#member_name: #member_type_token_stream)
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActRecord {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }

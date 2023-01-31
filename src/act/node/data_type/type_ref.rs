@@ -1,5 +1,5 @@
-use super::{ActDataType, LiteralOrTypeAlias, ToIdent};
-use crate::{ToActDataType, ToTokenStream};
+use super::{DataType, LiteralOrTypeAlias};
+use crate::{act::actable::ToActDataType, traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -20,8 +20,8 @@ pub struct ActTypeRefTypeAlias {
 }
 
 impl ToActDataType for String {
-    fn to_act_data_type(&self, alias_name: &Option<&String>) -> ActDataType {
-        ActDataType::TypeRef(ActTypeRef {
+    fn to_act_data_type(&self, alias_name: &Option<&String>) -> DataType {
+        DataType::TypeRef(ActTypeRef {
             act_type: match alias_name {
                 None => LiteralOrTypeAlias::Literal(ActTypeRefLit { name: self.clone() }),
                 Some(name) => LiteralOrTypeAlias::TypeAlias(ActTypeRefTypeAlias {
@@ -44,5 +44,11 @@ impl<C> ToTokenStream<C> for ActTypeRefTypeAlias {
         let name = self.name.to_identifier();
         let alias = self.aliased_type.to_token_stream(context);
         quote!(type #name = #alias;)
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for ActTypeRef {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.act_type.to_token_stream(context)
     }
 }
