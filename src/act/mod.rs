@@ -10,9 +10,9 @@ use node::canister_methods::{
         QueryMethod, UpdateMethod,
     },
 };
-use node::{data_types, external_canister, ActFunctionGuard, ExternalCanister};
+use node::{data_type, external_canister, ActFunctionGuard, ExternalCanister};
 
-use self::node::data_types::{
+use self::node::data_type::{
     ActArray, ActFunc, ActOption, ActPrimitive, ActRecord, ActTuple, ActTypeRef, ActVariant,
 };
 
@@ -61,7 +61,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
         let try_from_vm_value_impls = &self.try_from_vm_value_impls;
 
-        let func_arg_token = data_types::func::generate_func_arg_token();
+        let func_arg_token = data_type::func::generate_func_arg_token();
 
         let cross_canister_functions =
             self.external_canisters

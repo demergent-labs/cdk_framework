@@ -1,10 +1,10 @@
 pub mod act_function_guard;
 pub mod canister_methods;
-pub mod data_types;
+pub mod data_type;
 pub mod external_canister;
 
 pub use act_function_guard::ActFunctionGuard;
-pub use data_types::ActDataType;
+pub use data_type::ActDataType;
 pub use external_canister::ExternalCanister;
 pub use external_canister::ExternalCanisterMethod;
 
