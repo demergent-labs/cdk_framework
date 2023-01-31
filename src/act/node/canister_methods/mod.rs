@@ -18,6 +18,7 @@ pub use update_method::UpdateMethod;
 
 use super::ActDataType;
 
+#[derive(Clone)]
 pub enum ActCanisterMethod {
     Update(UpdateMethod),
     Query(QueryMethod),

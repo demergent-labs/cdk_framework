@@ -10,6 +10,7 @@ pub use external_canister::ExternalCanisterMethod;
 
 use self::canister_methods::ActCanisterMethod;
 
+#[derive(Clone)]
 pub enum ActNode {
     CanisterMethod(ActCanisterMethod),
     DataType(ActDataType),
