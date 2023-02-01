@@ -1,51 +1,56 @@
-pub mod actable;
-pub mod node;
-
 use proc_macro2::TokenStream;
 
-use node::canister_method::{
-    init_method, post_upgrade_method,
-    {
-        HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
-        QueryMethod, UpdateMethod,
-    },
-};
-use node::{data_type, external_canister, ActFunctionGuard, ExternalCanister};
-
-use self::node::data_type::{
-    ActArray, ActFunc, ActOption, ActPrimitive, ActRecord, ActTuple, ActTypeRef, ActVariant,
-};
-
-// TODO watch out for which is super and which is crate
-use super::{
+use crate::{
     generators::{candid_file_generation, random, vm_value_conversion},
     ToTokenStream, ToTokenStreams,
 };
+use node::{
+    canister_method::{
+        init_method, post_upgrade_method,
+        {
+            HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
+            QueryMethod, UpdateMethod,
+        },
+    },
+    data_type::{ActFunc, ActPrimitive, ActRecord, ActTuple, ActTypeRef, ActVariant, Array},
+    {data_type, external_canister, ActFunctionGuard, ExternalCanister},
+};
+
+pub mod actable;
+pub mod node;
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
-    pub arrays: Vec<ActArray>,
-    pub body: TokenStream,
     pub cdk_name: String,
+    pub canister_methods: CanisterMethods,
+    pub data_types: DataTypes,
     pub external_canisters: Vec<ExternalCanister>,
-    pub funcs: Vec<ActFunc>,
+    pub function_guards: Vec<ActFunctionGuard>,
     pub header: TokenStream,
+    pub body: TokenStream,
+    pub try_from_vm_value_impls: TokenStream,
+    pub try_into_vm_value_impls: TokenStream,
+    pub keywords: Vec<String>,
+}
+
+pub struct CanisterMethods {
     pub heartbeat_method: Option<HeartbeatMethod>,
     pub init_method: InitMethod,
     pub inspect_message_method: Option<InspectMessageMethod>,
-    pub keywords: Vec<String>,
-    pub options: Vec<ActOption>,
     pub post_upgrade_method: PostUpgradeMethod,
     pub pre_upgrade_method: PreUpgradeMethod,
-    pub primitives: Vec<ActPrimitive>,
     pub query_methods: Vec<QueryMethod>,
+    pub update_methods: Vec<UpdateMethod>,
+}
+
+pub struct DataTypes {
+    pub arrays: Vec<Array>,
+    pub funcs: Vec<ActFunc>,
+    pub options: Vec<data_type::ActOption>,
+    pub primitives: Vec<ActPrimitive>,
     pub records: Vec<ActRecord>,
-    pub try_from_vm_value_impls: TokenStream,
-    pub try_into_vm_value_impls: TokenStream,
     pub tuples: Vec<ActTuple>,
     pub type_refs: Vec<ActTypeRef>,
-    pub update_methods: Vec<UpdateMethod>,
-    pub function_guards: Vec<ActFunctionGuard>,
     pub variants: Vec<ActVariant>,
 }
 
@@ -70,41 +75,55 @@ impl ToTokenStream<()> for AbstractCanisterTree {
                     keyword_list: &self.keywords,
                 });
 
-        let heartbeat_method = self.heartbeat_method.to_token_stream(&self.cdk_name);
-        let init_method = self
-            .init_method
-            .to_token_stream(init_method::TokenStreamContext {
-                cdk_name: &self.cdk_name,
-                keyword_list: &self.keywords,
-            });
-        let inspect_message_method = self.inspect_message_method.to_token_stream(&self.cdk_name);
-        let post_upgrade_method =
-            self.post_upgrade_method
-                .to_token_stream(post_upgrade_method::TokenStreamContext {
+        let heartbeat_method = self
+            .canister_methods
+            .heartbeat_method
+            .to_token_stream(&self.cdk_name);
+        let init_method =
+            self.canister_methods
+                .init_method
+                .to_token_stream(init_method::TokenStreamContext {
                     cdk_name: &self.cdk_name,
                     keyword_list: &self.keywords,
                 });
-        let pre_upgrade_method = self.pre_upgrade_method.to_token_stream(&self.cdk_name);
+        let inspect_message_method = self
+            .canister_methods
+            .inspect_message_method
+            .to_token_stream(&self.cdk_name);
+        let post_upgrade_method = self.canister_methods.post_upgrade_method.to_token_stream(
+            post_upgrade_method::TokenStreamContext {
+                cdk_name: &self.cdk_name,
+                keyword_list: &self.keywords,
+            },
+        );
+        let pre_upgrade_method = self
+            .canister_methods
+            .pre_upgrade_method
+            .to_token_stream(&self.cdk_name);
 
-        let query_methods = self.query_methods.to_token_streams(&self.keywords);
-        let update_methods = self.update_methods.to_token_streams(&self.keywords);
+        let query_methods = self
+            .canister_methods
+            .query_methods
+            .to_token_streams(&self.keywords);
+        let update_methods = self
+            .canister_methods
+            .update_methods
+            .to_token_streams(&self.keywords);
         let function_guards = self.function_guards.to_token_streams(&self.keywords);
 
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
-        let arrays: Vec<TokenStream> = self.arrays.to_token_streams(&self.keywords);
-        let funcs: Vec<TokenStream> = self
-            .funcs
-            .iter()
-            .map(|act| act.to_token_stream(&self.keywords))
-            .collect();
-        let options: Vec<TokenStream> = self.options.to_token_streams(&self.keywords);
-        let primitives: Vec<TokenStream> = self.primitives.to_token_streams(&self.keywords);
-        let records: Vec<TokenStream> = self.records.to_token_streams(&self.keywords);
-        let tuples: Vec<TokenStream> = self.tuples.to_token_streams(&self.keywords);
-        let type_refs: Vec<TokenStream> = self.type_refs.to_token_streams(&self.keywords);
-        let variants: Vec<TokenStream> = self.variants.to_token_streams(&self.keywords);
+        let arrays: Vec<TokenStream> = self.data_types.arrays.to_token_streams(&self.keywords);
+        let funcs: Vec<TokenStream> = self.data_types.funcs.to_token_streams(&self.keywords);
+        let options: Vec<TokenStream> = self.data_types.options.to_token_streams(&self.keywords);
+        let primitives: Vec<TokenStream> =
+            self.data_types.primitives.to_token_streams(&self.keywords);
+        let records: Vec<TokenStream> = self.data_types.records.to_token_streams(&self.keywords);
+        let tuples: Vec<TokenStream> = self.data_types.tuples.to_token_streams(&self.keywords);
+        let type_refs: Vec<TokenStream> =
+            self.data_types.type_refs.to_token_streams(&self.keywords);
+        let variants: Vec<TokenStream> = self.data_types.variants.to_token_streams(&self.keywords);
 
         quote::quote! {
             #header

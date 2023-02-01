@@ -1,4 +1,4 @@
-use super::{traits::HasMembers, ActDataType, LiteralOrTypeAlias};
+use super::{traits::HasMembers, DataType, LiteralOrTypeAlias};
 use crate::{traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -10,23 +10,23 @@ pub struct ActOption {
 
 #[derive(Clone, Debug)]
 pub struct ActOptionLiteral {
-    pub enclosed_type: Box<ActDataType>,
+    pub enclosed_type: Box<DataType>,
 }
 
 #[derive(Clone, Debug)]
 pub struct ActOptionTypeAlias {
     pub name: String,
-    pub enclosed_type: Box<ActDataType>,
+    pub enclosed_type: Box<DataType>,
 }
 
 impl HasMembers for ActOption {
-    fn get_members(&self) -> Vec<ActDataType> {
+    fn get_members(&self) -> Vec<DataType> {
         vec![self.get_enclosed_type()]
     }
 }
 
 impl ActOption {
-    pub fn get_enclosed_type(&self) -> ActDataType {
+    pub fn get_enclosed_type(&self) -> DataType {
         match &self.act_type {
             LiteralOrTypeAlias::Literal(literal) => *literal.enclosed_type.clone(),
             LiteralOrTypeAlias::TypeAlias(type_alias) => *type_alias.enclosed_type.clone(),

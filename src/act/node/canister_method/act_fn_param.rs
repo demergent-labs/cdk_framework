@@ -1,13 +1,13 @@
 use proc_macro2::TokenStream;
 
-use crate::{act::node::ActDataType, traits::ToIdent, ToTokenStream};
+use crate::{act::node::DataType, traits::ToIdent, ToTokenStream};
 
 // TODO Consider having access to both strings and idents as necessary
 
 #[derive(Debug, Clone)]
 pub struct ActFnParam {
     pub name: String,
-    pub data_type: ActDataType,
+    pub data_type: DataType,
 }
 
 impl ActFnParam {

@@ -1,6 +1,6 @@
 use super::{
     traits::{HasMembers, TypeAliasize},
-    ActDataType, LiteralOrTypeAlias,
+    DataType, LiteralOrTypeAlias,
 };
 use crate::{traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
@@ -14,8 +14,8 @@ pub struct ActFunc {
 #[derive(Clone, Debug)]
 pub struct Func {
     pub name: String,
-    pub params: Vec<ActDataType>,
-    pub return_type: Box<Option<ActDataType>>,
+    pub params: Vec<DataType>,
+    pub return_type: Box<Option<DataType>>,
     pub mode: String,
     pub to_vm_value: TokenStream,
     pub list_to_vm_value: TokenStream,
@@ -47,7 +47,7 @@ impl TypeAliasize<ActFunc> for ActFunc {
 }
 
 impl HasMembers for ActFunc {
-    fn get_members(&self) -> Vec<ActDataType> {
+    fn get_members(&self) -> Vec<DataType> {
         let act_func = match &self.act_type {
             LiteralOrTypeAlias::Literal(literal) => &literal.func,
             LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.func,

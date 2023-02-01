@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 
-use super::{ActDataType, LiteralOrTypeAlias};
+use super::{DataType, LiteralOrTypeAlias};
 use crate::ToTokenStream;
 
 pub trait TypeAliasize<T> {
@@ -12,7 +12,7 @@ pub trait Literally {
 }
 
 pub trait HasMembers {
-    fn get_members(&self) -> Vec<ActDataType>;
+    fn get_members(&self) -> Vec<DataType>;
 }
 
 impl<L: ToTokenStream<C>, T: ToTokenStream<C>, C> ToTokenStream<C> for LiteralOrTypeAlias<L, T> {

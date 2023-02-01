@@ -1,4 +1,4 @@
-use super::{ActDataType, LiteralOrTypeAlias};
+use super::{DataType, LiteralOrTypeAlias};
 use crate::{act::actable::ToActDataType, traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -20,8 +20,8 @@ pub struct ActTypeRefTypeAlias {
 }
 
 impl ToActDataType for String {
-    fn to_act_data_type(&self, alias_name: &Option<&String>) -> ActDataType {
-        ActDataType::TypeRef(ActTypeRef {
+    fn to_act_data_type(&self, alias_name: &Option<&String>) -> DataType {
+        DataType::TypeRef(ActTypeRef {
             act_type: match alias_name {
                 None => LiteralOrTypeAlias::Literal(ActTypeRefLit { name: self.clone() }),
                 Some(name) => LiteralOrTypeAlias::TypeAlias(ActTypeRefTypeAlias {

@@ -1,6 +1,6 @@
 use super::{
     traits::{HasMembers, TypeAliasize},
-    ActDataType, LiteralOrTypeAlias,
+    DataType, LiteralOrTypeAlias,
 };
 use crate::{keyword, traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
@@ -30,7 +30,7 @@ pub struct VariantTypeAlias {
 #[derive(Clone, Debug)]
 pub struct ActVariantMember {
     pub member_name: String,
-    pub member_type: ActDataType,
+    pub member_type: DataType,
 }
 
 impl TypeAliasize<ActVariant> for ActVariant {
@@ -47,7 +47,7 @@ impl TypeAliasize<ActVariant> for ActVariant {
 }
 
 impl HasMembers for ActVariant {
-    fn get_members(&self) -> Vec<ActDataType> {
+    fn get_members(&self) -> Vec<DataType> {
         match &self.act_type {
             LiteralOrTypeAlias::Literal(literal) => &literal.variant,
             LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.variant,
@@ -86,7 +86,7 @@ impl ToTokenStream<&Vec<String>> for VariantTypeAlias {
 impl ToTokenStream<&Vec<String>> for ActVariantMember {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let member_type_token_stream = match self.member_type.clone() {
-            ActDataType::Primitive(_) => {
+            DataType::Primitive(_) => {
                 if self.member_type.to_token_stream(keyword_list).to_string()
                     == quote!((())).to_string()
                 {

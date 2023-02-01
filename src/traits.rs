@@ -4,7 +4,7 @@ use crate::{
             ActFnParam, HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
             PreUpgradeMethod, QueryMethod, UpdateMethod,
         },
-        ActDataType,
+        DataType,
     },
     RequestType,
 };
@@ -24,7 +24,7 @@ pub trait CanisterMethodBuilder {
     fn build_update_method_node(&self, request_type: &RequestType) -> UpdateMethod;
     fn build_query_method_node(&self, request_type: &RequestType) -> QueryMethod;
     fn build_params(&self) -> Vec<ActFnParam>;
-    fn build_return_type(&self) -> ActDataType;
+    fn build_return_type(&self) -> DataType;
 }
 
 pub trait ToIdent {

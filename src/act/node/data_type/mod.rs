@@ -22,7 +22,7 @@ use crate::ToTokenStream;
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
-pub use array::ActArray;
+pub use array::Array;
 pub use func::ActFunc;
 pub use option::ActOption;
 pub use primitive::ActPrimitive;
@@ -34,8 +34,8 @@ pub use variant::ActVariant;
 use self::traits::{HasMembers, Literally, TypeAliasize};
 
 #[derive(Clone, Debug)]
-pub enum ActDataType {
-    Array(ActArray),
+pub enum DataType {
+    Array(Array),
     Func(ActFunc),
     Option(ActOption),
     Primitive(ActPrimitive),
@@ -51,131 +51,131 @@ pub enum LiteralOrTypeAlias<L, T> {
     TypeAlias(T),
 }
 
-impl ActDataType {
-    pub fn as_array(&self) -> Option<&ActArray> {
+impl DataType {
+    pub fn as_array(&self) -> Option<&Array> {
         match self {
-            ActDataType::Array(array) => Some(&array),
+            DataType::Array(array) => Some(&array),
             _ => None,
         }
     }
 
     pub fn as_func(&self) -> Option<&ActFunc> {
         match self {
-            ActDataType::Func(func) => Some(&func),
+            DataType::Func(func) => Some(&func),
             _ => None,
         }
     }
 
     pub fn as_option(&self) -> Option<&ActOption> {
         match self {
-            ActDataType::Option(option) => Some(&option),
+            DataType::Option(option) => Some(&option),
             _ => None,
         }
     }
     pub fn as_primitive(&self) -> Option<&ActPrimitive> {
         match self {
-            ActDataType::Primitive(primitive) => Some(&primitive),
+            DataType::Primitive(primitive) => Some(&primitive),
             _ => None,
         }
     }
     pub fn as_record(&self) -> Option<&ActRecord> {
         match self {
-            ActDataType::Record(record) => Some(&record),
+            DataType::Record(record) => Some(&record),
             _ => None,
         }
     }
     pub fn as_tuple(&self) -> Option<&ActTuple> {
         match self {
-            ActDataType::Tuple(tuple) => Some(&tuple),
+            DataType::Tuple(tuple) => Some(&tuple),
             _ => None,
         }
     }
     pub fn as_type_ref(&self) -> Option<&ActTypeRef> {
         match self {
-            ActDataType::TypeRef(type_ref) => Some(&type_ref),
+            DataType::TypeRef(type_ref) => Some(&type_ref),
             _ => None,
         }
     }
     pub fn as_variant(&self) -> Option<&ActVariant> {
         match self {
-            ActDataType::Variant(variant) => Some(&variant),
+            DataType::Variant(variant) => Some(&variant),
             _ => None,
         }
     }
 
     pub fn is_array(&self) -> bool {
         match self {
-            ActDataType::Array(_) => true,
+            DataType::Array(_) => true,
             _ => false,
         }
     }
 
     pub fn is_func(&self) -> bool {
         match self {
-            ActDataType::Func(_) => true,
+            DataType::Func(_) => true,
             _ => false,
         }
     }
 
     pub fn is_option(&self) -> bool {
         match self {
-            ActDataType::Option(_) => true,
+            DataType::Option(_) => true,
             _ => false,
         }
     }
     pub fn is_primitive(&self) -> bool {
         match self {
-            ActDataType::Primitive(_) => true,
+            DataType::Primitive(_) => true,
             _ => false,
         }
     }
     pub fn is_record(&self) -> bool {
         match self {
-            ActDataType::Record(_) => true,
+            DataType::Record(_) => true,
             _ => false,
         }
     }
     pub fn is_tuple(&self) -> bool {
         match self {
-            ActDataType::Tuple(_) => true,
+            DataType::Tuple(_) => true,
             _ => false,
         }
     }
     pub fn is_type_ref(&self) -> bool {
         match self {
-            ActDataType::TypeRef(_) => true,
+            DataType::TypeRef(_) => true,
             _ => false,
         }
     }
     pub fn is_variant(&self) -> bool {
         match self {
-            ActDataType::Variant(_) => true,
+            DataType::Variant(_) => true,
             _ => false,
         }
     }
     pub fn needs_definition(&self) -> bool {
         match self {
-            ActDataType::Primitive(_) => false,
-            ActDataType::TypeRef(_) => false,
-            ActDataType::Array(_) => false,
-            ActDataType::Option(_) => false,
-            ActDataType::Record(act_record) => act_record.act_type.is_literal(),
-            ActDataType::Variant(act_variant) => act_variant.act_type.is_literal(),
-            ActDataType::Func(act_func) => act_func.act_type.is_literal(),
-            ActDataType::Tuple(act_tuple) => act_tuple.act_type.is_literal(),
+            DataType::Primitive(_) => false,
+            DataType::TypeRef(_) => false,
+            DataType::Array(_) => false,
+            DataType::Option(_) => false,
+            DataType::Record(act_record) => act_record.act_type.is_literal(),
+            DataType::Variant(act_variant) => act_variant.act_type.is_literal(),
+            DataType::Func(act_func) => act_func.act_type.is_literal(),
+            DataType::Tuple(act_tuple) => act_tuple.act_type.is_literal(),
         }
     }
 
-    pub fn as_type_alias(&self) -> Option<ActDataType> {
+    pub fn as_type_alias(&self) -> Option<DataType> {
         match self {
-            ActDataType::Primitive(_) => None,
-            ActDataType::Option(_) => None,
-            ActDataType::TypeRef(_) => None,
-            ActDataType::Array(_) => None,
-            ActDataType::Record(record) => Some(ActDataType::Record(record.as_type_alias())),
-            ActDataType::Variant(variant) => Some(ActDataType::Variant(variant.as_type_alias())),
-            ActDataType::Func(func) => Some(ActDataType::Func(func.as_type_alias())),
-            ActDataType::Tuple(tuple) => Some(ActDataType::Tuple(tuple.as_type_alias())),
+            DataType::Primitive(_) => None,
+            DataType::Option(_) => None,
+            DataType::TypeRef(_) => None,
+            DataType::Array(_) => None,
+            DataType::Record(record) => Some(DataType::Record(record.as_type_alias())),
+            DataType::Variant(variant) => Some(DataType::Variant(variant.as_type_alias())),
+            DataType::Func(func) => Some(DataType::Func(func.as_type_alias())),
+            DataType::Tuple(tuple) => Some(DataType::Tuple(tuple.as_type_alias())),
         }
     }
 
@@ -183,20 +183,20 @@ impl ActDataType {
         true
     }
 
-    pub fn get_members(&self) -> Vec<ActDataType> {
+    pub fn get_members(&self) -> Vec<DataType> {
         match self {
-            ActDataType::Record(act_record) => act_record.get_members(),
-            ActDataType::Variant(act_variant) => act_variant.get_members(),
-            ActDataType::Func(act_func) => act_func.get_members(),
-            ActDataType::Primitive(_) => vec![],
-            ActDataType::TypeRef(_) => vec![],
-            ActDataType::Array(act_array) => act_array.get_members(),
-            ActDataType::Tuple(act_tuple) => act_tuple.get_members(),
-            ActDataType::Option(act_option) => act_option.get_members(),
+            DataType::Record(act_record) => act_record.get_members(),
+            DataType::Variant(act_variant) => act_variant.get_members(),
+            DataType::Func(act_func) => act_func.get_members(),
+            DataType::Primitive(_) => vec![],
+            DataType::TypeRef(_) => vec![],
+            DataType::Array(act_array) => act_array.get_members(),
+            DataType::Tuple(act_tuple) => act_tuple.get_members(),
+            DataType::Option(act_option) => act_option.get_members(),
         }
     }
 
-    pub fn collect_inline_types(&self) -> Vec<ActDataType> {
+    pub fn collect_inline_types(&self) -> Vec<DataType> {
         let act_data_type = match self.needs_definition() {
             true => match self.as_type_alias() {
                 Some(type_alias) => vec![type_alias],
@@ -213,32 +213,32 @@ impl ActDataType {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for ActDataType {
+impl ToTokenStream<&Vec<String>> for DataType {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         match self {
-            ActDataType::Record(act_record) => act_record.to_token_stream(keyword_list),
-            ActDataType::Variant(act_variant) => act_variant.to_token_stream(keyword_list),
-            ActDataType::Func(act_func) => act_func.to_token_stream(keyword_list),
-            ActDataType::Tuple(act_tuple) => act_tuple.to_token_stream(keyword_list),
-            ActDataType::Primitive(act_primitive) => act_primitive.to_token_stream(keyword_list),
-            ActDataType::TypeRef(act_type_ref) => act_type_ref.to_token_stream(keyword_list),
-            ActDataType::Option(act_option) => act_option.to_token_stream(keyword_list),
-            ActDataType::Array(act_array) => act_array.to_token_stream(keyword_list),
+            DataType::Record(act_record) => act_record.to_token_stream(keyword_list),
+            DataType::Variant(act_variant) => act_variant.to_token_stream(keyword_list),
+            DataType::Func(act_func) => act_func.to_token_stream(keyword_list),
+            DataType::Tuple(act_tuple) => act_tuple.to_token_stream(keyword_list),
+            DataType::Primitive(act_primitive) => act_primitive.to_token_stream(keyword_list),
+            DataType::TypeRef(act_type_ref) => act_type_ref.to_token_stream(keyword_list),
+            DataType::Option(act_option) => act_option.to_token_stream(keyword_list),
+            DataType::Array(act_array) => act_array.to_token_stream(keyword_list),
         }
     }
 }
 
-pub fn build_inline_type_acts(type_aliases: &Vec<ActDataType>) -> Vec<ActDataType> {
+pub fn build_inline_type_acts(type_aliases: &Vec<DataType>) -> Vec<DataType> {
     type_aliases.iter().fold(vec![], |acc, type_alias| {
         vec![acc, type_alias.collect_inline_types()].concat()
     })
 }
 
 pub fn deduplicate(
-    act_data_type_nodes: Vec<ActDataType>,
+    act_data_type_nodes: Vec<DataType>,
     keyword_list: &Vec<String>,
-) -> Vec<ActDataType> {
-    let map: HashMap<String, ActDataType> =
+) -> Vec<DataType> {
+    let map: HashMap<String, DataType> =
         act_data_type_nodes
             .iter()
             .fold(HashMap::new(), |mut acc, act_node| {

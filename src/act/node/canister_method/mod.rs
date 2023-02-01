@@ -16,7 +16,7 @@ pub use pre_upgrade_method::PreUpgradeMethod;
 pub use query_method::QueryMethod;
 pub use update_method::UpdateMethod;
 
-use super::ActDataType;
+use super::DataType;
 
 #[derive(Clone)]
 pub enum ActCanisterMethod {
@@ -30,14 +30,14 @@ pub enum ActCanisterMethod {
 }
 
 pub trait GetAllTypes {
-    fn get_all_types(&self) -> Vec<ActDataType>;
+    fn get_all_types(&self) -> Vec<DataType>;
 }
 
 impl<T> GetAllTypes for Vec<T>
 where
     T: GetAllTypes,
 {
-    fn get_all_types(&self) -> Vec<ActDataType> {
+    fn get_all_types(&self) -> Vec<DataType> {
         self.iter().fold(vec![], |acc, canister_method| {
             let inline_types = canister_method.get_all_types();
             vec![acc, inline_types].concat()
@@ -50,15 +50,15 @@ where
     T: HasParams,
     T: HasReturnValue,
 {
-    fn get_all_types(&self) -> Vec<ActDataType> {
+    fn get_all_types(&self) -> Vec<DataType> {
         vec![self.get_param_types(), vec![self.get_return_type()]].concat()
     }
 }
 
 trait HasReturnValue {
-    fn get_return_type(&self) -> ActDataType;
+    fn get_return_type(&self) -> DataType;
 }
 
 trait HasParams {
-    fn get_param_types(&self) -> Vec<ActDataType>;
+    fn get_param_types(&self) -> Vec<DataType>;
 }

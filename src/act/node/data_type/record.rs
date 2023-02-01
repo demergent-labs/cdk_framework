@@ -1,6 +1,6 @@
 use super::{
     traits::{HasMembers, TypeAliasize},
-    ActDataType, LiteralOrTypeAlias,
+    DataType, LiteralOrTypeAlias,
 };
 use crate::{keyword, traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
@@ -30,7 +30,7 @@ pub struct RecordTypeAlias {
 #[derive(Clone, Debug)]
 pub struct ActRecordMember {
     pub member_name: String,
-    pub member_type: ActDataType,
+    pub member_type: DataType,
 }
 
 impl TypeAliasize<ActRecord> for ActRecord {
@@ -56,13 +56,13 @@ impl TypeAliasize<RecordTypeAlias> for RecordLiteral {
 }
 
 impl HasMembers for ActRecord {
-    fn get_members(&self) -> Vec<ActDataType> {
+    fn get_members(&self) -> Vec<DataType> {
         self.get_member_types()
     }
 }
 
 impl ActRecord {
-    pub fn get_member_types(&self) -> Vec<ActDataType> {
+    pub fn get_member_types(&self) -> Vec<DataType> {
         match &self.act_type {
             LiteralOrTypeAlias::Literal(literal) => &literal.record,
             LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.record,

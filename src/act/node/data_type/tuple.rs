@@ -1,6 +1,6 @@
 use super::{
     traits::{HasMembers, TypeAliasize},
-    ActDataType, LiteralOrTypeAlias,
+    DataType, LiteralOrTypeAlias,
 };
 use crate::{traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
@@ -29,7 +29,7 @@ pub struct Tuple {
 
 #[derive(Clone, Debug)]
 pub struct ActTupleElem {
-    pub elem_type: ActDataType,
+    pub elem_type: DataType,
 }
 
 impl TypeAliasize<ActTuple> for ActTuple {
@@ -48,7 +48,7 @@ impl TypeAliasize<ActTuple> for ActTuple {
 }
 
 impl HasMembers for ActTuple {
-    fn get_members(&self) -> Vec<ActDataType> {
+    fn get_members(&self) -> Vec<DataType> {
         match &self.act_type {
             LiteralOrTypeAlias::Literal(literal) => &literal.tuple,
             LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.tuple,

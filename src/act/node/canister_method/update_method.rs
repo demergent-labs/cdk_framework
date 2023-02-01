@@ -1,4 +1,4 @@
-use crate::{act::node::ActDataType, traits::ToIdent, ToTokenStream, ToTokenStreams};
+use crate::{act::node::DataType, traits::ToIdent, ToTokenStream, ToTokenStreams};
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -12,7 +12,7 @@ pub struct UpdateMethod {
     pub is_manual: bool,
     pub is_async: bool,
     pub name: String,
-    pub return_type: ActDataType,
+    pub return_type: DataType,
     pub cdk_name: String,
     pub function_guard_name: Option<String>,
 }
@@ -61,7 +61,7 @@ impl ToTokenStream<&Vec<String>> for UpdateMethod {
 }
 
 impl HasParams for UpdateMethod {
-    fn get_param_types(&self) -> Vec<ActDataType> {
+    fn get_param_types(&self) -> Vec<DataType> {
         self.params
             .iter()
             .map(|param| param.data_type.clone())
@@ -70,7 +70,7 @@ impl HasParams for UpdateMethod {
 }
 
 impl HasReturnValue for UpdateMethod {
-    fn get_return_type(&self) -> ActDataType {
+    fn get_return_type(&self) -> DataType {
         self.return_type.clone()
     }
 }
