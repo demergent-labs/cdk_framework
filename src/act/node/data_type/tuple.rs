@@ -1,25 +1,7 @@
-use super::{
-    traits::{HasMembers, TypeAliasize},
-    DataType, LiteralOrTypeAlias,
-};
-use crate::{traits::ToIdent, ToTokenStream};
+use super::{traits::HasMembers, DataType};
+use crate::{traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-
-#[derive(Clone, Debug)]
-pub struct ActTuple {
-    pub act_type: LiteralOrTypeAlias<TupleLiteral, TupleTypeAlias>,
-}
-
-#[derive(Clone, Debug)]
-pub struct TupleLiteral {
-    pub tuple: Tuple,
-}
-
-#[derive(Clone, Debug)]
-pub struct TupleTypeAlias {
-    pub tuple: Tuple,
-}
 
 #[derive(Clone, Debug)]
 pub struct Tuple {
@@ -32,45 +14,25 @@ pub struct ActTupleElem {
     pub elem_type: DataType,
 }
 
-impl TypeAliasize<ActTuple> for ActTuple {
-    fn as_type_alias(&self) -> ActTuple {
-        ActTuple {
-            act_type: match &self.act_type {
-                LiteralOrTypeAlias::Literal(literal) => {
-                    LiteralOrTypeAlias::TypeAlias(TupleTypeAlias {
-                        tuple: literal.tuple.clone(),
-                    })
-                }
-                LiteralOrTypeAlias::TypeAlias(_) => self.act_type.clone(),
-            },
-        }
-    }
-}
-
-impl HasMembers for ActTuple {
+impl HasMembers for Tuple {
     fn get_members(&self) -> Vec<DataType> {
-        match &self.act_type {
-            LiteralOrTypeAlias::Literal(literal) => &literal.tuple,
-            LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.tuple,
-        }
-        .elems
-        .iter()
-        .map(|elem| elem.elem_type.clone())
-        .collect()
+        self.elems
+            .iter()
+            .map(|elem| elem.elem_type.clone())
+            .collect()
     }
 }
 
-impl<C> ToTokenStream<C> for TupleLiteral {
+impl<C> ToTokenStream<C> for Tuple {
     fn to_token_stream(&self, _: C) -> TokenStream {
-        self.tuple.name.to_identifier().to_token_stream()
+        self.name.to_identifier().to_token_stream()
     }
 }
 
-impl ToTokenStream<&Vec<String>> for TupleTypeAlias {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let type_ident = self.tuple.name.to_identifier();
+impl ToDeclarationTokenStream<&Vec<String>> for Tuple {
+    fn to_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let type_ident = self.name.to_identifier();
         let elem_idents: Vec<TokenStream> = self
-            .tuple
             .elems
             .iter()
             .map(|elem| elem.to_token_stream(keyword_list))
@@ -100,11 +62,5 @@ impl ToTokenStream<&Vec<String>> for ActTupleElem {
         } else {
             quote!(self.elem_type.to_token_stream())
         }
-    }
-}
-
-impl ToTokenStream<&Vec<String>> for ActTuple {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        self.act_type.to_token_stream(context)
     }
 }

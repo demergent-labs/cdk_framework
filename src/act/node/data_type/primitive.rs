@@ -1,16 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{DataType, LiteralOrTypeAlias};
-use crate::{act::actable::ToActDataType, traits::ToIdent, ToTokenStream};
+use crate::{ToActDataType, ToTokenStream};
+
+use super::DataType;
 
 #[derive(Clone, Debug)]
-pub struct ActPrimitive {
-    pub act_type: LiteralOrTypeAlias<ActPrimitiveLit, ActPrimitiveTypeAlias>,
-}
-
-#[derive(Clone, Debug)]
-pub enum ActPrimitiveLit {
+pub enum Primitive {
     Bool,
     Blob,
     Empty,
@@ -33,63 +29,42 @@ pub enum ActPrimitiveLit {
     Void,
 }
 
-impl ToActDataType for ActPrimitiveLit {
+impl ToActDataType for Primitive {
     fn to_act_data_type(&self, alias_name: &Option<&String>) -> DataType {
-        DataType::Primitive(ActPrimitive {
-            act_type: match alias_name {
-                None => LiteralOrTypeAlias::Literal(self.clone()),
-                Some(name) => LiteralOrTypeAlias::TypeAlias(ActPrimitiveTypeAlias {
-                    name: name.clone().clone(),
-                    aliased_type: self.clone(),
-                }),
-            },
-        })
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct ActPrimitiveTypeAlias {
-    pub name: String,
-    pub aliased_type: ActPrimitiveLit,
-}
-
-impl<C> ToTokenStream<C> for ActPrimitiveTypeAlias {
-    fn to_token_stream(&self, context: C) -> TokenStream {
-        let name = self.name.to_identifier();
-        let alias = self.aliased_type.to_token_stream(context);
-        quote!(type #name = #alias;)
-    }
-}
-
-impl<C> ToTokenStream<C> for ActPrimitiveLit {
-    fn to_token_stream(&self, _: C) -> TokenStream {
-        match self {
-            ActPrimitiveLit::Bool => quote!(bool),
-            ActPrimitiveLit::Blob => quote!(Vec<u8>),
-            ActPrimitiveLit::Empty => quote!(candid::Empty),
-            ActPrimitiveLit::Float32 => quote!(f32),
-            ActPrimitiveLit::Float64 => quote!(f64),
-            ActPrimitiveLit::Int => quote!(candid::Int),
-            ActPrimitiveLit::Int8 => quote!(i8),
-            ActPrimitiveLit::Int16 => quote!(i16),
-            ActPrimitiveLit::Int32 => quote!(i32),
-            ActPrimitiveLit::Int64 => quote!(i64),
-            ActPrimitiveLit::Nat => quote!(candid::Nat),
-            ActPrimitiveLit::Nat8 => quote!(u8),
-            ActPrimitiveLit::Nat16 => quote!(u16),
-            ActPrimitiveLit::Nat32 => quote!(u32),
-            ActPrimitiveLit::Nat64 => quote!(u64),
-            ActPrimitiveLit::Null => quote! {(())},
-            ActPrimitiveLit::Principal => quote!(candid::Principal),
-            ActPrimitiveLit::Reserved => quote!(candid::Reserved),
-            ActPrimitiveLit::String => quote!(String),
-            ActPrimitiveLit::Void => quote! {()},
+        let primitive = DataType::Primitive(self.clone());
+        match alias_name {
+            None => primitive,
+            Some(name) => DataType::TypeAlias(super::TypeAlias {
+                name: name.clone().clone(),
+                aliased_type: Box::new(primitive),
+            }),
         }
     }
 }
 
-impl ToTokenStream<&Vec<String>> for ActPrimitive {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        self.act_type.to_token_stream(context)
+impl<C> ToTokenStream<C> for Primitive {
+    fn to_token_stream(&self, _: C) -> TokenStream {
+        match self {
+            Primitive::Bool => quote!(bool),
+            Primitive::Blob => quote!(Vec<u8>),
+            Primitive::Empty => quote!(candid::Empty),
+            Primitive::Float32 => quote!(f32),
+            Primitive::Float64 => quote!(f64),
+            Primitive::Int => quote!(candid::Int),
+            Primitive::Int8 => quote!(i8),
+            Primitive::Int16 => quote!(i16),
+            Primitive::Int32 => quote!(i32),
+            Primitive::Int64 => quote!(i64),
+            Primitive::Nat => quote!(candid::Nat),
+            Primitive::Nat8 => quote!(u8),
+            Primitive::Nat16 => quote!(u16),
+            Primitive::Nat32 => quote!(u32),
+            Primitive::Nat64 => quote!(u64),
+            Primitive::Null => quote! {(())},
+            Primitive::Principal => quote!(candid::Principal),
+            Primitive::Reserved => quote!(candid::Reserved),
+            Primitive::String => quote!(String),
+            Primitive::Void => quote! {()},
+        }
     }
 }

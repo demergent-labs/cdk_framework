@@ -1,30 +1,17 @@
-use super::{
-    traits::{HasMembers, TypeAliasize},
-    DataType, LiteralOrTypeAlias,
-};
-use crate::{keyword, traits::ToIdent, ToTokenStream};
+use super::{traits::HasMembers, DataType};
+use crate::{keyword, traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-#[derive(Clone, Debug)]
-pub struct ActRecord {
-    pub act_type: LiteralOrTypeAlias<RecordLiteral, RecordTypeAlias>,
-}
+// #[derive(Clone, Debug)]
+// pub struct ActRecord {
+//     pub act_type: LiteralOrTypeAlias<RecordLiteral, RecordTypeAlias>,
+// }
 
 #[derive(Clone, Debug)]
 pub struct Record {
-    pub name: String,
+    pub name: Option<String>,
     pub members: Vec<ActRecordMember>,
-}
-
-#[derive(Clone, Debug)]
-pub struct RecordLiteral {
-    pub record: Record,
-}
-
-#[derive(Clone, Debug)]
-pub struct RecordTypeAlias {
-    pub record: Record,
 }
 
 #[derive(Clone, Debug)]
@@ -33,61 +20,23 @@ pub struct ActRecordMember {
     pub member_type: DataType,
 }
 
-impl TypeAliasize<ActRecord> for ActRecord {
-    fn as_type_alias(&self) -> ActRecord {
-        match &self.act_type {
-            LiteralOrTypeAlias::Literal(literal) => ActRecord {
-                act_type: LiteralOrTypeAlias::TypeAlias(RecordTypeAlias {
-                    record: literal.record.clone(),
-                }),
-            },
-            LiteralOrTypeAlias::TypeAlias(_) => self.clone(),
-        }
-    }
-}
-
-// TODO see if I can do this
-impl TypeAliasize<RecordTypeAlias> for RecordLiteral {
-    fn as_type_alias(&self) -> RecordTypeAlias {
-        RecordTypeAlias {
-            record: self.record.clone(),
-        }
-    }
-}
-
-impl HasMembers for ActRecord {
+impl HasMembers for Record {
     fn get_members(&self) -> Vec<DataType> {
-        self.get_member_types()
+        self.members
+            .iter()
+            .map(|member| member.member_type.clone())
+            .collect()
     }
 }
 
-impl ActRecord {
-    pub fn get_member_types(&self) -> Vec<DataType> {
-        match &self.act_type {
-            LiteralOrTypeAlias::Literal(literal) => &literal.record,
-            LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.record,
-        }
-        .members
-        .iter()
-        .map(|member| member.member_type.clone())
-        .collect()
-    }
-}
-
-impl<C> ToTokenStream<C> for RecordLiteral {
-    fn to_token_stream(&self, _: C) -> TokenStream {
-        self.record.name.to_identifier().to_token_stream()
-    }
-}
-
-impl ToTokenStream<&Vec<String>> for RecordTypeAlias {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let type_ident = self.record.name.to_identifier();
+impl ToDeclarationTokenStream<&Vec<String>> for Record {
+    fn to_declaration(&self, context: &Vec<String>) -> TokenStream {
+        // TODO handle unwraps
+        let type_ident = self.name.as_ref().unwrap().to_identifier();
         let member_token_streams: Vec<TokenStream> = self
-            .record
             .members
             .iter()
-            .map(|member| member.to_token_stream(keyword_list))
+            .map(|member| member.to_token_stream(context))
             .collect();
         quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
@@ -95,6 +44,17 @@ impl ToTokenStream<&Vec<String>> for RecordTypeAlias {
                 #(#member_token_streams),*
             }
         )
+    }
+}
+
+impl ToTokenStream<&Vec<String>> for Record {
+    fn to_token_stream(&self, _: &Vec<String>) -> TokenStream {
+        // TODO handle upwraps
+        self.name
+            .as_ref()
+            .unwrap()
+            .to_identifier()
+            .to_token_stream()
     }
 }
 
@@ -109,11 +69,5 @@ impl ToTokenStream<&Vec<String>> for ActRecordMember {
         let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
         let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
         quote!(#rename#member_name: #member_type_token_stream)
-    }
-}
-
-impl ToTokenStream<&Vec<String>> for ActRecord {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        self.act_type.to_token_stream(context)
     }
 }

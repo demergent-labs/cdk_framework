@@ -1,4 +1,5 @@
 use proc_macro2::TokenStream;
+use quote::quote;
 use std::fmt;
 
 pub use act::actable::Actable;
@@ -51,11 +52,30 @@ pub trait ToTokenStream<C> {
     fn to_token_stream(&self, context: C) -> TokenStream;
 }
 
+pub trait ToDeclarationTokenStream<C> {
+    fn to_declaration(&self, context: C) -> TokenStream;
+}
+
+impl<C, T> ToDeclarationTokenStream<C> for Vec<T>
+where
+    C: Clone,
+    T: ToDeclarationTokenStream<C>,
+{
+    fn to_declaration(&self, context: C) -> TokenStream {
+        let declarations = self.iter().map(|t| t.to_declaration(context.clone()));
+        quote!(#(#declarations)*)
+    }
+}
+
 pub trait ToTokenStreams<C> {
     fn to_token_streams(&self, context: C) -> Vec<TokenStream>;
 }
 
-impl<C: Clone, T: ToTokenStream<C>> ToTokenStreams<C> for Vec<T> {
+impl<C, T> ToTokenStreams<C> for Vec<T>
+where
+    C: Clone,
+    T: ToTokenStream<C>,
+{
     fn to_token_streams(&self, context: C) -> Vec<TokenStream> {
         self.iter()
             .map(|t| t.to_token_stream(context.clone()))
@@ -63,7 +83,20 @@ impl<C: Clone, T: ToTokenStream<C>> ToTokenStreams<C> for Vec<T> {
     }
 }
 
-impl<C, T: ToTokenStream<C>> ToTokenStream<C> for Option<T> {
+impl<C, T> ToTokenStream<C> for Vec<T>
+where
+    C: Clone,
+    T: ToTokenStream<C>,
+{
+    fn to_token_stream(&self, context: C) -> TokenStream {
+        let declarations = self.iter().map(|t| t.to_token_stream(context.clone()));
+        quote!(#(#declarations)*)
+    }
+}
+impl<C, T> ToTokenStream<C> for Option<T>
+where
+    T: ToTokenStream<C>,
+{
     fn to_token_stream(&self, context: C) -> TokenStream {
         match self {
             Some(t) => t.to_token_stream(context),
