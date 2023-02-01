@@ -46,7 +46,7 @@ pub struct CanisterMethods {
 pub struct DataTypes {
     pub arrays: Vec<Array>,
     pub funcs: Vec<ActFunc>,
-    pub options: Vec<data_type::ActOption>,
+    pub options: Vec<data_type::Option>,
     pub primitives: Vec<ActPrimitive>,
     pub records: Vec<ActRecord>,
     pub tuples: Vec<ActTuple>,

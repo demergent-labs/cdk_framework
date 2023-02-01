@@ -24,7 +24,7 @@ use std::collections::HashMap;
 
 pub use array::Array;
 pub use func::ActFunc;
-pub use option::ActOption;
+pub use option::Option;
 pub use primitive::ActPrimitive;
 pub use record::ActRecord;
 pub use tuple::ActTuple;
@@ -37,7 +37,7 @@ use self::traits::{HasMembers, Literally, TypeAliasize};
 pub enum DataType {
     Array(Array),
     Func(ActFunc),
-    Option(ActOption),
+    Option(self::Option),
     Primitive(ActPrimitive),
     Record(ActRecord),
     Tuple(ActTuple),
@@ -52,51 +52,51 @@ pub enum LiteralOrTypeAlias<L, T> {
 }
 
 impl DataType {
-    pub fn as_array(&self) -> Option<&Array> {
+    pub fn as_array(&self) -> core::option::Option<&Array> {
         match self {
             DataType::Array(array) => Some(&array),
             _ => None,
         }
     }
 
-    pub fn as_func(&self) -> Option<&ActFunc> {
+    pub fn as_func(&self) -> core::option::Option<&ActFunc> {
         match self {
             DataType::Func(func) => Some(&func),
             _ => None,
         }
     }
 
-    pub fn as_option(&self) -> Option<&ActOption> {
+    pub fn as_option(&self) -> core::option::Option<&self::Option> {
         match self {
             DataType::Option(option) => Some(&option),
             _ => None,
         }
     }
-    pub fn as_primitive(&self) -> Option<&ActPrimitive> {
+    pub fn as_primitive(&self) -> core::option::Option<&ActPrimitive> {
         match self {
             DataType::Primitive(primitive) => Some(&primitive),
             _ => None,
         }
     }
-    pub fn as_record(&self) -> Option<&ActRecord> {
+    pub fn as_record(&self) -> core::option::Option<&ActRecord> {
         match self {
             DataType::Record(record) => Some(&record),
             _ => None,
         }
     }
-    pub fn as_tuple(&self) -> Option<&ActTuple> {
+    pub fn as_tuple(&self) -> core::option::Option<&ActTuple> {
         match self {
             DataType::Tuple(tuple) => Some(&tuple),
             _ => None,
         }
     }
-    pub fn as_type_ref(&self) -> Option<&ActTypeRef> {
+    pub fn as_type_ref(&self) -> core::option::Option<&ActTypeRef> {
         match self {
             DataType::TypeRef(type_ref) => Some(&type_ref),
             _ => None,
         }
     }
-    pub fn as_variant(&self) -> Option<&ActVariant> {
+    pub fn as_variant(&self) -> core::option::Option<&ActVariant> {
         match self {
             DataType::Variant(variant) => Some(&variant),
             _ => None,
@@ -166,7 +166,7 @@ impl DataType {
         }
     }
 
-    pub fn as_type_alias(&self) -> Option<DataType> {
+    pub fn as_type_alias(&self) -> core::option::Option<DataType> {
         match self {
             DataType::Primitive(_) => None,
             DataType::Option(_) => None,
