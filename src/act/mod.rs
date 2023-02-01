@@ -3,7 +3,7 @@ pub mod node;
 
 use proc_macro2::TokenStream;
 
-use node::canister_methods::{
+use node::canister_method::{
     init_method, post_upgrade_method,
     {
         HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,

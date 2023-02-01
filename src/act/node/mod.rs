@@ -1,5 +1,5 @@
 pub mod act_function_guard;
-pub mod canister_methods;
+pub mod canister_method;
 pub mod data_type;
 pub mod external_canister;
 
@@ -8,7 +8,7 @@ pub use data_type::ActDataType;
 pub use external_canister::ExternalCanister;
 pub use external_canister::ExternalCanisterMethod;
 
-use self::canister_methods::ActCanisterMethod;
+use self::canister_method::ActCanisterMethod;
 
 #[derive(Clone)]
 pub enum ActNode {

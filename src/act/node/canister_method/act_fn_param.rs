@@ -1,9 +1,6 @@
 use proc_macro2::TokenStream;
 
-use crate::{
-    act::node::{data_type::traits::ToIdent, ActDataType},
-    ToTokenStream,
-};
+use crate::{act::node::ActDataType, traits::ToIdent, ToTokenStream};
 
 // TODO Consider having access to both strings and idents as necessary
 

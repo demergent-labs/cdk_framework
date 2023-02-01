@@ -1,8 +1,6 @@
-use crate::ToTokenStream;
+use crate::{traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::quote;
-
-use super::data_type::traits::ToIdent;
 
 #[derive(Debug, Clone)]
 pub struct ActFunctionGuard {

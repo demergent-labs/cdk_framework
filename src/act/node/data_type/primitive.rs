@@ -1,8 +1,8 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{traits::ToIdent, ActDataType, LiteralOrTypeAlias};
-use crate::{act::actable::ToActDataType, ToTokenStream};
+use super::{ActDataType, LiteralOrTypeAlias};
+use crate::{act::actable::ToActDataType, traits::ToIdent, ToTokenStream};
 
 #[derive(Clone, Debug)]
 pub struct ActPrimitive {

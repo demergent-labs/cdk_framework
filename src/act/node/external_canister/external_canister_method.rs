@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::{
-    act::node::{canister_methods::ActFnParam, ActDataType},
+    act::node::{canister_method::ActFnParam, ActDataType},
     ToTokenStream,
 };
 

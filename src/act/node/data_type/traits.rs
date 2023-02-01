@@ -1,18 +1,7 @@
-use proc_macro2::{Ident, TokenStream};
-use quote::format_ident;
+use proc_macro2::TokenStream;
 
 use super::{ActDataType, LiteralOrTypeAlias};
 use crate::ToTokenStream;
-
-pub trait ToIdent {
-    fn to_identifier(&self) -> Ident;
-}
-
-impl ToIdent for String {
-    fn to_identifier(&self) -> Ident {
-        format_ident!("{}", self)
-    }
-}
 
 pub trait TypeAliasize<T> {
     fn as_type_alias(&self) -> T;

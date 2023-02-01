@@ -1,7 +1,4 @@
-use crate::{
-    act::node::{data_type::traits::ToIdent, ActDataType},
-    ToTokenStream, ToTokenStreams,
-};
+use crate::{act::node::ActDataType, traits::ToIdent, ToTokenStream, ToTokenStreams};
 use proc_macro2::TokenStream;
 use quote::quote;
 

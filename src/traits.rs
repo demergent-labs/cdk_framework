@@ -1,6 +1,6 @@
 use crate::{
     act::node::{
-        canister_methods::{
+        canister_method::{
             ActFnParam, HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
             PreUpgradeMethod, QueryMethod, UpdateMethod,
         },
@@ -8,6 +8,8 @@ use crate::{
     },
     RequestType,
 };
+use proc_macro2::Ident;
+use quote::format_ident;
 
 pub trait SystemCanisterMethodBuilder {
     fn build_heartbeat_method(&self) -> Option<HeartbeatMethod>;
@@ -23,4 +25,14 @@ pub trait CanisterMethodBuilder {
     fn build_query_method_node(&self, request_type: &RequestType) -> QueryMethod;
     fn build_params(&self) -> Vec<ActFnParam>;
     fn build_return_type(&self) -> ActDataType;
+}
+
+pub trait ToIdent {
+    fn to_identifier(&self) -> Ident;
+}
+
+impl ToIdent for String {
+    fn to_identifier(&self) -> Ident {
+        format_ident!("{}", self)
+    }
 }
