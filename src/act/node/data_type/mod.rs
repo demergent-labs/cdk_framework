@@ -15,6 +15,7 @@ pub mod primitive;
 pub mod record;
 pub mod traits;
 pub mod tuple;
+pub mod type_alias;
 pub mod type_ref;
 pub mod variant;
 
@@ -28,7 +29,8 @@ pub use option::Option;
 pub use primitive::ActPrimitive;
 pub use record::ActRecord;
 pub use tuple::ActTuple;
-pub use type_ref::ActTypeRef;
+pub use type_alias::TypeAlias;
+pub use type_ref::TypeRef;
 pub use variant::ActVariant;
 
 use self::traits::{HasMembers, Literally, TypeAliasize};
@@ -41,7 +43,8 @@ pub enum DataType {
     Primitive(ActPrimitive),
     Record(ActRecord),
     Tuple(ActTuple),
-    TypeRef(ActTypeRef),
+    TypeAlias(TypeAlias),
+    TypeRef(TypeRef),
     Variant(ActVariant),
 }
 
@@ -72,30 +75,42 @@ impl DataType {
             _ => None,
         }
     }
+
     pub fn as_primitive(&self) -> core::option::Option<&ActPrimitive> {
         match self {
             DataType::Primitive(primitive) => Some(&primitive),
             _ => None,
         }
     }
+
     pub fn as_record(&self) -> core::option::Option<&ActRecord> {
         match self {
             DataType::Record(record) => Some(&record),
             _ => None,
         }
     }
+
     pub fn as_tuple(&self) -> core::option::Option<&ActTuple> {
         match self {
             DataType::Tuple(tuple) => Some(&tuple),
             _ => None,
         }
     }
-    pub fn as_type_ref(&self) -> core::option::Option<&ActTypeRef> {
+
+    pub fn as_type_ref(&self) -> core::option::Option<&TypeRef> {
         match self {
             DataType::TypeRef(type_ref) => Some(&type_ref),
             _ => None,
         }
     }
+
+    pub fn as_new_type_alias(&self) -> core::option::Option<&TypeAlias> {
+        match self {
+            DataType::TypeAlias(type_alias) => Some(&type_alias),
+            _ => None,
+        }
+    }
+
     pub fn as_variant(&self) -> core::option::Option<&ActVariant> {
         match self {
             DataType::Variant(variant) => Some(&variant),
@@ -154,9 +169,11 @@ impl DataType {
         }
     }
     pub fn needs_definition(&self) -> bool {
+        // TODO maybe the type ref is the only one that needs definithin in this new regeme?
         match self {
             DataType::Primitive(_) => false,
             DataType::TypeRef(_) => false,
+            DataType::TypeAlias(_) => true,
             DataType::Array(_) => false,
             DataType::Option(_) => false,
             DataType::Record(act_record) => act_record.act_type.is_literal(),
@@ -167,11 +184,13 @@ impl DataType {
     }
 
     pub fn as_type_alias(&self) -> core::option::Option<DataType> {
+        // TODO this entire thing might be unnecessary
         match self {
             DataType::Primitive(_) => None,
             DataType::Option(_) => None,
             DataType::TypeRef(_) => None,
             DataType::Array(_) => None,
+            DataType::TypeAlias(alias) => Some(DataType::TypeAlias(alias.clone())),
             DataType::Record(record) => Some(DataType::Record(record.as_type_alias())),
             DataType::Variant(variant) => Some(DataType::Variant(variant.as_type_alias())),
             DataType::Func(func) => Some(DataType::Func(func.as_type_alias())),
@@ -190,6 +209,7 @@ impl DataType {
             DataType::Func(act_func) => act_func.get_members(),
             DataType::Primitive(_) => vec![],
             DataType::TypeRef(_) => vec![],
+            DataType::TypeAlias(type_alias) => type_alias.get_members(),
             DataType::Array(act_array) => act_array.get_members(),
             DataType::Tuple(act_tuple) => act_tuple.get_members(),
             DataType::Option(act_option) => act_option.get_members(),
@@ -222,6 +242,7 @@ impl ToTokenStream<&Vec<String>> for DataType {
             DataType::Tuple(act_tuple) => act_tuple.to_token_stream(keyword_list),
             DataType::Primitive(act_primitive) => act_primitive.to_token_stream(keyword_list),
             DataType::TypeRef(act_type_ref) => act_type_ref.to_token_stream(keyword_list),
+            DataType::TypeAlias(act_type_alias) => act_type_alias.to_token_stream(keyword_list),
             DataType::Option(act_option) => act_option.to_token_stream(keyword_list),
             DataType::Array(act_array) => act_array.to_token_stream(keyword_list),
         }

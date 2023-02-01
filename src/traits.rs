@@ -19,7 +19,6 @@ pub trait SystemCanisterMethodBuilder {
     fn build_post_upgrade_method(&self) -> PostUpgradeMethod;
 }
 
-// TODO what is this? Can we use it?
 pub trait CanisterMethodBuilder {
     fn build_update_method_node(&self, request_type: &RequestType) -> UpdateMethod;
     fn build_query_method_node(&self, request_type: &RequestType) -> QueryMethod;
@@ -27,6 +26,7 @@ pub trait CanisterMethodBuilder {
     fn build_return_type(&self) -> DataType;
 }
 
+// TODO get rid of this?
 pub trait ToIdent {
     fn to_identifier(&self) -> Ident;
 }
