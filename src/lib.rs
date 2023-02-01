@@ -14,7 +14,7 @@ pub mod keyword;
 pub mod nodes;
 pub mod traits;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum CanisterMethodType {
     Heartbeat,
     Init,
