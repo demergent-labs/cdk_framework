@@ -26,7 +26,7 @@ use std::collections::HashMap;
 pub use array::Array;
 pub use func::ActFunc;
 pub use option::Option;
-pub use primitive::ActPrimitive;
+pub use primitive::Primitive;
 pub use record::ActRecord;
 pub use tuple::ActTuple;
 pub use type_alias::TypeAlias;
@@ -40,7 +40,7 @@ pub enum DataType {
     Array(Array),
     Func(ActFunc),
     Option(self::Option),
-    Primitive(ActPrimitive),
+    Primitive(Primitive),
     Record(ActRecord),
     Tuple(ActTuple),
     TypeAlias(TypeAlias),
@@ -76,7 +76,7 @@ impl DataType {
         }
     }
 
-    pub fn as_primitive(&self) -> core::option::Option<&ActPrimitive> {
+    pub fn as_primitive(&self) -> core::option::Option<&Primitive> {
         match self {
             DataType::Primitive(primitive) => Some(&primitive),
             _ => None,

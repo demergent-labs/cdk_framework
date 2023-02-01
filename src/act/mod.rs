@@ -12,7 +12,7 @@ use node::{
             QueryMethod, UpdateMethod,
         },
     },
-    data_type::{ActFunc, ActPrimitive, ActRecord, ActTuple, ActVariant, Array, TypeAlias},
+    data_type::{ActFunc, ActRecord, ActTuple, ActVariant, Array, Primitive, TypeAlias},
     {data_type, external_canister, ActFunctionGuard, ExternalCanister},
 };
 
@@ -47,7 +47,7 @@ pub struct DataTypes {
     pub arrays: Vec<Array>,
     pub funcs: Vec<ActFunc>,
     pub options: Vec<data_type::Option>,
-    pub primitives: Vec<ActPrimitive>,
+    pub primitives: Vec<Primitive>,
     pub records: Vec<ActRecord>,
     pub tuples: Vec<ActTuple>,
     pub type_refs: Vec<TypeAlias>,
