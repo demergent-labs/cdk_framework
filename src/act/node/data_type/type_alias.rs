@@ -16,15 +16,15 @@ impl HasMembers for TypeAlias {
 }
 
 impl ToDeclarationTokenStream<&Vec<String>> for TypeAlias {
-    fn to_declaration(&self, _: &Vec<String>) -> TokenStream {
-        self.name.to_identifier().to_token_stream()
+    fn to_declaration(&self, context: &Vec<String>) -> TokenStream {
+        let name = self.name.to_identifier();
+        let alias = self.aliased_type.to_token_stream(context);
+        quote!(type #name = #alias;)
     }
 }
 
 impl ToTokenStream<&Vec<String>> for TypeAlias {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        let name = self.name.to_identifier();
-        let alias = self.aliased_type.to_token_stream(context);
-        quote!(type #name = #alias;)
+    fn to_token_stream(&self, _: &Vec<String>) -> TokenStream {
+        self.name.to_identifier().to_token_stream()
     }
 }
