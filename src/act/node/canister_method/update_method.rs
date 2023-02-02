@@ -40,20 +40,29 @@ impl UpdateMethod {
             }
         }
     }
+
+    fn generate_macro_args(&self) -> TokenStream {
+        let mut args: Vec<TokenStream> = vec![];
+
+        if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
+            args.push(quote! {manual_reply = true});
+        };
+        if let Some(guard_function) = &self.function_guard_name {
+            args.push(quote! {guard = #guard_function});
+        };
+
+        quote!(#(#args),*)
+    }
 }
 
 impl ToTokenStream<&Vec<String>> for UpdateMethod {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_signature = self.generate_function(keyword_list);
 
-        let manual_reply_arg = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
-            quote! {(manual_reply = true)}
-        } else {
-            quote! {}
-        };
+        let macro_args = self.generate_macro_args();
 
         quote! {
-            #[ic_cdk_macros::update#manual_reply_arg]
+            #[ic_cdk_macros::update(#macro_args)]
             #[candid::candid_method(update)]
             #function_signature
         }
