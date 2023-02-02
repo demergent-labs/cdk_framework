@@ -24,34 +24,28 @@ use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
 pub use array::Array;
-pub use func::ActFunc;
+pub use func::Func;
 pub use option::Option;
 pub use primitive::Primitive;
-pub use record::ActRecord;
-pub use tuple::ActTuple;
+pub use record::Record;
+pub use tuple::Tuple;
 pub use type_alias::TypeAlias;
 pub use type_ref::TypeRef;
-pub use variant::ActVariant;
+pub use variant::Variant;
 
-use self::traits::{HasMembers, Literally, TypeAliasize};
+use self::traits::HasMembers;
 
 #[derive(Clone, Debug)]
 pub enum DataType {
     Array(Array),
-    Func(ActFunc),
+    Func(Func),
     Option(self::Option),
     Primitive(Primitive),
-    Record(ActRecord),
-    Tuple(ActTuple),
+    Record(Record),
+    Tuple(Tuple),
     TypeAlias(TypeAlias),
     TypeRef(TypeRef),
-    Variant(ActVariant),
-}
-
-#[derive(Clone, Debug)]
-pub enum LiteralOrTypeAlias<L, T> {
-    Literal(L),
-    TypeAlias(T),
+    Variant(Variant),
 }
 
 impl DataType {
@@ -62,7 +56,7 @@ impl DataType {
         }
     }
 
-    pub fn as_func(&self) -> core::option::Option<&ActFunc> {
+    pub fn as_func(&self) -> core::option::Option<&Func> {
         match self {
             DataType::Func(func) => Some(&func),
             _ => None,
@@ -83,14 +77,14 @@ impl DataType {
         }
     }
 
-    pub fn as_record(&self) -> core::option::Option<&ActRecord> {
+    pub fn as_record(&self) -> core::option::Option<&Record> {
         match self {
             DataType::Record(record) => Some(&record),
             _ => None,
         }
     }
 
-    pub fn as_tuple(&self) -> core::option::Option<&ActTuple> {
+    pub fn as_tuple(&self) -> core::option::Option<&Tuple> {
         match self {
             DataType::Tuple(tuple) => Some(&tuple),
             _ => None,
@@ -111,7 +105,7 @@ impl DataType {
         }
     }
 
-    pub fn as_variant(&self) -> core::option::Option<&ActVariant> {
+    pub fn as_variant(&self) -> core::option::Option<&Variant> {
         match self {
             DataType::Variant(variant) => Some(&variant),
             _ => None,
@@ -170,33 +164,34 @@ impl DataType {
     }
     pub fn needs_definition(&self) -> bool {
         // TODO maybe the type ref is the only one that needs definithin in this new regeme?
+        // And maybe for the records?
         match self {
             DataType::Primitive(_) => false,
             DataType::TypeRef(_) => false,
             DataType::TypeAlias(_) => true,
             DataType::Array(_) => false,
             DataType::Option(_) => false,
-            DataType::Record(act_record) => act_record.act_type.is_literal(),
-            DataType::Variant(act_variant) => act_variant.act_type.is_literal(),
-            DataType::Func(act_func) => act_func.act_type.is_literal(),
-            DataType::Tuple(act_tuple) => act_tuple.act_type.is_literal(),
+            DataType::Record(_) => true,
+            DataType::Variant(_) => true,
+            DataType::Func(_) => true,
+            DataType::Tuple(_) => true,
         }
     }
 
-    pub fn as_type_alias(&self) -> core::option::Option<DataType> {
-        // TODO this entire thing might be unnecessary
-        match self {
-            DataType::Primitive(_) => None,
-            DataType::Option(_) => None,
-            DataType::TypeRef(_) => None,
-            DataType::Array(_) => None,
-            DataType::TypeAlias(alias) => Some(DataType::TypeAlias(alias.clone())),
-            DataType::Record(record) => Some(DataType::Record(record.as_type_alias())),
-            DataType::Variant(variant) => Some(DataType::Variant(variant.as_type_alias())),
-            DataType::Func(func) => Some(DataType::Func(func.as_type_alias())),
-            DataType::Tuple(tuple) => Some(DataType::Tuple(tuple.as_type_alias())),
-        }
-    }
+    // pub fn as_type_alias(&self) -> core::option::Option<DataType> {
+    //     // TODO this entire thing might be unnecessary
+    //     match self {
+    //         DataType::Primitive(_) => None,
+    //         DataType::Option(_) => None,
+    //         DataType::TypeRef(_) => None,
+    //         DataType::Array(_) => None,
+    //         DataType::TypeAlias(alias) => Some(DataType::TypeAlias(alias.clone())),
+    //         DataType::Record(record) => Some(DataType::Record(record.clone())),
+    //         DataType::Variant(variant) => Some(DataType::Variant(variant.as_type_alias())),
+    //         DataType::Func(func) => Some(DataType::Func(func.as_type_alias())),
+    //         DataType::Tuple(tuple) => Some(DataType::Tuple(tuple.as_type_alias())),
+    //     }
+    // }
 
     pub fn needs_to_be_boxed(&self) -> bool {
         true
@@ -218,10 +213,7 @@ impl DataType {
 
     pub fn collect_inline_types(&self) -> Vec<DataType> {
         let act_data_type = match self.needs_definition() {
-            true => match self.as_type_alias() {
-                Some(type_alias) => vec![type_alias],
-                None => vec![],
-            },
+            true => vec![self.clone()],
             false => vec![],
         };
         let member_act_data_types = self.get_members();
@@ -253,6 +245,27 @@ pub fn build_inline_type_acts(type_aliases: &Vec<DataType>) -> Vec<DataType> {
     type_aliases.iter().fold(vec![], |acc, type_alias| {
         vec![acc, type_alias.collect_inline_types()].concat()
     })
+}
+
+pub fn new_deduplicate<C, T>(nodes: &Vec<T>, context: C) -> Vec<T>
+where
+    C: Clone,
+    T: ToTokenStream<C>,
+    T: Clone,
+{
+    let map: HashMap<String, T> = nodes.iter().fold(HashMap::new(), |mut acc, node| {
+        match acc.get(&node.to_token_stream(context.clone()).to_string()) {
+            Some(_) => acc,
+            None => {
+                acc.insert(
+                    node.to_token_stream(context.clone()).to_string(),
+                    node.clone(),
+                );
+                acc
+            }
+        }
+    });
+    map.values().cloned().collect()
 }
 
 pub fn deduplicate(

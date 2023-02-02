@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 
 use crate::{
     generators::{candid_file_generation, random, vm_value_conversion},
-    ToTokenStream, ToTokenStreams,
+    ToDeclarationTokenStream, ToTokenStream,
 };
 use node::{
     canister_method::{
@@ -12,9 +12,11 @@ use node::{
             QueryMethod, UpdateMethod,
         },
     },
-    data_type::{ActFunc, ActRecord, ActTuple, ActVariant, Array, Primitive, TypeAlias},
+    data_type::{Array, Func, Primitive, Record, Tuple, TypeAlias, Variant},
     {data_type, external_canister, ActFunctionGuard, ExternalCanister},
 };
+
+use self::node::data_type::{deduplicate, new_deduplicate, type_alias};
 
 pub mod actable;
 pub mod node;
@@ -45,13 +47,13 @@ pub struct CanisterMethods {
 
 pub struct DataTypes {
     pub arrays: Vec<Array>,
-    pub funcs: Vec<ActFunc>,
+    pub funcs: Vec<Func>,
     pub options: Vec<data_type::Option>,
     pub primitives: Vec<Primitive>,
-    pub records: Vec<ActRecord>,
-    pub tuples: Vec<ActTuple>,
-    pub type_refs: Vec<TypeAlias>,
-    pub variants: Vec<ActVariant>,
+    pub records: Vec<Record>,
+    pub tuples: Vec<Tuple>,
+    pub type_aliases: Vec<TypeAlias>,
+    pub variants: Vec<Variant>,
 }
 
 impl ToTokenStream<()> for AbstractCanisterTree {
@@ -70,7 +72,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
         let cross_canister_functions =
             self.external_canisters
-                .to_token_streams(external_canister::TokenStreamContext {
+                .to_token_stream(external_canister::TokenStreamContext {
                     cdk_name: &self.cdk_name,
                     keyword_list: &self.keywords,
                 });
@@ -104,26 +106,32 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let query_methods = self
             .canister_methods
             .query_methods
-            .to_token_streams(&self.keywords);
+            .to_token_stream(&self.keywords);
         let update_methods = self
             .canister_methods
             .update_methods
-            .to_token_streams(&self.keywords);
-        let function_guards = self.function_guards.to_token_streams(&self.keywords);
+            .to_token_stream(&self.keywords);
+        let function_guards = self.function_guards.to_token_stream(&self.keywords);
 
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
-        let arrays: Vec<TokenStream> = self.data_types.arrays.to_token_streams(&self.keywords);
-        let funcs: Vec<TokenStream> = self.data_types.funcs.to_token_streams(&self.keywords);
-        let options: Vec<TokenStream> = self.data_types.options.to_token_streams(&self.keywords);
-        let primitives: Vec<TokenStream> =
-            self.data_types.primitives.to_token_streams(&self.keywords);
-        let records: Vec<TokenStream> = self.data_types.records.to_token_streams(&self.keywords);
-        let tuples: Vec<TokenStream> = self.data_types.tuples.to_token_streams(&self.keywords);
-        let type_refs: Vec<TokenStream> =
-            self.data_types.type_refs.to_token_streams(&self.keywords);
-        let variants: Vec<TokenStream> = self.data_types.variants.to_token_streams(&self.keywords);
+        let funcs = new_deduplicate(&self.data_types.funcs, &self.keywords);
+        let records = new_deduplicate(&self.data_types.records, &self.keywords);
+        let tuples = new_deduplicate(&self.data_types.tuples, &self.keywords);
+        let type_aliases = new_deduplicate(&self.data_types.type_aliases, &self.keywords);
+        let variants = new_deduplicate(&self.data_types.variants, &self.keywords);
+
+        // let funcs: TokenStream = self.data_types.funcs.to_declaration(&self.keywords);
+        let funcs: TokenStream = funcs.to_declaration(&self.keywords);
+        let tuples: TokenStream = tuples.to_declaration(&self.keywords);
+        let type_aliases: TokenStream = type_aliases.to_declaration(&self.keywords);
+        let records: TokenStream = records.to_declaration(&self.keywords);
+        let variants: TokenStream = variants.to_declaration(&self.keywords);
+        // let records: TokenStream = self.data_types.records.to_declaration(&self.keywords);
+        // let tuples: TokenStream = self.data_types.tuples.to_declaration(&self.keywords);
+        // let type_aliases: TokenStream = self.data_types.type_aliases.to_declaration(&self.keywords);
+        // let variants: TokenStream = self.data_types.variants.to_declaration(&self.keywords);
 
         quote::quote! {
             #header
@@ -141,21 +149,18 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             #post_upgrade_method
             #pre_upgrade_method
 
-            #(#query_methods)*
-            #(#update_methods)*
-            #(#function_guards)*
+            #query_methods
+            #update_methods
+            #function_guards
             #func_arg_token
 
-            #(#arrays)*
-            #(#type_refs)*
-            #(#funcs)*
-            #(#options)*
-            #(#primitives)*
-            #(#records)*
-            #(#tuples)*
-            #(#variants)*
+            #type_aliases
+            #funcs
+            #records
+            #tuples
+            #variants
 
-            #(#cross_canister_functions)*
+            #cross_canister_functions
 
             #body
 

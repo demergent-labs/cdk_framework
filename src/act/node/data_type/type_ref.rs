@@ -2,6 +2,7 @@ use crate::{traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
+// TODO what's more(see below) I think we don't even need it for the old version anymore
 // TODO I think this is just temporary for that the old versions of kybra and azle will still compile
 
 #[derive(Clone, Debug)]

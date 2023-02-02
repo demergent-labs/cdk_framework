@@ -1,15 +1,7 @@
-use super::{
-    traits::{HasMembers, TypeAliasize},
-    DataType, LiteralOrTypeAlias,
-};
-use crate::{keyword, traits::ToIdent, ToTokenStream};
+use super::{traits::HasMembers, DataType};
+use crate::{keyword, traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-
-#[derive(Clone, Debug)]
-pub struct ActVariant {
-    pub act_type: LiteralOrTypeAlias<VariantLiteral, VariantTypeAlias>,
-}
 
 #[derive(Clone, Debug)]
 pub struct Variant {
@@ -18,58 +10,30 @@ pub struct Variant {
 }
 
 #[derive(Clone, Debug)]
-pub struct VariantLiteral {
-    pub variant: Variant,
-}
-
-#[derive(Clone, Debug)]
-pub struct VariantTypeAlias {
-    pub variant: Variant,
-}
-
-#[derive(Clone, Debug)]
 pub struct ActVariantMember {
     pub member_name: String,
     pub member_type: DataType,
 }
 
-impl TypeAliasize<ActVariant> for ActVariant {
-    fn as_type_alias(&self) -> ActVariant {
-        match &self.act_type {
-            LiteralOrTypeAlias::Literal(literal) => ActVariant {
-                act_type: LiteralOrTypeAlias::TypeAlias(VariantTypeAlias {
-                    variant: literal.variant.clone(),
-                }),
-            },
-            LiteralOrTypeAlias::TypeAlias(_) => self.clone(),
-        }
-    }
-}
-
-impl HasMembers for ActVariant {
+impl HasMembers for Variant {
     fn get_members(&self) -> Vec<DataType> {
-        match &self.act_type {
-            LiteralOrTypeAlias::Literal(literal) => &literal.variant,
-            LiteralOrTypeAlias::TypeAlias(type_alias) => &type_alias.variant,
-        }
-        .members
-        .iter()
-        .map(|member| member.member_type.clone())
-        .collect()
+        self.members
+            .iter()
+            .map(|member| member.member_type.clone())
+            .collect()
     }
 }
 
-impl<C> ToTokenStream<C> for VariantLiteral {
+impl<C> ToTokenStream<C> for Variant {
     fn to_token_stream(&self, _: C) -> TokenStream {
-        self.variant.name.to_identifier().to_token_stream()
+        self.name.to_identifier().to_token_stream()
     }
 }
 
-impl ToTokenStream<&Vec<String>> for VariantTypeAlias {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let type_ident = self.variant.name.to_identifier();
+impl ToDeclarationTokenStream<&Vec<String>> for Variant {
+    fn to_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let type_ident = self.name.to_identifier();
         let member_token_streams: Vec<TokenStream> = self
-            .variant
             .members
             .iter()
             .map(|member| member.to_token_stream(keyword_list))
@@ -109,11 +73,5 @@ impl ToTokenStream<&Vec<String>> for ActVariantMember {
         let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
         let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
         quote! {#rename#member_name#member_type_token_stream}
-    }
-}
-
-impl ToTokenStream<&Vec<String>> for ActVariant {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        self.act_type.to_token_stream(context)
     }
 }

@@ -1,7 +1,7 @@
 use super::{traits::HasMembers, DataType};
-use crate::{traits::ToIdent, ToTokenStream};
+use crate::{traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct TypeAlias {
@@ -12,6 +12,12 @@ pub struct TypeAlias {
 impl HasMembers for TypeAlias {
     fn get_members(&self) -> Vec<DataType> {
         vec![*self.aliased_type.clone()]
+    }
+}
+
+impl ToDeclarationTokenStream<&Vec<String>> for TypeAlias {
+    fn to_declaration(&self, _: &Vec<String>) -> TokenStream {
+        self.name.to_identifier().to_token_stream()
     }
 }
 
