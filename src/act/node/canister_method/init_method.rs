@@ -1,12 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use super::ActFnParam;
+use super::FnParam;
 use crate::{ToTokenStream, ToTokenStreams};
 
 #[derive(Clone)]
 pub struct InitMethod {
-    pub params: Vec<ActFnParam>,
+    pub params: Vec<FnParam>,
     pub body: TokenStream,
 }
 

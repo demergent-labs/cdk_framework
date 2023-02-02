@@ -98,7 +98,7 @@ impl DataType {
         }
     }
 
-    pub fn as_new_type_alias(&self) -> core::option::Option<&TypeAlias> {
+    pub fn as_type_alias(&self) -> core::option::Option<&TypeAlias> {
         match self {
             DataType::TypeAlias(type_alias) => Some(&type_alias),
             _ => None,
@@ -163,35 +163,18 @@ impl DataType {
         }
     }
     pub fn needs_definition(&self) -> bool {
-        // TODO maybe the type ref is the only one that needs definithin in this new regeme?
-        // And maybe for the records?
         match self {
-            DataType::Primitive(_) => false,
-            DataType::TypeRef(_) => false,
             DataType::TypeAlias(_) => true,
-            DataType::Array(_) => false,
-            DataType::Option(_) => false,
             DataType::Record(_) => true,
             DataType::Variant(_) => true,
             DataType::Func(_) => true,
             DataType::Tuple(_) => true,
+            DataType::Primitive(_) => false,
+            DataType::TypeRef(_) => false,
+            DataType::Array(_) => false,
+            DataType::Option(_) => false,
         }
     }
-
-    // pub fn as_type_alias(&self) -> core::option::Option<DataType> {
-    //     // TODO this entire thing might be unnecessary
-    //     match self {
-    //         DataType::Primitive(_) => None,
-    //         DataType::Option(_) => None,
-    //         DataType::TypeRef(_) => None,
-    //         DataType::Array(_) => None,
-    //         DataType::TypeAlias(alias) => Some(DataType::TypeAlias(alias.clone())),
-    //         DataType::Record(record) => Some(DataType::Record(record.clone())),
-    //         DataType::Variant(variant) => Some(DataType::Variant(variant.as_type_alias())),
-    //         DataType::Func(func) => Some(DataType::Func(func.as_type_alias())),
-    //         DataType::Tuple(tuple) => Some(DataType::Tuple(tuple.as_type_alias())),
-    //     }
-    // }
 
     pub fn needs_to_be_boxed(&self) -> bool {
         true

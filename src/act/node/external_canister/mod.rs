@@ -5,7 +5,7 @@ use crate::ToTokenStream;
 
 pub use external_canister_method::ExternalCanisterMethod;
 
-use self::external_canister_method::ActEcmContext;
+use self::external_canister_method::EcmContext;
 
 pub mod external_canister_method;
 
@@ -27,7 +27,7 @@ impl ToTokenStream<TokenStreamContext<'_>> for ExternalCanister {
             .methods
             .iter()
             .map(|method| {
-                method.to_token_stream(ActEcmContext {
+                method.to_token_stream(EcmContext {
                     canister_name: self.name.clone(),
                     keyword_list: &context.keyword_list,
                     cdk_name: context.cdk_name,

@@ -1,4 +1,4 @@
-pub mod act_fn_param;
+pub mod fn_param;
 pub mod heartbeat_method;
 pub mod init_method;
 pub mod inspect_message_method;
@@ -7,7 +7,7 @@ pub mod pre_upgrade_method;
 pub mod query_method;
 pub mod update_method;
 
-pub use act_fn_param::ActFnParam;
+pub use fn_param::FnParam;
 pub use heartbeat_method::HeartbeatMethod;
 pub use init_method::InitMethod;
 pub use inspect_message_method::InspectMessageMethod;
@@ -19,7 +19,7 @@ pub use update_method::UpdateMethod;
 use super::DataType;
 
 #[derive(Clone)]
-pub enum ActCanisterMethod {
+pub enum CanisterMethod {
     Update(UpdateMethod),
     Query(QueryMethod),
     Init(InitMethod),

@@ -2,13 +2,13 @@ use crate::{act::node::DataType, traits::ToIdent, ToTokenStream, ToTokenStreams}
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{ActFnParam, HasParams, HasReturnValue};
+use super::{FnParam, HasParams, HasReturnValue};
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
 pub struct QueryMethod {
     pub body: TokenStream,
-    pub params: Vec<ActFnParam>,
+    pub params: Vec<FnParam>,
     pub is_manual: bool,
     pub is_async: bool,
     pub name: String,

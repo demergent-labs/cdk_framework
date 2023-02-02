@@ -3,19 +3,14 @@ use crate::{keyword, traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-// #[derive(Clone, Debug)]
-// pub struct ActRecord {
-//     pub act_type: LiteralOrTypeAlias<RecordLiteral, RecordTypeAlias>,
-// }
-
 #[derive(Clone, Debug)]
 pub struct Record {
     pub name: Option<String>,
-    pub members: Vec<ActRecordMember>,
+    pub members: Vec<Member>,
 }
 
 #[derive(Clone, Debug)]
-pub struct ActRecordMember {
+pub struct Member {
     pub member_name: String,
     pub member_type: DataType,
 }
@@ -58,7 +53,7 @@ impl ToTokenStream<&Vec<String>> for Record {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for ActRecordMember {
+impl ToTokenStream<&Vec<String>> for Member {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
             let ident = self.member_type.to_token_stream(keyword_list);

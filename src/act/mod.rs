@@ -12,11 +12,11 @@ use node::{
             QueryMethod, UpdateMethod,
         },
     },
-    data_type::{Array, Func, Primitive, Record, Tuple, TypeAlias, Variant},
-    {data_type, external_canister, ActFunctionGuard, ExternalCanister},
+    data_type::{Func, Record, Tuple, TypeAlias, Variant},
+    {data_type, external_canister, ExternalCanister, FunctionGuard},
 };
 
-use self::node::data_type::{deduplicate, new_deduplicate, type_alias};
+use self::node::data_type::new_deduplicate;
 
 pub mod actable;
 pub mod node;
@@ -27,7 +27,7 @@ pub struct AbstractCanisterTree {
     pub canister_methods: CanisterMethods,
     pub data_types: DataTypes,
     pub external_canisters: Vec<ExternalCanister>,
-    pub function_guards: Vec<ActFunctionGuard>,
+    pub function_guards: Vec<FunctionGuard>,
     pub header: TokenStream,
     pub body: TokenStream,
     pub try_from_vm_value_impls: TokenStream,
@@ -46,10 +46,7 @@ pub struct CanisterMethods {
 }
 
 pub struct DataTypes {
-    pub arrays: Vec<Array>,
     pub funcs: Vec<Func>,
-    pub options: Vec<data_type::Option>,
-    pub primitives: Vec<Primitive>,
     pub records: Vec<Record>,
     pub tuples: Vec<Tuple>,
     pub type_aliases: Vec<TypeAlias>,
@@ -116,22 +113,16 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
-        let funcs = new_deduplicate(&self.data_types.funcs, &self.keywords);
-        let records = new_deduplicate(&self.data_types.records, &self.keywords);
-        let tuples = new_deduplicate(&self.data_types.tuples, &self.keywords);
-        let type_aliases = new_deduplicate(&self.data_types.type_aliases, &self.keywords);
-        let variants = new_deduplicate(&self.data_types.variants, &self.keywords);
-
-        // let funcs: TokenStream = self.data_types.funcs.to_declaration(&self.keywords);
-        let funcs: TokenStream = funcs.to_declaration(&self.keywords);
-        let tuples: TokenStream = tuples.to_declaration(&self.keywords);
-        let type_aliases: TokenStream = type_aliases.to_declaration(&self.keywords);
-        let records: TokenStream = records.to_declaration(&self.keywords);
-        let variants: TokenStream = variants.to_declaration(&self.keywords);
-        // let records: TokenStream = self.data_types.records.to_declaration(&self.keywords);
-        // let tuples: TokenStream = self.data_types.tuples.to_declaration(&self.keywords);
-        // let type_aliases: TokenStream = self.data_types.type_aliases.to_declaration(&self.keywords);
-        // let variants: TokenStream = self.data_types.variants.to_declaration(&self.keywords);
+        let funcs =
+            new_deduplicate(&self.data_types.funcs, &self.keywords).to_declaration(&self.keywords);
+        let records = new_deduplicate(&self.data_types.records, &self.keywords)
+            .to_declaration(&self.keywords);
+        let tuples =
+            new_deduplicate(&self.data_types.tuples, &self.keywords).to_declaration(&self.keywords);
+        let type_aliases = new_deduplicate(&self.data_types.type_aliases, &self.keywords)
+            .to_declaration(&self.keywords);
+        let variants = new_deduplicate(&self.data_types.variants, &self.keywords)
+            .to_declaration(&self.keywords);
 
         quote::quote! {
             #header

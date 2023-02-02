@@ -1,7 +1,7 @@
 use crate::{
     act::node::{
         canister_method::{
-            ActFnParam, HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
+            FnParam, HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
             PreUpgradeMethod, QueryMethod, UpdateMethod,
         },
         DataType,
@@ -22,7 +22,7 @@ pub trait SystemCanisterMethodBuilder {
 pub trait CanisterMethodBuilder {
     fn build_update_method_node(&self, request_type: &RequestType) -> UpdateMethod;
     fn build_query_method_node(&self, request_type: &RequestType) -> QueryMethod;
-    fn build_params(&self) -> Vec<ActFnParam>;
+    fn build_params(&self) -> Vec<FnParam>;
     fn build_return_type(&self) -> DataType;
 }
 
