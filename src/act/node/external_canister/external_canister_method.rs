@@ -13,14 +13,14 @@ pub struct ExternalCanisterMethod {
     pub return_type: DataType,
 }
 
-pub struct ActEcmContext<'a> {
+pub struct EcmContext<'a> {
     pub canister_name: String,
     pub keyword_list: &'a Vec<String>,
     pub cdk_name: &'a String,
 }
 
-impl ToTokenStream<ActEcmContext<'_>> for ExternalCanisterMethod {
-    fn to_token_stream(&self, context: ActEcmContext) -> TokenStream {
+impl ToTokenStream<EcmContext<'_>> for ExternalCanisterMethod {
+    fn to_token_stream(&self, context: EcmContext) -> TokenStream {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -40,7 +40,7 @@ impl ToTokenStream<ActEcmContext<'_>> for ExternalCanisterMethod {
 }
 
 impl ExternalCanisterMethod {
-    fn generate_function(&self, function_type: &str, context: &ActEcmContext) -> TokenStream {
+    fn generate_function(&self, function_type: &str, context: &EcmContext) -> TokenStream {
         let is_oneway = function_type.contains("notify");
 
         let async_or_not = if is_oneway {
