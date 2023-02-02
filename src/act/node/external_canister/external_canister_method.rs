@@ -2,14 +2,14 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::{
-    act::node::{canister_method::ActFnParam, DataType},
+    act::node::{canister_method::FnParam, DataType},
     ToTokenStream,
 };
 
 #[derive(Clone, Debug)]
 pub struct ExternalCanisterMethod {
     pub name: String,
-    pub params: Vec<ActFnParam>,
+    pub params: Vec<FnParam>,
     pub return_type: DataType,
 }
 

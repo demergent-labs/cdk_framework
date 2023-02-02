@@ -6,11 +6,11 @@ use quote::{quote, ToTokens};
 #[derive(Clone, Debug)]
 pub struct Variant {
     pub name: String,
-    pub members: Vec<ActVariantMember>,
+    pub members: Vec<Member>,
 }
 
 #[derive(Clone, Debug)]
-pub struct ActVariantMember {
+pub struct Member {
     pub member_name: String,
     pub member_type: DataType,
 }
@@ -47,7 +47,7 @@ impl ToDeclarationTokenStream<&Vec<String>> for Variant {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for ActVariantMember {
+impl ToTokenStream<&Vec<String>> for Member {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let member_type_token_stream = match self.member_type.clone() {
             DataType::Primitive(_) => {

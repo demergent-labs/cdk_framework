@@ -6,11 +6,11 @@ use quote::{quote, ToTokens};
 #[derive(Clone, Debug)]
 pub struct Tuple {
     pub name: String,
-    pub elems: Vec<ActTupleElem>,
+    pub elems: Vec<Elem>,
 }
 
 #[derive(Clone, Debug)]
-pub struct ActTupleElem {
+pub struct Elem {
     pub elem_type: DataType,
 }
 
@@ -54,7 +54,7 @@ impl ToDeclarationTokenStream<&Vec<String>> for Tuple {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for ActTupleElem {
+impl ToTokenStream<&Vec<String>> for Elem {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         if self.elem_type.needs_to_be_boxed() {
             let ident = self.elem_type.to_token_stream(keyword_list);

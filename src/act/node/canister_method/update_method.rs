@@ -2,13 +2,13 @@ use crate::{act::node::DataType, traits::ToIdent, ToTokenStream, ToTokenStreams}
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{ActFnParam, HasParams, HasReturnValue};
+use super::{FnParam, HasParams, HasReturnValue};
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
 pub struct UpdateMethod {
     pub body: TokenStream,
-    pub params: Vec<ActFnParam>,
+    pub params: Vec<FnParam>,
     pub is_manual: bool,
     pub is_async: bool,
     pub name: String,
@@ -83,54 +83,3 @@ impl HasReturnValue for UpdateMethod {
         self.return_type.clone()
     }
 }
-
-// impl ToTokenStream<&Vec<String>> for ActCanisterMethod {
-//     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-//         match self {
-//             ActCanisterMethod::QueryMethod(query_method) => {}
-//             ActCanisterMethod::UpdateMethod(update_method) => {
-//         }
-//     }
-// }
-
-// impl ActCanisterMethod {
-//     // pub fn get_name(&self) -> String {
-//     //     match self {
-//     //         ActCanisterMethod::QueryMethod(canister_method) => &canister_method.name,
-//     //         ActCanisterMethod::UpdateMethod(canister_method) => &canister_method.name,
-//     //     }
-//     //     .clone()
-//     // }
-
-//     // pub fn get_return_type(&self) -> ActDataType {
-//     //     match self {
-//     //         ActCanisterMethod::QueryMethod(canister_method) => &canister_method.return_type,
-//     //         ActCanisterMethod::UpdateMethod(canister_method) => &canister_method.return_type,
-//     //     }
-//     //     .clone()
-//     // }
-
-//     // pub fn get_param_types(&self) -> Vec<ActDataType> {
-//     //     match self {
-//     //         ActCanisterMethod::QueryMethod(query) => &query.params,
-//     //         ActCanisterMethod::UpdateMethod(update) => &update.params,
-//     //     }
-//     //     .iter()
-//     //     .map(|param| param.data_type.clone())
-//     //     .collect()
-//     // }
-
-//     // pub fn is_manual(&self) -> bool {
-//     //     match self {
-//     //         ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_manual,
-//     //         ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_manual,
-//     //     }
-//     // }
-
-//     // pub fn is_async(&self) -> bool {
-//     //     match self {
-//     //         ActCanisterMethod::QueryMethod(canister_method) => canister_method.is_async,
-//     //         ActCanisterMethod::UpdateMethod(canister_method) => canister_method.is_async,
-//     //     }
-//     // }
-// }
