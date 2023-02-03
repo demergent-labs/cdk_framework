@@ -17,15 +17,15 @@ impl HasMembers for Array {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for Array {
+impl ToTokenStream<Vec<String>> for Array {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let enclosed_rust_ident = self.enclosed_type.to_token_stream(keyword_list);
-        quote!(Vec<#enclosed_rust_ident>)
+        self.to_type_annotation(keyword_list, "".to_string())
     }
 }
 
 impl ToTypeAnnotation<Vec<String>> for Array {
-    fn to_type_annotation(&self, context: &Vec<String>) -> TokenStream {
-        todo!()
+    fn to_type_annotation(&self, context: &Vec<String>, _: String) -> TokenStream {
+        let enclosed_rust_ident = self.enclosed_type.to_token_stream(context);
+        quote!(Vec<#enclosed_rust_ident>)
     }
 }

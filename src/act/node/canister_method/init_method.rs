@@ -16,7 +16,7 @@ pub struct TokenStreamContext<'a> {
 }
 
 impl ToTokenStream<TokenStreamContext<'_>> for InitMethod {
-    fn to_token_stream(&self, context: TokenStreamContext) -> TokenStream {
+    fn to_token_stream(&self, context: &TokenStreamContext) -> TokenStream {
         let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
         let body = &self.body;
         let params = &self.params.to_token_streams(context.keyword_list);

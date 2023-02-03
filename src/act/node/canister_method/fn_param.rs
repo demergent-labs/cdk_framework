@@ -16,7 +16,7 @@ impl FnParam {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for FnParam {
+impl ToTokenStream<Vec<String>> for FnParam {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let name = self.prefixed_name().to_identifier();
         let data_type = &self.data_type.to_token_stream(keyword_list);

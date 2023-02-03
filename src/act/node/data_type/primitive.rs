@@ -3,7 +3,7 @@ use quote::quote;
 
 use crate::{ToActDataType, ToTokenStream};
 
-use super::DataType;
+use super::{traits::ToTypeAnnotation, DataType};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
@@ -42,8 +42,8 @@ impl ToActDataType for Primitive {
     }
 }
 
-impl<C> ToTokenStream<C> for Primitive {
-    fn to_token_stream(&self, _: C) -> TokenStream {
+impl<C> ToTypeAnnotation<C> for Primitive {
+    fn to_type_annotation(&self, _: &C, _: String) -> TokenStream {
         match self {
             Primitive::Bool => quote!(bool),
             Primitive::Blob => quote!(Vec<u8>),
@@ -66,5 +66,11 @@ impl<C> ToTokenStream<C> for Primitive {
             Primitive::String => quote!(String),
             Primitive::Void => quote! {()},
         }
+    }
+}
+
+impl<C> ToTokenStream<C> for Primitive {
+    fn to_token_stream(&self, context: &C) -> TokenStream {
+        self.to_type_annotation(context, "".to_string())
     }
 }

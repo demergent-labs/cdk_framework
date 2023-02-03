@@ -1,4 +1,7 @@
-use super::{traits::HasMembers, DataType};
+use super::{
+    traits::{HasMembers, ToTypeAnnotation},
+    DataType,
+};
 use crate::{traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -25,18 +28,24 @@ impl HasMembers for Func {
     }
 }
 
-impl<C> ToTokenStream<C> for Func {
-    fn to_token_stream(&self, _: C) -> TokenStream {
-        // TODO get rid of this unwrap. Probably this whole function is no good anymore.
-        self.name
-            .as_ref()
-            .unwrap()
-            .to_identifier()
-            .to_token_stream()
+impl<C> ToTypeAnnotation<C> for Func {
+    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Func", parental_prefix),
+        }
+        .to_identifier()
+        .to_token_stream()
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for Func {
+impl<C> ToTokenStream<C> for Func {
+    fn to_token_stream(&self, context: &C) -> TokenStream {
+        self.to_type_annotation(context, "".to_string())
+    }
+}
+
+impl ToDeclarationTokenStream<Vec<String>> for Func {
     fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         self.generate_func_struct_and_impls(keyword_list)
     }

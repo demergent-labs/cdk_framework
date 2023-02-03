@@ -1,4 +1,7 @@
-use super::{traits::HasMembers, DataType};
+use super::{
+    traits::{HasMembers, ToTypeAnnotation},
+    DataType,
+};
 use crate::{traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -24,12 +27,18 @@ impl HasMembers for Tuple {
 }
 
 impl<C> ToTokenStream<C> for Tuple {
-    fn to_token_stream(&self, _: C) -> TokenStream {
+    fn to_token_stream(&self, context: &C) -> TokenStream {
+        self.to_type_annotation(context, "".to_string())
+    }
+}
+
+impl<C> ToTypeAnnotation<C> for Tuple {
+    fn to_type_annotation(&self, _: &C, _: String) -> TokenStream {
         self.name.to_identifier().to_token_stream()
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for Tuple {
+impl ToDeclarationTokenStream<Vec<String>> for Tuple {
     fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         let type_ident = self.name.to_identifier();
         let elem_idents: Vec<TokenStream> = self
@@ -54,7 +63,7 @@ impl ToDeclarationTokenStream<&Vec<String>> for Tuple {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for Elem {
+impl ToTokenStream<Vec<String>> for Elem {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         if self.elem_type.needs_to_be_boxed() {
             let ident = self.elem_type.to_token_stream(keyword_list);

@@ -20,7 +20,7 @@ pub struct EcmContext<'a> {
 }
 
 impl ToTokenStream<EcmContext<'_>> for ExternalCanisterMethod {
-    fn to_token_stream(&self, context: EcmContext) -> TokenStream {
+    fn to_token_stream(&self, context: &EcmContext) -> TokenStream {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =

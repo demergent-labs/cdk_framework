@@ -55,7 +55,7 @@ impl UpdateMethod {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for UpdateMethod {
+impl ToTokenStream<Vec<String>> for UpdateMethod {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_signature = self.generate_function(keyword_list);
 

@@ -68,7 +68,7 @@ impl QueryMethod {
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for QueryMethod {
+impl ToDeclarationTokenStream<Vec<String>> for QueryMethod {
     fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         let function_signature = self.generate_function(keyword_list);
         let macro_args = if self.cdk_name == "kybra" {

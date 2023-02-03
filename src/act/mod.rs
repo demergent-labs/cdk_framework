@@ -55,7 +55,7 @@ pub struct DataTypes {
 }
 
 impl ToTokenStream<()> for AbstractCanisterTree {
-    fn to_token_stream(&self, _: ()) -> TokenStream {
+    fn to_token_stream(&self, _: &()) -> TokenStream {
         let body = &self.body;
         let header = &self.header;
 
@@ -70,7 +70,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
         let cross_canister_functions =
             self.external_canisters
-                .to_token_stream(external_canister::TokenStreamContext {
+                .to_token_stream(&external_canister::TokenStreamContext {
                     cdk_name: &self.cdk_name,
                     keyword_list: &self.keywords,
                 });
@@ -82,7 +82,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let init_method =
             self.canister_methods
                 .init_method
-                .to_token_stream(init_method::TokenStreamContext {
+                .to_token_stream(&init_method::TokenStreamContext {
                     cdk_name: &self.cdk_name,
                     keyword_list: &self.keywords,
                 });
@@ -91,7 +91,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             .inspect_message_method
             .to_token_stream(&self.cdk_name);
         let post_upgrade_method = self.canister_methods.post_upgrade_method.to_token_stream(
-            post_upgrade_method::TokenStreamContext {
+            &post_upgrade_method::TokenStreamContext {
                 cdk_name: &self.cdk_name,
                 keyword_list: &self.keywords,
             },

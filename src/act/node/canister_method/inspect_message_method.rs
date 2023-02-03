@@ -8,7 +8,7 @@ pub struct InspectMessageMethod {
     pub body: TokenStream,
 }
 
-impl ToTokenStream<&String> for InspectMessageMethod {
+impl ToTokenStream<String> for InspectMessageMethod {
     fn to_token_stream(&self, cdk_name: &String) -> TokenStream {
         let function_name = format_ident!("_{}_inspect_message", cdk_name.to_lowercase(),);
         let body = &self.body;

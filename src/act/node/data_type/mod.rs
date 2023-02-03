@@ -33,7 +33,7 @@ pub use type_alias::TypeAlias;
 pub use type_ref::TypeRef;
 pub use variant::Variant;
 
-use self::traits::HasMembers;
+use self::traits::{HasMembers, ToTypeAnnotation};
 
 use super::full_declaration::{Declaration, ToFullDeclaration};
 
@@ -210,7 +210,7 @@ impl DataType {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for DataType {
+impl ToTokenStream<Vec<String>> for DataType {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         match self {
             DataType::Record(act_record) => act_record.to_token_stream(keyword_list),
@@ -226,26 +226,49 @@ impl ToTokenStream<&Vec<String>> for DataType {
     }
 }
 
+impl ToTypeAnnotation<Vec<String>> for DataType {
+    fn to_type_annotation(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> TokenStream {
+        match self {
+            DataType::Array(array) => array.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Func(func) => func.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Option(option) => option.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Primitive(primitive) => {
+                primitive.to_type_annotation(keyword_list, parental_prefix)
+            }
+            DataType::Record(record) => record.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Tuple(tuple) => tuple.to_type_annotation(keyword_list, parental_prefix),
+            DataType::TypeAlias(type_alias) => {
+                type_alias.to_type_annotation(keyword_list, parental_prefix)
+            }
+            DataType::TypeRef(type_ref) => {
+                type_ref.to_type_annotation(keyword_list, parental_prefix)
+            }
+            DataType::Variant(variant) => variant.to_type_annotation(keyword_list, parental_prefix),
+        }
+    }
+}
+
 pub fn build_inline_type_acts(type_aliases: &Vec<DataType>) -> Vec<DataType> {
     type_aliases.iter().fold(vec![], |acc, type_alias| {
         vec![acc, type_alias.collect_inline_types()].concat()
     })
 }
 
-pub fn new_deduplicate<C, T>(nodes: &Vec<T>, context: C) -> Vec<T>
+pub fn new_deduplicate<C, T>(nodes: &Vec<T>, context: &C) -> Vec<T>
 where
     C: Clone,
     T: ToTokenStream<C>,
     T: Clone,
 {
     let map: HashMap<String, T> = nodes.iter().fold(HashMap::new(), |mut acc, node| {
-        match acc.get(&node.to_token_stream(context.clone()).to_string()) {
+        match acc.get(&node.to_token_stream(context).to_string()) {
             Some(_) => acc,
             None => {
-                acc.insert(
-                    node.to_token_stream(context.clone()).to_string(),
-                    node.clone(),
-                );
+                acc.insert(node.to_token_stream(context).to_string(), node.clone());
                 acc
             }
         }

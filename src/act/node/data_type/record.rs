@@ -1,4 +1,9 @@
-use super::{traits::HasMembers, DataType};
+use std::{collections::HashMap, task::Context};
+
+use super::{
+    traits::{HasMembers, ToTypeAnnotation},
+    DataType,
+};
 use crate::{
     act::node::full_declaration::ToFullDeclaration, keyword, traits::ToIdent,
     ToDeclarationTokenStream, ToTokenStream,
@@ -58,12 +63,12 @@ impl ToFullDeclaration<Vec<String>> for Record {
         &self,
         context: &Vec<String>,
         parental_prefix: String,
-    ) -> std::collections::HashMap<String, crate::act::node::full_declaration::Declaration> {
+    ) -> HashMap<String, crate::act::node::full_declaration::Declaration> {
         todo!()
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for Record {
+impl ToDeclarationTokenStream<Vec<String>> for Record {
     fn to_declaration(&self, context: &Vec<String>, parental_prefix: String) -> TokenStream {
         match self.create_declaration(context, parental_prefix) {
             Some(declaration) => declaration,
@@ -72,18 +77,24 @@ impl ToDeclarationTokenStream<&Vec<String>> for Record {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for Record {
-    fn to_token_stream(&self, _: &Vec<String>) -> TokenStream {
-        // TODO handle upwraps
-        self.name
-            .as_ref()
-            .unwrap()
-            .to_identifier()
-            .to_token_stream()
+impl ToTokenStream<Vec<String>> for Record {
+    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
+        self.to_type_annotation(context, "".to_string())
     }
 }
 
-impl ToTokenStream<&Vec<String>> for Member {
+impl ToTypeAnnotation<Vec<String>> for Record {
+    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TokenStream {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Record", parental_prefix),
+        }
+        .to_identifier()
+        .to_token_stream()
+    }
+}
+
+impl ToTokenStream<Vec<String>> for Member {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
             let ident = self.member_type.to_token_stream(keyword_list);

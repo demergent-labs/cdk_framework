@@ -1,4 +1,7 @@
-use super::{traits::HasMembers, DataType};
+use super::{
+    traits::{HasMembers, ToTypeAnnotation},
+    DataType,
+};
 use crate::{keyword, traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -25,12 +28,18 @@ impl HasMembers for Variant {
 }
 
 impl<C> ToTokenStream<C> for Variant {
-    fn to_token_stream(&self, _: C) -> TokenStream {
+    fn to_token_stream(&self, context: &C) -> TokenStream {
+        self.to_type_annotation(context, "".to_string())
+    }
+}
+
+impl<C> ToTypeAnnotation<C> for Variant {
+    fn to_type_annotation(&self, _: &C, _: String) -> TokenStream {
         self.name.to_identifier().to_token_stream()
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for Variant {
+impl ToDeclarationTokenStream<Vec<String>> for Variant {
     fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         let type_ident = self.name.to_identifier();
         let member_token_streams: Vec<TokenStream> = self
@@ -47,7 +56,7 @@ impl ToDeclarationTokenStream<&Vec<String>> for Variant {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for Member {
+impl ToTokenStream<Vec<String>> for Member {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let member_type_token_stream = match self.member_type.clone() {
             DataType::Primitive(_) => {

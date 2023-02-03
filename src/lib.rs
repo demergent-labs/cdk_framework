@@ -49,11 +49,11 @@ pub trait ToAct {
 }
 
 pub trait ToTokenStream<C> {
-    fn to_token_stream(&self, context: C) -> TokenStream;
+    fn to_token_stream(&self, context: &C) -> TokenStream;
 }
 
 pub trait ToDeclarationTokenStream<C> {
-    fn to_declaration(&self, context: C, parental_prefix: String) -> TokenStream;
+    fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream;
 }
 
 impl<C, T> ToDeclarationTokenStream<C> for Vec<T>
@@ -61,16 +61,16 @@ where
     C: Clone,
     T: ToDeclarationTokenStream<C>,
 {
-    fn to_declaration(&self, context: C, parental_prefix: String) -> TokenStream {
+    fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream {
         let declarations = self.iter().enumerate().map(|(index, t)| {
-            t.to_declaration(context.clone(), format!("{}{}", parental_prefix, index))
+            t.to_declaration(&context.clone(), format!("{}{}", parental_prefix, index))
         });
         quote!(#(#declarations)*)
     }
 }
 
 pub trait ToTokenStreams<C> {
-    fn to_token_streams(&self, context: C) -> Vec<TokenStream>;
+    fn to_token_streams(&self, context: &C) -> Vec<TokenStream>;
 }
 
 impl<C, T> ToTokenStreams<C> for Vec<T>
@@ -78,10 +78,8 @@ where
     C: Clone,
     T: ToTokenStream<C>,
 {
-    fn to_token_streams(&self, context: C) -> Vec<TokenStream> {
-        self.iter()
-            .map(|t| t.to_token_stream(context.clone()))
-            .collect()
+    fn to_token_streams(&self, context: &C) -> Vec<TokenStream> {
+        self.iter().map(|t| t.to_token_stream(context)).collect()
     }
 }
 
@@ -90,8 +88,8 @@ where
     C: Clone,
     T: ToTokenStream<C>,
 {
-    fn to_token_stream(&self, context: C) -> TokenStream {
-        let declarations = self.iter().map(|t| t.to_token_stream(context.clone()));
+    fn to_token_stream(&self, context: &C) -> TokenStream {
+        let declarations = self.iter().map(|t| t.to_token_stream(context));
         quote!(#(#declarations)*)
     }
 }
@@ -99,7 +97,7 @@ impl<C, T> ToTokenStream<C> for Option<T>
 where
     T: ToTokenStream<C>,
 {
-    fn to_token_stream(&self, context: C) -> TokenStream {
+    fn to_token_stream(&self, context: &C) -> TokenStream {
         match self {
             Some(t) => t.to_token_stream(context),
             None => quote::quote! {},
