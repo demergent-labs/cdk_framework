@@ -30,7 +30,7 @@ impl<C> ToTokenStream<C> for Tuple {
 }
 
 impl ToDeclarationTokenStream<&Vec<String>> for Tuple {
-    fn to_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
+    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         let type_ident = self.name.to_identifier();
         let elem_idents: Vec<TokenStream> = self
             .elems

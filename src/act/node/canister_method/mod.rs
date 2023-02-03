@@ -55,10 +55,14 @@ where
     }
 }
 
-trait HasReturnValue {
+pub trait HasReturnValue {
     fn get_return_type(&self) -> DataType;
 }
 
-trait HasParams {
+pub trait HasParams {
     fn get_param_types(&self) -> Vec<DataType>;
+}
+
+pub trait HasName {
+    fn get_name(&self) -> String;
 }

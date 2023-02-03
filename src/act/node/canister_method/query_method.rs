@@ -1,8 +1,10 @@
-use crate::{act::node::DataType, traits::ToIdent, ToTokenStream, ToTokenStreams};
+use crate::{
+    act::node::DataType, traits::ToIdent, ToDeclarationTokenStream, ToTokenStream, ToTokenStreams,
+};
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{FnParam, HasParams, HasReturnValue};
+use super::{FnParam, HasName, HasParams, HasReturnValue};
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
@@ -66,8 +68,8 @@ impl QueryMethod {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for QueryMethod {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+impl ToDeclarationTokenStream<&Vec<String>> for QueryMethod {
+    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         let function_signature = self.generate_function(keyword_list);
         let macro_args = if self.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
@@ -94,5 +96,11 @@ impl HasParams for QueryMethod {
 impl HasReturnValue for QueryMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
+    }
+}
+
+impl HasName for QueryMethod {
+    fn get_name(&self) -> String {
+        self.name.clone()
     }
 }

@@ -1,5 +1,8 @@
 use super::{traits::HasMembers, DataType};
-use crate::{keyword, traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
+use crate::{
+    act::node::full_declaration::ToFullDeclaration, keyword, traits::ToIdent,
+    ToDeclarationTokenStream, ToTokenStream,
+};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -24,21 +27,48 @@ impl HasMembers for Record {
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for Record {
-    fn to_declaration(&self, context: &Vec<String>) -> TokenStream {
-        // TODO handle unwraps
-        let type_ident = self.name.as_ref().unwrap().to_identifier();
+impl ToFullDeclaration<Vec<String>> for Record {
+    fn create_declaration(
+        &self,
+        context: &Vec<String>,
+        parental_prefix: String,
+    ) -> Option<TokenStream> {
+        let type_ident = self.create_identifier(parental_prefix).to_identifier();
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
             .map(|member| member.to_token_stream(context))
             .collect();
-        quote!(
+        Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
             struct #type_ident {
                 #(#member_token_streams),*
             }
-        )
+        ))
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> String {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Record", parental_prefix),
+        }
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &Vec<String>,
+        parental_prefix: String,
+    ) -> std::collections::HashMap<String, crate::act::node::full_declaration::Declaration> {
+        todo!()
+    }
+}
+
+impl ToDeclarationTokenStream<&Vec<String>> for Record {
+    fn to_declaration(&self, context: &Vec<String>, parental_prefix: String) -> TokenStream {
+        match self.create_declaration(context, parental_prefix) {
+            Some(declaration) => declaration,
+            None => quote!(),
+        }
     }
 }
 

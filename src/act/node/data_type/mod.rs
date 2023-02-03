@@ -35,6 +35,8 @@ pub use variant::Variant;
 
 use self::traits::HasMembers;
 
+use super::full_declaration::{Declaration, ToFullDeclaration};
+
 #[derive(Clone, Debug)]
 pub enum DataType {
     Array(Array),
@@ -249,6 +251,53 @@ where
         }
     });
     map.values().cloned().collect()
+}
+
+impl ToFullDeclaration<Vec<String>> for DataType {
+    fn create_child_declarations(
+        &self,
+        context: &Vec<String>,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        // TODO
+        HashMap::new()
+    }
+
+    fn create_declaration(
+        &self,
+        context: &Vec<String>,
+        parental_prefix: String,
+    ) -> std::option::Option<TokenStream> {
+        let prefix = format!("DataType{}", parental_prefix);
+        match self {
+            DataType::Array(_) => todo!(),
+            DataType::Func(_) => todo!(),
+            DataType::Option(_) => todo!(),
+            DataType::Primitive(_) => todo!(),
+            DataType::Record(record) => record.create_declaration(context, prefix),
+            DataType::Tuple(_) => todo!(),
+            DataType::TypeAlias(type_alias) => type_alias.create_declaration(context, prefix),
+            DataType::TypeRef(type_ref) => type_ref.create_declaration(context, prefix),
+            DataType::Variant(_) => todo!(),
+        }
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> String {
+        match self {
+            DataType::Array(_) => "Array".to_string(),
+            DataType::Func(func) => match &func.name {
+                Some(name) => name.clone(),
+                None => format!("{}Func", parental_prefix),
+            },
+            DataType::Option(_) => "Option".to_string(),
+            DataType::Primitive(_) => todo!(),
+            DataType::Record(record) => record.create_identifier(parental_prefix),
+            DataType::Tuple(_) => todo!(),
+            DataType::TypeAlias(_) => todo!(),
+            DataType::TypeRef(_) => "TypeRef".to_string(),
+            DataType::Variant(_) => todo!(),
+        }
+    }
 }
 
 pub fn deduplicate(

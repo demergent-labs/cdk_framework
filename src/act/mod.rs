@@ -1,4 +1,5 @@
 use proc_macro2::TokenStream;
+use quote::quote;
 
 use crate::{
     generators::{candid_file_generation, random, vm_value_conversion},
@@ -16,7 +17,7 @@ use node::{
     {data_type, external_canister, ExternalCanister, FunctionGuard},
 };
 
-use self::node::data_type::new_deduplicate;
+use self::node::{data_type::new_deduplicate, full_declaration::ToFullDeclaration};
 
 pub mod actable;
 pub mod node;
@@ -100,10 +101,16 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             .pre_upgrade_method
             .to_token_stream(&self.cdk_name);
 
-        let query_methods = self
+        let query_methods_full_declarations = self
             .canister_methods
             .query_methods
-            .to_token_stream(&self.keywords);
+            .create_full_declaration(&self.keywords, "QueryMethod".to_string());
+        let query_methods = if let Some(declaration) = query_methods_full_declarations.declaration {
+            declaration
+        } else {
+            quote!()
+        };
+        let query_types = query_methods_full_declarations.children;
         let update_methods = self
             .canister_methods
             .update_methods
@@ -113,16 +120,16 @@ impl ToTokenStream<()> for AbstractCanisterTree {
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
-        let funcs =
-            new_deduplicate(&self.data_types.funcs, &self.keywords).to_declaration(&self.keywords);
+        let funcs = new_deduplicate(&self.data_types.funcs, &self.keywords)
+            .to_declaration(&self.keywords, "GlobalFunc".to_string());
         let records = new_deduplicate(&self.data_types.records, &self.keywords)
-            .to_declaration(&self.keywords);
-        let tuples =
-            new_deduplicate(&self.data_types.tuples, &self.keywords).to_declaration(&self.keywords);
+            .to_declaration(&self.keywords, "GlobalRecord".to_string());
+        let tuples = new_deduplicate(&self.data_types.tuples, &self.keywords)
+            .to_declaration(&self.keywords, "GlobalFunc".to_string());
         let type_aliases = new_deduplicate(&self.data_types.type_aliases, &self.keywords)
-            .to_declaration(&self.keywords);
+            .to_declaration(&self.keywords, "GlobalTypeAlias".to_string());
         let variants = new_deduplicate(&self.data_types.variants, &self.keywords)
-            .to_declaration(&self.keywords);
+            .to_declaration(&self.keywords, "GlobalVariant".to_string());
 
         quote::quote! {
             #header

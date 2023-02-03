@@ -1,4 +1,7 @@
-use super::{traits::HasMembers, DataType};
+use super::{
+    traits::{HasMembers, ToTypeAnnotation},
+    DataType,
+};
 use crate::ToTokenStream;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -18,5 +21,11 @@ impl ToTokenStream<&Vec<String>> for Array {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let enclosed_rust_ident = self.enclosed_type.to_token_stream(keyword_list);
         quote!(Vec<#enclosed_rust_ident>)
+    }
+}
+
+impl ToTypeAnnotation<Vec<String>> for Array {
+    fn to_type_annotation(&self, context: &Vec<String>) -> TokenStream {
+        todo!()
     }
 }

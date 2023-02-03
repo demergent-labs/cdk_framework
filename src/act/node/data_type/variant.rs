@@ -31,7 +31,7 @@ impl<C> ToTokenStream<C> for Variant {
 }
 
 impl ToDeclarationTokenStream<&Vec<String>> for Variant {
-    fn to_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
+    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         let type_ident = self.name.to_identifier();
         let member_token_streams: Vec<TokenStream> = self
             .members

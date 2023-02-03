@@ -5,7 +5,7 @@ use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct Func {
-    pub name: String,
+    pub name: Option<String>,
     pub params: Vec<DataType>,
     pub return_type: Box<Option<DataType>>,
     pub mode: String,
@@ -27,12 +27,17 @@ impl HasMembers for Func {
 
 impl<C> ToTokenStream<C> for Func {
     fn to_token_stream(&self, _: C) -> TokenStream {
-        self.name.to_identifier().to_token_stream()
+        // TODO get rid of this unwrap. Probably this whole function is no good anymore.
+        self.name
+            .as_ref()
+            .unwrap()
+            .to_identifier()
+            .to_token_stream()
     }
 }
 
 impl ToDeclarationTokenStream<&Vec<String>> for Func {
-    fn to_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
+    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         self.generate_func_struct_and_impls(keyword_list)
     }
 }
@@ -60,7 +65,8 @@ pub fn generate_func_arg_token() -> TokenStream {
 
 impl Func {
     pub fn generate_func_struct_and_impls(&self, context: &Vec<String>) -> TokenStream {
-        let type_alias_name = self.name.to_identifier();
+        // TODO get rid of this unwrap
+        let type_alias_name = self.name.as_ref().unwrap().to_identifier();
         let func_mode = if self.mode == "Query" {
             quote! {candid::parser::types::FuncMode::Query }
         } else if self.mode == "Oneway" {
