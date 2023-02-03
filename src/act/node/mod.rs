@@ -2,6 +2,7 @@ pub mod act_function_guard;
 pub mod canister_method;
 pub mod data_type;
 pub mod external_canister;
+pub mod full_declaration;
 
 pub use act_function_guard::FunctionGuard;
 pub use data_type::DataType;

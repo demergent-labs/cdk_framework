@@ -1,11 +1,20 @@
-use super::{traits::HasMembers, DataType};
-use crate::{traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
+use std::collections::HashMap;
+
+use super::{
+    traits::{HasMembers, ToTypeAnnotation},
+    DataType,
+};
+use crate::{
+    act::node::full_declaration::{Declaration, ToDeclaration},
+    traits::ToIdent,
+    ToTokenStream,
+};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct Func {
-    pub name: String,
+    pub name: Option<String>,
     pub params: Vec<DataType>,
     pub return_type: Box<Option<DataType>>,
     pub mode: String,
@@ -13,6 +22,15 @@ pub struct Func {
     pub list_to_vm_value: TokenStream,
     pub from_vm_value: TokenStream,
     pub list_from_vm_value: TokenStream,
+}
+
+impl Func {
+    fn get_name(&self, parental_prefix: String) -> String {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Func", parental_prefix),
+        }
+    }
 }
 
 impl HasMembers for Func {
@@ -23,17 +41,50 @@ impl HasMembers for Func {
         };
         vec![self.params.clone(), return_type].concat()
     }
-}
 
-impl<C> ToTokenStream<C> for Func {
-    fn to_token_stream(&self, _: C) -> TokenStream {
-        self.name.to_identifier().to_token_stream()
+    fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
+        todo!("I am not sur that Has Members is the right fit for Func. Investigate why we have it and if we can get away with out it");
+        format!("{}FuncMember{}", self.get_name(parental_prefix), index)
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for Func {
-    fn to_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
-        self.generate_func_struct_and_impls(keyword_list)
+impl<C> ToTypeAnnotation<C> for Func {
+    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
+        self.create_identifier(parental_prefix)
+            .unwrap()
+            .to_identifier()
+            .to_token_stream()
+    }
+}
+
+impl<C> ToTokenStream<C> for Func {
+    fn to_token_stream(&self, context: &C) -> TokenStream {
+        self.to_type_annotation(context, "".to_string())
+    }
+}
+
+impl ToDeclaration<Vec<String>> for Func {
+    fn create_code(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> Option<TokenStream> {
+        Some(self.generate_func_struct_and_impls(
+            keyword_list,
+            self.create_identifier(parental_prefix).unwrap(),
+        ))
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
+        Some(self.get_name(parental_prefix))
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &Vec<String>,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        todo!()
     }
 }
 
@@ -59,8 +110,12 @@ pub fn generate_func_arg_token() -> TokenStream {
 }
 
 impl Func {
-    pub fn generate_func_struct_and_impls(&self, context: &Vec<String>) -> TokenStream {
-        let type_alias_name = self.name.to_identifier();
+    pub fn generate_func_struct_and_impls(
+        &self,
+        context: &Vec<String>,
+        name: String,
+    ) -> TokenStream {
+        let type_alias_name = name.to_identifier();
         let func_mode = if self.mode == "Query" {
             quote! {candid::parser::types::FuncMode::Query }
         } else if self.mode == "Oneway" {
@@ -71,7 +126,7 @@ impl Func {
         let param_type_strings: Vec<String> = self
             .params
             .iter()
-            .map(|param| param.to_token_stream(context).to_string())
+            .map(|param| param.to_type_annotation(context, name.clone()).to_string())
             .collect();
         let func_param_types: Vec<TokenStream> = param_type_strings
             .iter()
@@ -109,7 +164,7 @@ impl Func {
             })
             .collect();
         let return_type_string = match &*self.return_type {
-            Some(return_type) => return_type.to_token_stream(context).to_string(),
+            Some(return_type) => return_type.to_type_annotation(context, name).to_string(),
             None => "".to_string(),
         };
         let func_return_type = if return_type_string == "()" || return_type_string == "" {

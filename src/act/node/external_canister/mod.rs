@@ -22,12 +22,12 @@ pub struct TokenStreamContext<'a> {
 }
 
 impl ToTokenStream<TokenStreamContext<'_>> for ExternalCanister {
-    fn to_token_stream(&self, context: TokenStreamContext) -> TokenStream {
+    fn to_token_stream(&self, context: &TokenStreamContext) -> TokenStream {
         let cross_canister_call_functions: Vec<TokenStream> = self
             .methods
             .iter()
             .map(|method| {
-                method.to_token_stream(EcmContext {
+                method.to_token_stream(&EcmContext {
                     canister_name: self.name.clone(),
                     keyword_list: &context.keyword_list,
                     cdk_name: context.cdk_name,

@@ -1,17 +1,34 @@
-use super::{traits::HasMembers, DataType};
-use crate::{traits::ToIdent, ToDeclarationTokenStream, ToTokenStream};
+use std::collections::HashMap;
+
+use super::{
+    traits::{HasMembers, ToTypeAnnotation},
+    DataType,
+};
+use crate::{
+    act::node::full_declaration::{Declaration, ToDeclaration},
+    traits::ToIdent,
+};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct Tuple {
-    pub name: String,
+    pub name: Option<String>,
     pub elems: Vec<Elem>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Elem {
     pub elem_type: DataType,
+}
+
+impl Tuple {
+    fn get_name(&self, parental_prefix: String) -> String {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Func", parental_prefix),
+        }
+    }
 }
 
 impl HasMembers for Tuple {
@@ -21,21 +38,43 @@ impl HasMembers for Tuple {
             .map(|elem| elem.elem_type.clone())
             .collect()
     }
-}
 
-impl<C> ToTokenStream<C> for Tuple {
-    fn to_token_stream(&self, _: C) -> TokenStream {
-        self.name.to_identifier().to_token_stream()
+    fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
+        format!("{}MemberNum{}", self.get_name(parental_prefix), index)
     }
 }
 
-impl ToDeclarationTokenStream<&Vec<String>> for Tuple {
-    fn to_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let type_ident = self.name.to_identifier();
+// impl<C> ToTokenStream<C> for Tuple {
+//     fn to_token_stream(&self, context: &C) -> TokenStream {
+//         self.to_type_annotation(context, "".to_string())
+//     }
+// }
+
+impl<C> ToTypeAnnotation<C> for Tuple {
+    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
+        self.get_name(parental_prefix)
+            .to_identifier()
+            .to_token_stream()
+    }
+}
+
+impl ToDeclaration<Vec<String>> for Tuple {
+    fn create_code(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> Option<TokenStream> {
+        let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let elem_idents: Vec<TokenStream> = self
             .elems
             .iter()
-            .map(|elem| elem.to_token_stream(keyword_list))
+            .enumerate()
+            .map(|(index, elem)| {
+                elem.to_token_stream(
+                    keyword_list,
+                    self.create_member_prefix(index, parental_prefix.clone()),
+                )
+            })
             .collect();
 
         let elem_idents = if elem_idents.len() == 1 {
@@ -45,19 +84,31 @@ impl ToDeclarationTokenStream<&Vec<String>> for Tuple {
             quote!(#(#elem_idents),*)
         };
 
-        quote!(
+        Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
             struct #type_ident (
                 #elem_idents
             );
-        )
+        ))
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
+        Some(self.get_name(parental_prefix))
+    }
+
+    fn create_child_declarations(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        self.create_member_declarations(keyword_list, parental_prefix)
     }
 }
 
-impl ToTokenStream<&Vec<String>> for Elem {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+impl Elem {
+    fn to_token_stream(&self, keyword_list: &Vec<String>, tuple_name: String) -> TokenStream {
         if self.elem_type.needs_to_be_boxed() {
-            let ident = self.elem_type.to_token_stream(keyword_list);
+            let ident = self.elem_type.to_type_annotation(keyword_list, tuple_name);
             quote!(Box<#ident>)
         } else {
             quote!(self.elem_type.to_token_stream())

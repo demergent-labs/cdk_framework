@@ -8,7 +8,7 @@ pub struct FunctionGuard {
     pub name: String,
 }
 
-impl ToTokenStream<&Vec<String>> for FunctionGuard {
+impl ToTokenStream<Vec<String>> for FunctionGuard {
     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         self.generate_function(keyword_list)
     }

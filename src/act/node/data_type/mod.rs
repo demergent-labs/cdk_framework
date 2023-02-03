@@ -19,7 +19,6 @@ pub mod type_alias;
 pub mod type_ref;
 pub mod variant;
 
-use crate::ToTokenStream;
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
@@ -33,7 +32,9 @@ pub use type_alias::TypeAlias;
 pub use type_ref::TypeRef;
 pub use variant::Variant;
 
-use self::traits::HasMembers;
+use self::traits::{HasMembers, ToTypeAnnotation};
+
+use super::full_declaration::{Declaration, ToDeclaration};
 
 #[derive(Clone, Debug)]
 pub enum DataType {
@@ -208,18 +209,44 @@ impl DataType {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for DataType {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+// impl ToTokenStream<Vec<String>> for DataType {
+//     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+//         match self {
+//             DataType::Record(act_record) => act_record.to_token_stream(keyword_list),
+//             DataType::Variant(act_variant) => act_variant.to_token_stream(keyword_list),
+//             DataType::Func(act_func) => act_func.to_token_stream(keyword_list),
+//             DataType::Tuple(act_tuple) => act_tuple.to_token_stream(keyword_list),
+//             DataType::Primitive(act_primitive) => act_primitive.to_token_stream(keyword_list),
+//             DataType::TypeRef(act_type_ref) => act_type_ref.to_token_stream(keyword_list),
+//             DataType::TypeAlias(act_type_alias) => act_type_alias.to_token_stream(keyword_list),
+//             DataType::Option(act_option) => act_option.to_token_stream(keyword_list),
+//             DataType::Array(act_array) => act_array.to_token_stream(keyword_list),
+//         }
+//     }
+// }
+
+impl ToTypeAnnotation<Vec<String>> for DataType {
+    fn to_type_annotation(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> TokenStream {
         match self {
-            DataType::Record(act_record) => act_record.to_token_stream(keyword_list),
-            DataType::Variant(act_variant) => act_variant.to_token_stream(keyword_list),
-            DataType::Func(act_func) => act_func.to_token_stream(keyword_list),
-            DataType::Tuple(act_tuple) => act_tuple.to_token_stream(keyword_list),
-            DataType::Primitive(act_primitive) => act_primitive.to_token_stream(keyword_list),
-            DataType::TypeRef(act_type_ref) => act_type_ref.to_token_stream(keyword_list),
-            DataType::TypeAlias(act_type_alias) => act_type_alias.to_token_stream(keyword_list),
-            DataType::Option(act_option) => act_option.to_token_stream(keyword_list),
-            DataType::Array(act_array) => act_array.to_token_stream(keyword_list),
+            DataType::Array(array) => array.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Func(func) => func.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Option(option) => option.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Primitive(primitive) => {
+                primitive.to_type_annotation(keyword_list, parental_prefix)
+            }
+            DataType::Record(record) => record.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Tuple(tuple) => tuple.to_type_annotation(keyword_list, parental_prefix),
+            DataType::TypeAlias(type_alias) => {
+                type_alias.to_type_annotation(keyword_list, parental_prefix)
+            }
+            DataType::TypeRef(type_ref) => {
+                type_ref.to_type_annotation(keyword_list, parental_prefix)
+            }
+            DataType::Variant(variant) => variant.to_type_annotation(keyword_list, parental_prefix),
         }
     }
 }
@@ -230,18 +257,17 @@ pub fn build_inline_type_acts(type_aliases: &Vec<DataType>) -> Vec<DataType> {
     })
 }
 
-pub fn new_deduplicate<C, T>(nodes: &Vec<T>, context: C) -> Vec<T>
+pub fn new_deduplicate<C, T>(nodes: &Vec<T>, prefix: String) -> Vec<T>
 where
-    C: Clone,
-    T: ToTokenStream<C>,
+    T: ToDeclaration<C>,
     T: Clone,
 {
     let map: HashMap<String, T> = nodes.iter().fold(HashMap::new(), |mut acc, node| {
-        match acc.get(&node.to_token_stream(context.clone()).to_string()) {
+        match acc.get(&node.create_identifier(prefix.clone()).unwrap()) {
             Some(_) => acc,
             None => {
                 acc.insert(
-                    node.to_token_stream(context.clone()).to_string(),
+                    node.create_identifier(prefix.clone()).unwrap(),
                     node.clone(),
                 );
                 acc
@@ -251,24 +277,93 @@ where
     map.values().cloned().collect()
 }
 
-pub fn deduplicate(
-    act_data_type_nodes: Vec<DataType>,
-    keyword_list: &Vec<String>,
-) -> Vec<DataType> {
-    let map: HashMap<String, DataType> =
-        act_data_type_nodes
-            .iter()
-            .fold(HashMap::new(), |mut acc, act_node| {
-                match acc.get(&act_node.to_token_stream(keyword_list).to_string()) {
-                    Some(_) => acc,
-                    None => {
-                        acc.insert(
-                            act_node.to_token_stream(keyword_list).to_string(),
-                            act_node.clone(),
-                        );
-                        acc
-                    }
-                }
-            });
-    map.values().cloned().collect()
+impl ToDeclaration<Vec<String>> for DataType {
+    fn create_child_declarations(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        match self {
+            DataType::Array(array) => {
+                array.create_child_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Func(func) => func.create_child_declarations(keyword_list, parental_prefix),
+            DataType::Option(option) => {
+                option.create_child_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Primitive(primitive) => {
+                primitive.create_child_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Record(record) => {
+                record.create_child_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Tuple(tuple) => {
+                tuple.create_child_declarations(keyword_list, parental_prefix)
+            }
+            DataType::TypeAlias(type_alias) => {
+                type_alias.create_child_declarations(keyword_list, parental_prefix)
+            }
+            DataType::TypeRef(type_ref) => {
+                type_ref.create_child_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Variant(variant) => {
+                variant.create_child_declarations(keyword_list, parental_prefix)
+            }
+        }
+    }
+
+    fn create_code(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> std::option::Option<TokenStream> {
+        let prefix = format!("DataType{}", parental_prefix);
+        match self {
+            DataType::Array(array) => array.create_code(keyword_list, parental_prefix),
+            DataType::Func(func) => func.create_code(keyword_list, parental_prefix),
+            DataType::Option(option) => option.create_code(keyword_list, parental_prefix),
+            DataType::Primitive(primitive) => primitive.create_code(keyword_list, parental_prefix),
+            DataType::Record(record) => record.create_code(keyword_list, prefix),
+            DataType::Tuple(tuple) => tuple.create_code(keyword_list, parental_prefix),
+            DataType::TypeAlias(type_alias) => type_alias.create_code(keyword_list, prefix),
+            DataType::TypeRef(type_ref) => type_ref.create_code(keyword_list, prefix),
+            DataType::Variant(variant) => variant.create_code(keyword_list, parental_prefix),
+        }
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> std::option::Option<String> {
+        match self {
+            DataType::Array(array) => array.create_identifier(parental_prefix),
+            DataType::Func(func) => func.create_identifier(parental_prefix),
+            DataType::Option(option) => option.create_identifier(parental_prefix),
+            DataType::Primitive(primitive) => primitive.create_identifier(parental_prefix),
+            DataType::Record(record) => record.create_identifier(parental_prefix),
+            DataType::Tuple(tuple) => tuple.create_identifier(parental_prefix),
+            DataType::TypeAlias(type_alias) => type_alias.create_identifier(parental_prefix),
+            DataType::TypeRef(type_ref) => type_ref.create_identifier(parental_prefix),
+            DataType::Variant(variant) => variant.create_identifier(parental_prefix),
+        }
+    }
 }
+
+// pub fn deduplicate(
+//     act_data_type_nodes: Vec<DataType>,
+//     keyword_list: &Vec<String>,
+// ) -> Vec<DataType> {
+//     let map: HashMap<String, DataType> =
+//         act_data_type_nodes
+//             .iter()
+//             .fold(HashMap::new(), |mut acc, act_node| {
+//                 match acc.get(&act_node.to_token_stream(keyword_list).to_string()) {
+//                     Some(_) => acc,
+//                     None => {
+//                         acc.insert(
+//                             act_node.to_token_stream(keyword_list).to_string(),
+//                             act_node.clone(),
+//                         );
+//                         acc
+//                     }
+//                 }
+//             });
+//     map.values().cloned().collect()
+// }

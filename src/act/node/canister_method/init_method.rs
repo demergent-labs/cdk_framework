@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use super::FnParam;
-use crate::{ToTokenStream, ToTokenStreams};
+use super::{FnParam, HasParams};
+use crate::act::node::full_declaration::{Declaration, ToDeclaration};
 
 #[derive(Clone)]
 pub struct InitMethod {
@@ -15,17 +17,39 @@ pub struct TokenStreamContext<'a> {
     pub cdk_name: &'a String,
 }
 
-impl ToTokenStream<TokenStreamContext<'_>> for InitMethod {
-    fn to_token_stream(&self, context: TokenStreamContext) -> TokenStream {
+impl HasParams for InitMethod {
+    fn get_params(&self) -> Vec<FnParam> {
+        self.params.clone()
+    }
+
+    fn create_param_prefix(&self, param_index: usize) -> String {
+        format!("InitParamNum{}", param_index)
+    }
+}
+
+impl ToDeclaration<TokenStreamContext<'_>> for InitMethod {
+    fn create_code(&self, context: &TokenStreamContext<'_>, _: String) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
         let body = &self.body;
-        let params = &self.params.to_token_streams(context.keyword_list);
-        quote! {
+        let params = self.create_parameter_list_token_stream(context.keyword_list);
+        Some(quote! {
             #[ic_cdk_macros::init]
             #[candid::candid_method(init)]
-            fn #function_name(#(#params),*) {
+            fn #function_name(#params) {
                 #body
             }
-        }
+        })
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some("InitMethod".to_string())
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &TokenStreamContext<'_>,
+        _: String,
+    ) -> HashMap<String, Declaration> {
+        self.create_param_declarations(context.keyword_list)
     }
 }

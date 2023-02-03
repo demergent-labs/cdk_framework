@@ -2,7 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::{
-    act::node::{canister_method::FnParam, DataType},
+    act::node::{
+        canister_method::{FnParam, HasParams, HasReturnValue},
+        DataType,
+    },
     ToTokenStream,
 };
 
@@ -20,7 +23,7 @@ pub struct EcmContext<'a> {
 }
 
 impl ToTokenStream<EcmContext<'_>> for ExternalCanisterMethod {
-    fn to_token_stream(&self, context: EcmContext) -> TokenStream {
+    fn to_token_stream(&self, context: &EcmContext) -> TokenStream {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -36,6 +39,26 @@ impl ToTokenStream<EcmContext<'_>> for ExternalCanisterMethod {
             #notify_function
             #notify_with_payment128_function
         }
+    }
+}
+
+impl HasReturnValue for ExternalCanisterMethod {
+    fn get_return_type(&self) -> DataType {
+        self.return_type.clone()
+    }
+
+    fn create_return_type_prefix(&self) -> String {
+        format!("ExternalCanisterMethod{}", self.name)
+    }
+}
+
+impl HasParams for ExternalCanisterMethod {
+    fn get_params(&self) -> Vec<FnParam> {
+        self.params.clone()
+    }
+
+    fn create_param_prefix(&self, param_index: usize) -> String {
+        format!("ExternalCanisterMethod{}ParamNum{}", self.name, param_index)
     }
 }
 
@@ -67,7 +90,7 @@ impl ExternalCanisterMethod {
             quote! {}
         };
 
-        let function_return_type = self.return_type.to_token_stream(context.keyword_list);
+        let function_return_type = self.create_return_type_annotation(context.keyword_list);
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
@@ -112,7 +135,8 @@ impl ExternalCanisterMethod {
         let param_types: Vec<TokenStream> = self
             .params
             .iter()
-            .map(|param| param.data_type.to_token_stream(keywords))
+            .enumerate()
+            .filter_map(|(index, _)| self.create_param_type_annotation(index, keywords)) // TODO for code review. Is filter map the right call here. create param type returns none if a get index call returns none and that shouldn't happen since we are getting the index from enumerate right?
             .collect();
 
         let comma = if param_types.len() == 1 {

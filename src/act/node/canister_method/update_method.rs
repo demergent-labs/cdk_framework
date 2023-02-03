@@ -1,4 +1,13 @@
-use crate::{act::node::DataType, traits::ToIdent, ToTokenStream, ToTokenStreams};
+use std::collections::HashMap;
+
+use crate::{
+    act::node::{
+        full_declaration::{Declaration, ToDeclaration},
+        DataType,
+    },
+    traits::ToIdent,
+    // ToTokenStream,
+};
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -21,11 +30,11 @@ impl UpdateMethod {
     // TODO this is exactly the same as the query version. Is that an issue we want to resolve?
     fn generate_function(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_name = self.name.to_identifier();
-        let params = self.params.to_token_streams(keyword_list);
+        let params = self.create_parameter_list_token_stream(keyword_list);
 
         let function_body = &self.body;
 
-        let return_type_token = self.return_type.to_token_stream(keyword_list);
+        let return_type_token = self.create_return_type_annotation(keyword_list);
         let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
             quote! {
                 ic_cdk::api::call::ManualReply<#return_type_token>
@@ -35,7 +44,7 @@ impl UpdateMethod {
         };
 
         quote! {
-            async fn #function_name(#(#params),*) -> #wrapped_return_type {
+            async fn #function_name(#params) -> #wrapped_return_type {
                 #function_body
             }
         }
@@ -55,31 +64,55 @@ impl UpdateMethod {
     }
 }
 
-impl ToTokenStream<&Vec<String>> for UpdateMethod {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+impl ToDeclaration<Vec<String>> for UpdateMethod {
+    fn create_code(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
         let function_signature = self.generate_function(keyword_list);
 
         let macro_args = self.generate_macro_args();
 
-        quote! {
+        Some(quote! {
             #[ic_cdk_macros::update(#macro_args)]
             #[candid::candid_method(update)]
             #function_signature
+        })
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some(self.name.clone())
+    }
+
+    fn create_child_declarations(
+        &self,
+        keyword_list: &Vec<String>,
+        _: String,
+    ) -> HashMap<String, Declaration> {
+        let mut declarations = self.create_param_declarations(keyword_list);
+        let return_declaration = self.create_return_type_declaration(keyword_list);
+        if let Some(identifier) = &return_declaration.identifier {
+            if let Some(_) = return_declaration.code {
+                declarations.insert(identifier.clone(), return_declaration);
+            }
         }
+        declarations
     }
 }
 
 impl HasParams for UpdateMethod {
-    fn get_param_types(&self) -> Vec<DataType> {
-        self.params
-            .iter()
-            .map(|param| param.data_type.clone())
-            .collect()
+    fn get_params(&self) -> Vec<FnParam> {
+        self.params.clone()
+    }
+
+    fn create_param_prefix(&self, param_index: usize) -> String {
+        format!("{}ParamNum{}", self.name, param_index)
     }
 }
 
 impl HasReturnValue for UpdateMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
+    }
+
+    fn create_return_type_prefix(&self) -> String {
+        format!("{}ReturnType", self.name)
     }
 }
