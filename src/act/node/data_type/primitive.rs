@@ -1,7 +1,12 @@
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{ToActDataType, ToTokenStream};
+use crate::{
+    act::node::full_declaration::{Declaration, ToDeclaration},
+    ToActDataType,
+};
 
 use super::{traits::ToTypeAnnotation, DataType};
 
@@ -69,8 +74,20 @@ impl<C> ToTypeAnnotation<C> for Primitive {
     }
 }
 
-impl<C> ToTokenStream<C> for Primitive {
-    fn to_token_stream(&self, context: &C) -> TokenStream {
-        self.to_type_annotation(context, "".to_string())
+impl ToDeclaration<Vec<String>> for Primitive {
+    fn create_code(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+        None
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        None
+    }
+
+    fn create_child_declarations(
+        &self,
+        _: &Vec<String>,
+        _: String,
+    ) -> HashMap<String, Declaration> {
+        HashMap::new()
     }
 }

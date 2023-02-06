@@ -1,8 +1,13 @@
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use super::FnParam;
-use crate::{ToTokenStream, ToTokenStreams};
+use super::{FnParam, HasParams};
+use crate::{
+    act::node::full_declaration::{Declaration, ToDeclaration},
+    ToTokenStream,
+};
 
 #[derive(Clone)]
 pub struct PostUpgradeMethod {
@@ -17,14 +22,49 @@ pub struct TokenStreamContext<'a> {
 
 impl ToTokenStream<TokenStreamContext<'_>> for PostUpgradeMethod {
     fn to_token_stream(&self, context: &TokenStreamContext) -> TokenStream {
+        match self.create_code(context, "".to_string()) {
+            Some(declaration) => declaration,
+            None => quote!(),
+        }
+    }
+}
+
+impl HasParams for PostUpgradeMethod {
+    fn get_params(&self) -> Vec<FnParam> {
+        self.params.clone()
+    }
+
+    fn create_param_prefix(&self, param_index: usize) -> String {
+        format!("PostUpgradeParamNum{}", param_index)
+    }
+}
+
+impl ToDeclaration<TokenStreamContext<'_>> for PostUpgradeMethod {
+    fn create_code(
+        &self,
+        context: &TokenStreamContext<'_>,
+        parental_prefix: String,
+    ) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_post_upgrade", context.cdk_name.to_lowercase());
         let body = &self.body;
-        let params = &self.params.to_token_streams(context.keyword_list);
-        quote! {
+        let params = self.create_parameter_list_token_stream(context.keyword_list);
+        Some(quote! {
             #[ic_cdk_macros::post_upgrade]
-            fn #function_name(#(#params),*) {
+            fn #function_name(#params) {
                 #body
             }
-        }
+        })
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
+        Some("PostUpgrade".to_string())
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &TokenStreamContext<'_>,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        self.create_param_declarations(context.keyword_list)
     }
 }

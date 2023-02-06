@@ -1,13 +1,8 @@
-use std::collections::HashMap;
-
 use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{
-    act::node::full_declaration::ToFullDeclaration, traits::ToIdent, ToDeclarationTokenStream,
-    ToTokenStream,
-};
+use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -21,13 +16,9 @@ impl HasMembers for TypeAlias {
     fn get_members(&self) -> Vec<DataType> {
         vec![*self.aliased_type.clone()]
     }
-}
 
-impl ToDeclarationTokenStream<Vec<String>> for TypeAlias {
-    fn to_declaration(&self, context: &Vec<String>, _: String) -> TokenStream {
-        let name = self.name.to_identifier();
-        let alias = self.aliased_type.to_token_stream(context);
-        quote!(type #name = #alias;)
+    fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
+        todo!("I don't think we will be using this. Is HasMembers also not good for this")
     }
 }
 
@@ -43,17 +34,17 @@ impl ToTokenStream<Vec<String>> for TypeAlias {
     }
 }
 
-impl ToFullDeclaration<Vec<String>> for TypeAlias {
-    fn create_declaration(
-        &self,
-        context: &Vec<String>,
-        parental_prefix: String,
-    ) -> Option<TokenStream> {
-        Some(self.to_declaration(context, parental_prefix))
+impl ToDeclaration<Vec<String>> for TypeAlias {
+    fn create_code(&self, context: &Vec<String>, parental_prefix: String) -> Option<TokenStream> {
+        let name = self.name.to_identifier();
+        let alias = self
+            .aliased_type
+            .to_type_annotation(context, parental_prefix);
+        Some(quote!(type #name = #alias;))
     }
 
-    fn create_identifier(&self, parental_prefix: String) -> String {
-        self.name.clone()
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some(self.name.clone())
     }
 
     fn create_child_declarations(
@@ -61,7 +52,7 @@ impl ToFullDeclaration<Vec<String>> for TypeAlias {
         context: &Vec<String>,
         parental_prefix: String,
     ) -> std::collections::HashMap<String, crate::act::node::full_declaration::Declaration> {
-        // TODO
-        HashMap::new()
+        self.aliased_type
+            .create_child_declarations(context, parental_prefix)
     }
 }

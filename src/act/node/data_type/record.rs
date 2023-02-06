@@ -1,12 +1,13 @@
-use std::{collections::HashMap, task::Context};
+use std::collections::HashMap;
 
 use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
 use crate::{
-    act::node::full_declaration::ToFullDeclaration, keyword, traits::ToIdent,
-    ToDeclarationTokenStream, ToTokenStream,
+    act::node::full_declaration::{Declaration, ToDeclaration},
+    keyword,
+    traits::ToIdent,
 };
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -23,6 +24,29 @@ pub struct Member {
     pub member_type: DataType,
 }
 
+impl Member {
+    fn to_token_stream(&self, keyword_list: &Vec<String>, prefix: String) -> TokenStream {
+        let ident = self.member_type.to_type_annotation(keyword_list, prefix);
+        let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
+            quote!(Box<#ident>)
+        } else {
+            ident
+        };
+        let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
+        let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
+        quote!(#rename#member_name: #member_type_token_stream)
+    }
+}
+
+impl Record {
+    fn get_name(&self, parental_prefix: String) -> String {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Record", parental_prefix),
+        }
+    }
+}
+
 impl HasMembers for Record {
     fn get_members(&self) -> Vec<DataType> {
         self.members
@@ -30,19 +54,25 @@ impl HasMembers for Record {
             .map(|member| member.member_type.clone())
             .collect()
     }
+
+    fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
+        format!("{}Member{}", self.get_name(parental_prefix), index)
+    }
 }
 
-impl ToFullDeclaration<Vec<String>> for Record {
-    fn create_declaration(
-        &self,
-        context: &Vec<String>,
-        parental_prefix: String,
-    ) -> Option<TokenStream> {
-        let type_ident = self.create_identifier(parental_prefix).to_identifier();
+impl ToDeclaration<Vec<String>> for Record {
+    fn create_code(&self, context: &Vec<String>, parental_prefix: String) -> Option<TokenStream> {
+        let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
-            .map(|member| member.to_token_stream(context))
+            .enumerate()
+            .map(|(index, member)| {
+                member.to_token_stream(
+                    context,
+                    self.create_member_prefix(index, parental_prefix.clone()),
+                )
+            })
             .collect();
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
@@ -52,34 +82,16 @@ impl ToFullDeclaration<Vec<String>> for Record {
         ))
     }
 
-    fn create_identifier(&self, parental_prefix: String) -> String {
-        match &self.name {
-            Some(name) => name.clone(),
-            None => format!("{}Record", parental_prefix),
-        }
+    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
+        Some(self.get_name(parental_prefix))
     }
 
     fn create_child_declarations(
         &self,
-        context: &Vec<String>,
+        keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, crate::act::node::full_declaration::Declaration> {
-        todo!()
-    }
-}
-
-impl ToDeclarationTokenStream<Vec<String>> for Record {
-    fn to_declaration(&self, context: &Vec<String>, parental_prefix: String) -> TokenStream {
-        match self.create_declaration(context, parental_prefix) {
-            Some(declaration) => declaration,
-            None => quote!(),
-        }
-    }
-}
-
-impl ToTokenStream<Vec<String>> for Record {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        self.to_type_annotation(context, "".to_string())
+    ) -> HashMap<String, Declaration> {
+        self.create_member_declarations(keyword_list, parental_prefix)
     }
 }
 
@@ -91,19 +103,5 @@ impl ToTypeAnnotation<Vec<String>> for Record {
         }
         .to_identifier()
         .to_token_stream()
-    }
-}
-
-impl ToTokenStream<Vec<String>> for Member {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
-            let ident = self.member_type.to_token_stream(keyword_list);
-            quote!(Box<#ident>)
-        } else {
-            quote!(self.member_type.to_token_stream())
-        };
-        let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
-        let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
-        quote!(#rename#member_name: #member_type_token_stream)
     }
 }

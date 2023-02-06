@@ -52,22 +52,22 @@ pub trait ToTokenStream<C> {
     fn to_token_stream(&self, context: &C) -> TokenStream;
 }
 
-pub trait ToDeclarationTokenStream<C> {
-    fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream;
-}
+// pub trait ToDeclarationTokenStream<C> {
+//     fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream;
+// }
 
-impl<C, T> ToDeclarationTokenStream<C> for Vec<T>
-where
-    C: Clone,
-    T: ToDeclarationTokenStream<C>,
-{
-    fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream {
-        let declarations = self.iter().enumerate().map(|(index, t)| {
-            t.to_declaration(&context.clone(), format!("{}{}", parental_prefix, index))
-        });
-        quote!(#(#declarations)*)
-    }
-}
+// impl<C, T> ToDeclarationTokenStream<C> for Vec<T>
+// where
+//     C: Clone,
+//     T: ToDeclarationTokenStream<C>,
+// {
+//     fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream {
+//         let declarations = self.iter().enumerate().map(|(index, t)| {
+//             t.to_declaration(&context.clone(), format!("{}{}", parental_prefix, index))
+//         });
+//         quote!(#(#declarations)*)
+//     }
+// }
 
 pub trait ToTokenStreams<C> {
     fn to_token_streams(&self, context: &C) -> Vec<TokenStream>;

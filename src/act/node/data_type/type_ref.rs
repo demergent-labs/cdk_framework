@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{act::node::full_declaration::ToFullDeclaration, traits::ToIdent, ToTokenStream};
+use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent, ToTokenStream};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
@@ -26,13 +26,13 @@ impl ToTypeAnnotation<Vec<String>> for TypeRef {
     }
 }
 
-impl ToFullDeclaration<Vec<String>> for TypeRef {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+impl ToDeclaration<Vec<String>> for TypeRef {
+    fn create_code(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
         None
     }
 
-    fn create_identifier(&self, _: String) -> String {
-        self.name.clone()
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some(self.name.clone())
     }
 
     fn create_child_declarations(
