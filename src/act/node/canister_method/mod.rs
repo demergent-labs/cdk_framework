@@ -21,11 +21,7 @@ pub use update_method::UpdateMethod;
 
 use quote::quote;
 
-use super::{
-    data_type::traits::ToTypeAnnotation,
-    full_declaration::{Declaration, ToDeclaration},
-    DataType,
-};
+use super::{data_type::traits::ToTypeAnnotation, declaration::ToDeclaration, DataType};
 
 #[derive(Clone)]
 pub enum CanisterMethod {
@@ -67,9 +63,23 @@ where
 pub trait HasReturnValue {
     fn get_return_type(&self) -> DataType;
     fn create_return_type_prefix(&self) -> String;
-    fn create_return_type_declaration(&self, keyword_list: &Vec<String>) -> Declaration {
-        self.get_return_type()
-            .create_declaration(&keyword_list, self.create_return_type_prefix())
+    fn create_return_type_declarations(
+        &self,
+        keyword_list: &Vec<String>,
+    ) -> HashMap<String, TokenStream> {
+        let mut result = HashMap::new();
+        let declaration = self
+            .get_return_type()
+            .create_declaration(&keyword_list, self.create_return_type_prefix());
+
+        if let Some(identifier) = declaration.identifier {
+            if let Some(code) = declaration.code {
+                result.insert(identifier, code);
+            }
+        }
+        result.extend(declaration.children);
+
+        result
     }
     fn create_return_type_annotation(&self, keyword_list: &Vec<String>) -> TokenStream {
         self.get_return_type()
@@ -114,18 +124,18 @@ pub trait HasParams {
     fn create_param_declarations(
         &self,
         keyword_list: &Vec<String>,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.get_param_types().iter().enumerate().fold(
             HashMap::new(),
             |mut acc, (index, param_type)| {
                 let declaration =
                     param_type.create_declaration(keyword_list, self.create_param_prefix(index));
-                acc.extend(declaration.children.clone().into_iter());
                 if let Some(identifier) = &declaration.identifier {
-                    if let Some(_) = declaration.code {
-                        acc.insert(identifier.clone(), declaration);
+                    if let Some(code) = declaration.code {
+                        acc.insert(identifier.clone(), code.clone());
                     }
                 }
+                acc.extend(declaration.children.clone().into_iter());
                 acc
             },
         )

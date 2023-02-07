@@ -34,7 +34,7 @@ pub use variant::Variant;
 
 use self::traits::{HasMembers, ToTypeAnnotation};
 
-use super::full_declaration::{Declaration, ToDeclaration};
+use super::declaration::ToDeclaration;
 
 #[derive(Clone, Debug)]
 pub enum DataType {
@@ -209,22 +209,6 @@ impl DataType {
     }
 }
 
-// impl ToTokenStream<Vec<String>> for DataType {
-//     fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-//         match self {
-//             DataType::Record(act_record) => act_record.to_token_stream(keyword_list),
-//             DataType::Variant(act_variant) => act_variant.to_token_stream(keyword_list),
-//             DataType::Func(act_func) => act_func.to_token_stream(keyword_list),
-//             DataType::Tuple(act_tuple) => act_tuple.to_token_stream(keyword_list),
-//             DataType::Primitive(act_primitive) => act_primitive.to_token_stream(keyword_list),
-//             DataType::TypeRef(act_type_ref) => act_type_ref.to_token_stream(keyword_list),
-//             DataType::TypeAlias(act_type_alias) => act_type_alias.to_token_stream(keyword_list),
-//             DataType::Option(act_option) => act_option.to_token_stream(keyword_list),
-//             DataType::Array(act_array) => act_array.to_token_stream(keyword_list),
-//         }
-//     }
-// }
-
 impl ToTypeAnnotation<Vec<String>> for DataType {
     fn to_type_annotation(
         &self,
@@ -282,7 +266,7 @@ impl ToDeclaration<Vec<String>> for DataType {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         match self {
             DataType::Array(array) => {
                 array.create_child_declarations(keyword_list, parental_prefix)

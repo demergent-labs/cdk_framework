@@ -4,10 +4,7 @@ use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{
-    act::node::full_declaration::{Declaration, ToDeclaration},
-    traits::ToIdent,
-};
+use crate::{act::node::declaration::ToDeclaration, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -43,12 +40,6 @@ impl HasMembers for Tuple {
         format!("{}MemberNum{}", self.get_name(parental_prefix), index)
     }
 }
-
-// impl<C> ToTokenStream<C> for Tuple {
-//     fn to_token_stream(&self, context: &C) -> TokenStream {
-//         self.to_type_annotation(context, "".to_string())
-//     }
-// }
 
 impl<C> ToTypeAnnotation<C> for Tuple {
     fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
@@ -100,7 +91,7 @@ impl ToDeclaration<Vec<String>> for Tuple {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.create_member_declarations(keyword_list, parental_prefix)
     }
 }

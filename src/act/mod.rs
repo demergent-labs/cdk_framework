@@ -13,9 +13,11 @@ use node::{
         },
     },
     data_type::{new_deduplicate, Func, Record, Tuple, TypeAlias, Variant},
-    full_declaration::{Declaration, ToDeclaration},
+    declaration::ToDeclaration,
     {data_type, external_canister, ExternalCanister, FunctionGuard},
 };
+
+use self::node::declaration::Declaration;
 
 pub mod actable;
 pub mod node;
@@ -52,7 +54,6 @@ pub struct DataTypes {
     pub variants: Vec<Variant>,
 }
 
-// impl ToDeclaration< {} // TOD probably to to declaration for this?
 impl ToDeclaration<()> for AbstractCanisterTree {
     fn create_code(&self, _: &(), _: String) -> Option<TokenStream> {
         let body = &self.body;
@@ -92,12 +93,8 @@ impl ToDeclaration<()> for AbstractCanisterTree {
         Some("Canister".to_string())
     }
 
-    fn create_child_declarations(
-        &self,
-        context: &(),
-        parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
-        let result = HashMap::new();
+    fn create_child_declarations(&self, _: &(), _: String) -> HashMap<String, TokenStream> {
+        let mut result = HashMap::new();
 
         let init_method_declaration = self.canister_methods.init_method.create_declaration(
             &init_method::TokenStreamContext {
@@ -106,17 +103,8 @@ impl ToDeclaration<()> for AbstractCanisterTree {
             },
             "InitMethod".to_string(),
         );
-        let init_method = init_method_declaration.code;
+        add_declaration_to_map(init_method_declaration, &mut result);
 
-        result
-    }
-}
-
-impl AbstractCanisterTree {
-    // TODO I want this thing to use the acts
-    pub fn to_token_stream(&self, _: &()) -> TokenStream {
-        // TODO all of these strings should actually be the AbstractCanisterTree's name, but also it shouldn't matter because none of these need the prefix
-        // TODO is there a way to pass None when we don't use it? I don't think so because only the callee will know if it needs it or not
         let cross_canister_functions = self.external_canisters.create_declaration(
             &external_canister::TokenStreamContext {
                 cdk_name: &self.cdk_name,
@@ -124,19 +112,19 @@ impl AbstractCanisterTree {
             },
             "ExternalCanisters".to_string(),
         );
-        let cross_canister_functions = cross_canister_functions.code;
+        add_declaration_to_map(cross_canister_functions, &mut result);
 
         let heartbeat_method = self
             .canister_methods
             .heartbeat_method
             .create_declaration(&self.cdk_name, "HeartbeatMethod".to_string());
-        let heartbeat_method = heartbeat_method.code;
+        add_declaration_to_map(heartbeat_method, &mut result);
 
         let inspect_message_method = self
             .canister_methods
             .inspect_message_method
             .create_declaration(&self.cdk_name, "InspectMessageMethod".to_string());
-        let inspect_message_method = inspect_message_method.code;
+        add_declaration_to_map(inspect_message_method, &mut result);
 
         let post_upgrade_method = self
             .canister_methods
@@ -148,64 +136,85 @@ impl AbstractCanisterTree {
                 },
                 "PostUpgradeMethod".to_string(),
             );
-        let post_upgrade_method = post_upgrade_method.code;
+        add_declaration_to_map(post_upgrade_method, &mut result);
 
         let pre_upgrade_method = self
             .canister_methods
             .pre_upgrade_method
             .create_declaration(&self.cdk_name, "Canister".to_string());
-        let pre_upgrade_method = pre_upgrade_method.code;
+        add_declaration_to_map(pre_upgrade_method, &mut result);
 
         let query_methods_full_declarations = self
             .canister_methods
             .query_methods
             .create_declaration(&self.keywords, "QueryMethod".to_string());
-        let query_methods = if let Some(declaration) = query_methods_full_declarations.code {
-            declaration
-        } else {
-            quote!()
-        };
-        let query_types = query_methods_full_declarations.children;
+        add_declaration_to_map(query_methods_full_declarations, &mut result);
+
         let update_method_full_declarations = self
             .canister_methods
             .update_methods
             .create_declaration(&self.keywords, "UpdateMethod".to_string());
-        let update_methods = update_method_full_declarations.code;
+        add_declaration_to_map(update_method_full_declarations, &mut result);
 
         let function_guards = self
             .function_guards
             .create_declaration(&self.keywords, "Canister".to_string());
-        let function_guards = function_guards.code;
+        add_declaration_to_map(function_guards, &mut result);
 
-        let funcs = new_deduplicate(&self.data_types.funcs, "GlocalFunc".to_string())
-            .create_code(&self.keywords, "GlobalFunc".to_string());
-        let records = new_deduplicate(&self.data_types.records, "GlobalRecords".to_string())
-            .create_code(&self.keywords, "GlobalRecord".to_string());
-        let tuples = new_deduplicate(&self.data_types.tuples, "GlobalTuples".to_string())
-            .create_code(&self.keywords, "GlobalTuples".to_string());
-        let type_aliases =
-            new_deduplicate(&self.data_types.type_aliases, "GlobalTypeAlias".to_string())
-                .create_code(&self.keywords, "GlobalTypeAlias".to_string());
-        let variants = new_deduplicate(&self.data_types.variants, "GlobalVariant".to_string())
-            .create_code(&self.keywords, "GlobalVariant".to_string());
+        result
+    }
+}
 
-        quote::quote! {
-            #heartbeat_method
-            #inspect_message_method
-            #post_upgrade_method
-            #pre_upgrade_method
+fn add_declaration_to_map(declaration: Declaration, map: &mut HashMap<String, TokenStream>) {
+    if let Some(identifier) = declaration.identifier {
+        if let Some(code) = declaration.code {
+            map.insert(identifier, code);
+        }
+    }
+    map.extend(declaration.children);
+}
 
-            #query_methods
-            #update_methods
-            #function_guards
+impl AbstractCanisterTree {
+    // TODO I want this thing to use the acts
+    pub fn to_token_stream(&self) -> TokenStream {
+        // TODO all of these strings should actually be the AbstractCanisterTree's name, but also it shouldn't matter because none of these need the prefix
+        // TODO is there a way to pass None when we don't use it? I don't think so because only the callee will know if it needs it or not
+        let canister_prefix = "Canister".to_string();
 
-            #type_aliases
-            #funcs
-            #records
-            #tuples
-            #variants
+        let canister_declaration = self.create_declaration(&(), canister_prefix.clone());
 
-            #cross_canister_functions
+        let canister_declaration_code = match canister_declaration.code {
+            Some(code) => code,
+            None => quote!(),
+        };
+
+        let function_declarations: Vec<_> = self
+            .create_child_declarations(&(), canister_prefix.clone())
+            .values()
+            .cloned()
+            .collect();
+
+        // let funcs = new_deduplicate(&self.data_types.funcs, "GlocalFunc".to_string())
+        //     .create_code(&self.keywords, "GlobalFunc".to_string());
+        // let records = new_deduplicate(&self.data_types.records, "GlobalRecords".to_string())
+        //     .create_code(&self.keywords, "GlobalRecord".to_string());
+        // let tuples = new_deduplicate(&self.data_types.tuples, "GlobalTuples".to_string())
+        //     .create_code(&self.keywords, "GlobalTuples".to_string());
+        // let type_aliases =
+        //     new_deduplicate(&self.data_types.type_aliases, "GlobalTypeAlias".to_string())
+        //         .create_code(&self.keywords, "GlobalTypeAlias".to_string());
+        // let variants = new_deduplicate(&self.data_types.variants, "GlobalVariant".to_string())
+        //     .create_code(&self.keywords, "GlobalVariant".to_string());
+
+        quote! {
+            #canister_declaration_code
+            #(#function_declarations)*
+
+            // #type_aliases
+            // #funcs
+            // #records
+            // #tuples
+            // #variants
         }
     }
 }

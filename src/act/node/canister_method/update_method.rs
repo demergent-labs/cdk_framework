@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    act::node::{
-        full_declaration::{Declaration, ToDeclaration},
-        DataType,
-    },
+    act::node::{declaration::ToDeclaration, DataType},
     traits::ToIdent,
     // ToTokenStream,
 };
@@ -85,14 +82,9 @@ impl ToDeclaration<Vec<String>> for UpdateMethod {
         &self,
         keyword_list: &Vec<String>,
         _: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         let mut declarations = self.create_param_declarations(keyword_list);
-        let return_declaration = self.create_return_type_declaration(keyword_list);
-        if let Some(identifier) = &return_declaration.identifier {
-            if let Some(_) = return_declaration.code {
-                declarations.insert(identifier.clone(), return_declaration);
-            }
-        }
+        declarations.extend(self.create_return_type_declarations(keyword_list));
         declarations
     }
 }

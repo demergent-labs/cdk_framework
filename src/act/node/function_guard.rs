@@ -4,7 +4,7 @@ use crate::traits::ToIdent;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::full_declaration::{Declaration, ToDeclaration};
+use super::declaration::ToDeclaration;
 
 #[derive(Debug, Clone)]
 pub struct FunctionGuard {
@@ -25,7 +25,7 @@ impl ToDeclaration<Vec<String>> for FunctionGuard {
         &self,
         _: &Vec<String>,
         _: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         HashMap::new()
     }
 }

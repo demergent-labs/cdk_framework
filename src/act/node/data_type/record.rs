@@ -4,11 +4,7 @@ use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{
-    act::node::full_declaration::{Declaration, ToDeclaration},
-    keyword,
-    traits::ToIdent,
-};
+use crate::{act::node::declaration::ToDeclaration, keyword, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -90,7 +86,7 @@ impl ToDeclaration<Vec<String>> for Record {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.create_member_declarations(keyword_list, parental_prefix)
     }
 }

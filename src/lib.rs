@@ -1,5 +1,4 @@
-use act::node::full_declaration::Declaration;
-use act::node::full_declaration::ToDeclaration;
+use act::node::declaration::ToDeclaration;
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 use std::fmt;
@@ -72,7 +71,7 @@ where
         &self,
         context: &C,
         parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         match self {
             Some(t) => t.create_child_declarations(context, format!("{}Optional", parental_prefix)),
             None => HashMap::new(),

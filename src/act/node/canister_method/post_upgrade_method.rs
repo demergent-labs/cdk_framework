@@ -4,7 +4,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use super::{FnParam, HasParams};
-use crate::act::node::full_declaration::{Declaration, ToDeclaration};
+use crate::act::node::declaration::ToDeclaration;
 
 #[derive(Clone)]
 pub struct PostUpgradeMethod {
@@ -48,7 +48,7 @@ impl ToDeclaration<TokenStreamContext<'_>> for PostUpgradeMethod {
         &self,
         context: &TokenStreamContext<'_>,
         _: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.create_param_declarations(context.keyword_list)
     }
 }

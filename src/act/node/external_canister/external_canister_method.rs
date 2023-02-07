@@ -5,7 +5,7 @@ use quote::{format_ident, quote};
 
 use crate::act::node::{
     canister_method::{FnParam, HasParams, HasReturnValue},
-    full_declaration::{Declaration, ToDeclaration},
+    declaration::ToDeclaration,
     DataType,
 };
 
@@ -24,11 +24,7 @@ pub struct EcmContext<'a> {
 }
 
 impl ToDeclaration<EcmContext<'_>> for ExternalCanisterMethod {
-    fn create_code(
-        &self,
-        context: &EcmContext<'_>,
-        parental_prefix: String,
-    ) -> Option<TokenStream> {
+    fn create_code(&self, context: &EcmContext<'_>, _: String) -> Option<TokenStream> {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -53,9 +49,11 @@ impl ToDeclaration<EcmContext<'_>> for ExternalCanisterMethod {
     fn create_child_declarations(
         &self,
         context: &EcmContext<'_>,
-        parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
-        todo!()
+        _: String,
+    ) -> HashMap<String, TokenStream> {
+        let mut declarations = self.create_param_declarations(context.keyword_list);
+        declarations.extend(self.create_return_type_declarations(context.keyword_list));
+        declarations
     }
 }
 

@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::act::node::full_declaration::ToDeclaration;
+use crate::act::node::declaration::ToDeclaration;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -40,7 +42,7 @@ impl ToDeclaration<Vec<String>> for Option {
         &self,
         context: &Vec<String>,
         parental_prefix: String,
-    ) -> std::collections::HashMap<String, crate::act::node::full_declaration::Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.enclosed_type
             .create_child_declarations(context, parental_prefix)
     }

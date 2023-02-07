@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent};
+use crate::{act::node::declaration::ToDeclaration, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -45,7 +47,7 @@ impl ToDeclaration<Vec<String>> for TypeAlias {
         &self,
         context: &Vec<String>,
         parental_prefix: String,
-    ) -> std::collections::HashMap<String, crate::act::node::full_declaration::Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.aliased_type
             .create_child_declarations(context, parental_prefix)
     }

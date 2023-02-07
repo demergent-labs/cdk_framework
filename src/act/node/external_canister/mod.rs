@@ -7,7 +7,7 @@ pub use external_canister_method::ExternalCanisterMethod;
 
 use self::external_canister_method::EcmContext;
 
-use super::full_declaration::{Declaration, ToDeclaration};
+use super::declaration::ToDeclaration;
 
 pub mod external_canister_method;
 
@@ -50,7 +50,7 @@ impl ToDeclaration<TokenStreamContext<'_>> for ExternalCanister {
         &self,
         context: &TokenStreamContext<'_>,
         parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.methods.create_child_declarations(
             &EcmContext {
                 canister_name: self.name.clone(),

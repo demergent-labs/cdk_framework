@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent};
+use crate::{act::node::declaration::ToDeclaration, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
@@ -33,7 +33,7 @@ impl ToDeclaration<Vec<String>> for TypeRef {
         &self,
         _: &Vec<String>,
         _: String,
-    ) -> std::collections::HashMap<String, crate::act::node::full_declaration::Declaration> {
+    ) -> HashMap<String, TokenStream> {
         HashMap::new()
     }
 }

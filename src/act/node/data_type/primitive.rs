@@ -3,10 +3,7 @@ use std::collections::HashMap;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{
-    act::node::full_declaration::{Declaration, ToDeclaration},
-    ToActDataType,
-};
+use crate::{act::node::declaration::ToDeclaration, ToActDataType};
 
 use super::{traits::ToTypeAnnotation, DataType};
 
@@ -87,7 +84,7 @@ impl ToDeclaration<Vec<String>> for Primitive {
         &self,
         _: &Vec<String>,
         _: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         HashMap::new()
     }
 }

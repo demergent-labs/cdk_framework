@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
 
-use crate::act::node::full_declaration::{Declaration, ToDeclaration};
+use crate::act::node::declaration::ToDeclaration;
 
 use super::DataType;
 
@@ -13,7 +13,7 @@ pub trait HasMembers {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, Declaration> {
+    ) -> HashMap<String, TokenStream> {
         self.get_members().iter().enumerate().fold(
             HashMap::new(),
             |mut acc, (index, member_type)| {
@@ -21,12 +21,13 @@ pub trait HasMembers {
                     keyword_list,
                     self.create_member_prefix(index, parental_prefix.clone()),
                 );
-                acc.extend(declaration.children.clone().into_iter());
+
                 if let Some(identifier) = &declaration.identifier {
-                    if let Some(_) = declaration.code {
-                        acc.insert(identifier.clone(), declaration);
+                    if let Some(code) = declaration.code {
+                        acc.insert(identifier.clone(), code);
                     }
                 }
+                acc.extend(declaration.children.clone().into_iter());
                 acc
             },
         )
