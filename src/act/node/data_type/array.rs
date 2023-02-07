@@ -2,7 +2,7 @@ use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{act::node::full_declaration::ToDeclaration, ToTokenStream};
+use crate::act::node::full_declaration::ToDeclaration;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -18,12 +18,6 @@ impl HasMembers for Array {
 
     fn create_member_prefix(&self, _: usize, parental_prefix: String) -> String {
         format!("{}ArrayOf", parental_prefix)
-    }
-}
-
-impl ToTokenStream<Vec<String>> for Array {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        self.to_type_annotation(keyword_list, "ArrayOf".to_string())
     }
 }
 

@@ -4,10 +4,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use super::{FnParam, HasParams};
-use crate::{
-    act::node::full_declaration::{Declaration, ToDeclaration},
-    ToTokenStream,
-};
+use crate::act::node::full_declaration::{Declaration, ToDeclaration};
 
 #[derive(Clone)]
 pub struct PostUpgradeMethod {
@@ -18,15 +15,6 @@ pub struct PostUpgradeMethod {
 pub struct TokenStreamContext<'a> {
     pub keyword_list: &'a Vec<String>,
     pub cdk_name: &'a String,
-}
-
-impl ToTokenStream<TokenStreamContext<'_>> for PostUpgradeMethod {
-    fn to_token_stream(&self, context: &TokenStreamContext) -> TokenStream {
-        match self.create_code(context, "".to_string()) {
-            Some(declaration) => declaration,
-            None => quote!(),
-        }
-    }
 }
 
 impl HasParams for PostUpgradeMethod {
@@ -40,11 +28,7 @@ impl HasParams for PostUpgradeMethod {
 }
 
 impl ToDeclaration<TokenStreamContext<'_>> for PostUpgradeMethod {
-    fn create_code(
-        &self,
-        context: &TokenStreamContext<'_>,
-        parental_prefix: String,
-    ) -> Option<TokenStream> {
+    fn create_code(&self, context: &TokenStreamContext<'_>, _: String) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_post_upgrade", context.cdk_name.to_lowercase());
         let body = &self.body;
         let params = self.create_parameter_list_token_stream(context.keyword_list);
@@ -56,14 +40,14 @@ impl ToDeclaration<TokenStreamContext<'_>> for PostUpgradeMethod {
         })
     }
 
-    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
+    fn create_identifier(&self, _: String) -> Option<String> {
         Some("PostUpgrade".to_string())
     }
 
     fn create_child_declarations(
         &self,
         context: &TokenStreamContext<'_>,
-        parental_prefix: String,
+        _: String,
     ) -> HashMap<String, Declaration> {
         self.create_param_declarations(context.keyword_list)
     }

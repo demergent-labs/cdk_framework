@@ -1,11 +1,13 @@
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::quote;
-
-use crate::ToTokenStream;
 
 pub use external_canister_method::ExternalCanisterMethod;
 
 use self::external_canister_method::EcmContext;
+
+use super::full_declaration::{Declaration, ToDeclaration};
 
 pub mod external_canister_method;
 
@@ -21,19 +23,41 @@ pub struct TokenStreamContext<'a> {
     pub cdk_name: &'a String,
 }
 
-impl ToTokenStream<TokenStreamContext<'_>> for ExternalCanister {
-    fn to_token_stream(&self, context: &TokenStreamContext) -> TokenStream {
+impl ToDeclaration<TokenStreamContext<'_>> for ExternalCanister {
+    fn create_code(&self, context: &TokenStreamContext<'_>, _: String) -> Option<TokenStream> {
         let cross_canister_call_functions: Vec<TokenStream> = self
             .methods
             .iter()
-            .map(|method| {
-                method.to_token_stream(&EcmContext {
-                    canister_name: self.name.clone(),
-                    keyword_list: &context.keyword_list,
-                    cdk_name: context.cdk_name,
-                })
+            .filter_map(|method| {
+                method.create_code(
+                    &EcmContext {
+                        canister_name: self.name.clone(),
+                        keyword_list: &context.keyword_list,
+                        cdk_name: context.cdk_name,
+                    },
+                    self.name.clone(),
+                )
             })
             .collect();
-        quote! { #(#cross_canister_call_functions)*}
+        Some(quote! { #(#cross_canister_call_functions)*})
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some(self.name.clone())
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &TokenStreamContext<'_>,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        self.methods.create_child_declarations(
+            &EcmContext {
+                canister_name: self.name.clone(),
+                keyword_list: &context.keyword_list,
+                cdk_name: context.cdk_name,
+            },
+            parental_prefix,
+        )
     }
 }

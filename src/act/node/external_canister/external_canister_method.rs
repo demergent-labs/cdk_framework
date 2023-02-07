@@ -1,12 +1,12 @@
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::{
-    act::node::{
-        canister_method::{FnParam, HasParams, HasReturnValue},
-        DataType,
-    },
-    ToTokenStream,
+use crate::act::node::{
+    canister_method::{FnParam, HasParams, HasReturnValue},
+    full_declaration::{Declaration, ToDeclaration},
+    DataType,
 };
 
 #[derive(Clone, Debug)]
@@ -16,14 +16,19 @@ pub struct ExternalCanisterMethod {
     pub return_type: DataType,
 }
 
+#[derive(Clone)]
 pub struct EcmContext<'a> {
     pub canister_name: String,
     pub keyword_list: &'a Vec<String>,
     pub cdk_name: &'a String,
 }
 
-impl ToTokenStream<EcmContext<'_>> for ExternalCanisterMethod {
-    fn to_token_stream(&self, context: &EcmContext) -> TokenStream {
+impl ToDeclaration<EcmContext<'_>> for ExternalCanisterMethod {
+    fn create_code(
+        &self,
+        context: &EcmContext<'_>,
+        parental_prefix: String,
+    ) -> Option<TokenStream> {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -32,13 +37,25 @@ impl ToTokenStream<EcmContext<'_>> for ExternalCanisterMethod {
         let notify_with_payment128_function =
             self.generate_function("notify_with_payment128", &context);
 
-        quote! {
+        Some(quote! {
             #call_function
             #call_with_payment_function
             #call_with_payment128_function
             #notify_function
             #notify_with_payment128_function
-        }
+        })
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some(self.name.clone())
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &EcmContext<'_>,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        todo!()
     }
 }
 

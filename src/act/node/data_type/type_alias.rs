@@ -2,7 +2,7 @@ use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent, ToTokenStream};
+use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -25,12 +25,6 @@ impl HasMembers for TypeAlias {
 impl ToTypeAnnotation<Vec<String>> for TypeAlias {
     fn to_type_annotation(&self, _: &Vec<String>, _: String) -> TokenStream {
         self.name.to_identifier().to_token_stream()
-    }
-}
-
-impl ToTokenStream<Vec<String>> for TypeAlias {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        self.to_type_annotation(context, "".to_string())
     }
 }
 

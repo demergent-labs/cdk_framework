@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent, ToTokenStream};
+use crate::{act::node::full_declaration::ToDeclaration, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
@@ -12,12 +12,6 @@ use super::traits::ToTypeAnnotation;
 #[derive(Clone, Debug)]
 pub struct TypeRef {
     pub name: String,
-}
-
-impl ToTokenStream<Vec<String>> for TypeRef {
-    fn to_token_stream(&self, context: &Vec<String>) -> TokenStream {
-        self.to_type_annotation(context, "".to_string())
-    }
 }
 
 impl ToTypeAnnotation<Vec<String>> for TypeRef {

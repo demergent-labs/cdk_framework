@@ -1,10 +1,9 @@
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{
-    generators::{candid_file_generation, random, vm_value_conversion},
-    ToTokenStream,
-};
+use crate::generators::{candid_file_generation, random, vm_value_conversion};
 use node::{
     canister_method::{
         init_method, post_upgrade_method,
@@ -13,11 +12,10 @@ use node::{
             QueryMethod, UpdateMethod,
         },
     },
-    data_type::{Func, Record, Tuple, TypeAlias, Variant},
+    data_type::{new_deduplicate, Func, Record, Tuple, TypeAlias, Variant},
+    full_declaration::{Declaration, ToDeclaration},
     {data_type, external_canister, ExternalCanister, FunctionGuard},
 };
-
-use self::node::{data_type::new_deduplicate, full_declaration::ToDeclaration};
 
 pub mod actable;
 pub mod node;
@@ -54,8 +52,9 @@ pub struct DataTypes {
     pub variants: Vec<Variant>,
 }
 
-impl ToTokenStream<()> for AbstractCanisterTree {
-    fn to_token_stream(&self, _: &()) -> TokenStream {
+// impl ToDeclaration< {} // TOD probably to to declaration for this?
+impl ToDeclaration<()> for AbstractCanisterTree {
+    fn create_code(&self, _: &(), _: String) -> Option<TokenStream> {
         let body = &self.body;
         let header = &self.header;
 
@@ -68,17 +67,38 @@ impl ToTokenStream<()> for AbstractCanisterTree {
 
         let func_arg_token = data_type::func::generate_func_arg_token();
 
-        let cross_canister_functions =
-            self.external_canisters
-                .to_token_stream(&external_canister::TokenStreamContext {
-                    cdk_name: &self.cdk_name,
-                    keyword_list: &self.keywords,
-                });
+        let candid_file_generation_code =
+            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
-        let heartbeat_method = self
-            .canister_methods
-            .heartbeat_method
-            .to_token_stream(&self.cdk_name); // TODO switch to declaration
+        Some(quote::quote! {
+            #header
+
+            #randomness_implementation
+
+            #try_into_vm_value_trait
+            #try_into_vm_value_impls
+            #try_from_vm_value_trait
+            #try_from_vm_value_impls
+
+            #func_arg_token
+
+            #body
+
+            #candid_file_generation_code
+        })
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some("Canister".to_string())
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &(),
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        let result = HashMap::new();
+
         let init_method_declaration = self.canister_methods.init_method.create_declaration(
             &init_method::TokenStreamContext {
                 keyword_list: &self.keywords,
@@ -87,20 +107,54 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             "InitMethod".to_string(),
         );
         let init_method = init_method_declaration.code;
-        let inspect_message_method = self
-            .canister_methods
-            .inspect_message_method
-            .to_token_stream(&self.cdk_name);
-        let post_upgrade_method = self.canister_methods.post_upgrade_method.to_token_stream(
-            &post_upgrade_method::TokenStreamContext {
+
+        result
+    }
+}
+
+impl AbstractCanisterTree {
+    // TODO I want this thing to use the acts
+    pub fn to_token_stream(&self, _: &()) -> TokenStream {
+        // TODO all of these strings should actually be the AbstractCanisterTree's name, but also it shouldn't matter because none of these need the prefix
+        // TODO is there a way to pass None when we don't use it? I don't think so because only the callee will know if it needs it or not
+        let cross_canister_functions = self.external_canisters.create_declaration(
+            &external_canister::TokenStreamContext {
                 cdk_name: &self.cdk_name,
                 keyword_list: &self.keywords,
             },
+            "ExternalCanisters".to_string(),
         );
+        let cross_canister_functions = cross_canister_functions.code;
+
+        let heartbeat_method = self
+            .canister_methods
+            .heartbeat_method
+            .create_declaration(&self.cdk_name, "HeartbeatMethod".to_string());
+        let heartbeat_method = heartbeat_method.code;
+
+        let inspect_message_method = self
+            .canister_methods
+            .inspect_message_method
+            .create_declaration(&self.cdk_name, "InspectMessageMethod".to_string());
+        let inspect_message_method = inspect_message_method.code;
+
+        let post_upgrade_method = self
+            .canister_methods
+            .post_upgrade_method
+            .create_declaration(
+                &post_upgrade_method::TokenStreamContext {
+                    cdk_name: &self.cdk_name,
+                    keyword_list: &self.keywords,
+                },
+                "PostUpgradeMethod".to_string(),
+            );
+        let post_upgrade_method = post_upgrade_method.code;
+
         let pre_upgrade_method = self
             .canister_methods
             .pre_upgrade_method
-            .to_token_stream(&self.cdk_name);
+            .create_declaration(&self.cdk_name, "Canister".to_string());
+        let pre_upgrade_method = pre_upgrade_method.code;
 
         let query_methods_full_declarations = self
             .canister_methods
@@ -117,10 +171,11 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             .update_methods
             .create_declaration(&self.keywords, "UpdateMethod".to_string());
         let update_methods = update_method_full_declarations.code;
-        let function_guards = self.function_guards.to_token_stream(&self.keywords);
 
-        let candid_file_generation_code =
-            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
+        let function_guards = self
+            .function_guards
+            .create_declaration(&self.keywords, "Canister".to_string());
+        let function_guards = function_guards.code;
 
         let funcs = new_deduplicate(&self.data_types.funcs, "GlocalFunc".to_string())
             .create_code(&self.keywords, "GlobalFunc".to_string());
@@ -135,17 +190,7 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             .create_code(&self.keywords, "GlobalVariant".to_string());
 
         quote::quote! {
-            #header
-
-            #randomness_implementation
-
-            #try_into_vm_value_trait
-            #try_into_vm_value_impls
-            #try_from_vm_value_trait
-            #try_from_vm_value_impls
-
             #heartbeat_method
-            #init_method
             #inspect_message_method
             #post_upgrade_method
             #pre_upgrade_method
@@ -153,7 +198,6 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             #query_methods
             #update_methods
             #function_guards
-            #func_arg_token
 
             #type_aliases
             #funcs
@@ -162,10 +206,6 @@ impl ToTokenStream<()> for AbstractCanisterTree {
             #variants
 
             #cross_canister_functions
-
-            #body
-
-            #candid_file_generation_code
         }
     }
 }

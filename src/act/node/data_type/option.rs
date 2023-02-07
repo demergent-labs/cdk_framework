@@ -2,7 +2,7 @@ use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{act::node::full_declaration::ToDeclaration, ToTokenStream};
+use crate::act::node::full_declaration::ToDeclaration;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -24,12 +24,6 @@ impl HasMembers for Option {
 impl Option {
     pub fn get_enclosed_type(&self) -> DataType {
         *self.enclosed_type.clone()
-    }
-}
-
-impl ToTokenStream<Vec<String>> for Option {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        self.to_type_annotation(keyword_list, "".to_string())
     }
 }
 

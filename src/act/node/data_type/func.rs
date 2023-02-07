@@ -7,7 +7,6 @@ use super::{
 use crate::{
     act::node::full_declaration::{Declaration, ToDeclaration},
     traits::ToIdent,
-    ToTokenStream,
 };
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -54,12 +53,6 @@ impl<C> ToTypeAnnotation<C> for Func {
             .unwrap()
             .to_identifier()
             .to_token_stream()
-    }
-}
-
-impl<C> ToTokenStream<C> for Func {
-    fn to_token_stream(&self, context: &C) -> TokenStream {
-        self.to_type_annotation(context, "".to_string())
     }
 }
 

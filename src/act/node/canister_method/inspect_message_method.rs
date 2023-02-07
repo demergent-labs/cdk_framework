@@ -1,22 +1,32 @@
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::ToTokenStream;
+use crate::act::node::full_declaration::{Declaration, ToDeclaration};
 
 #[derive(Clone)]
 pub struct InspectMessageMethod {
     pub body: TokenStream,
 }
 
-impl ToTokenStream<String> for InspectMessageMethod {
-    fn to_token_stream(&self, cdk_name: &String) -> TokenStream {
+impl ToDeclaration<String> for InspectMessageMethod {
+    fn create_code(&self, cdk_name: &String, _: String) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_inspect_message", cdk_name.to_lowercase(),);
         let body = &self.body;
-        quote! {
+        Some(quote! {
             #[ic_cdk_macros::inspect_message]
             fn #function_name() {
                 #body
             }
-        }
+        })
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some("InspectMessageMethod".to_string())
+    }
+
+    fn create_child_declarations(&self, _: &String, _: String) -> HashMap<String, Declaration> {
+        HashMap::new()
     }
 }

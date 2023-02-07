@@ -1,5 +1,7 @@
+use act::node::full_declaration::Declaration;
+use act::node::full_declaration::ToDeclaration;
 use proc_macro2::TokenStream;
-use quote::quote;
+use std::collections::HashMap;
 use std::fmt;
 
 pub use act::actable::Actable;
@@ -48,59 +50,32 @@ pub trait ToAct {
     fn to_act(&self) -> AbstractCanisterTree;
 }
 
-pub trait ToTokenStream<C> {
-    fn to_token_stream(&self, context: &C) -> TokenStream;
-}
-
-// pub trait ToDeclarationTokenStream<C> {
-//     fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream;
-// }
-
-// impl<C, T> ToDeclarationTokenStream<C> for Vec<T>
-// where
-//     C: Clone,
-//     T: ToDeclarationTokenStream<C>,
-// {
-//     fn to_declaration(&self, context: &C, parental_prefix: String) -> TokenStream {
-//         let declarations = self.iter().enumerate().map(|(index, t)| {
-//             t.to_declaration(&context.clone(), format!("{}{}", parental_prefix, index))
-//         });
-//         quote!(#(#declarations)*)
-//     }
-// }
-
-pub trait ToTokenStreams<C> {
-    fn to_token_streams(&self, context: &C) -> Vec<TokenStream>;
-}
-
-impl<C, T> ToTokenStreams<C> for Vec<T>
+impl<C, T> ToDeclaration<C> for Option<T>
 where
-    C: Clone,
-    T: ToTokenStream<C>,
+    T: ToDeclaration<C>,
 {
-    fn to_token_streams(&self, context: &C) -> Vec<TokenStream> {
-        self.iter().map(|t| t.to_token_stream(context)).collect()
-    }
-}
-
-impl<C, T> ToTokenStream<C> for Vec<T>
-where
-    C: Clone,
-    T: ToTokenStream<C>,
-{
-    fn to_token_stream(&self, context: &C) -> TokenStream {
-        let declarations = self.iter().map(|t| t.to_token_stream(context));
-        quote!(#(#declarations)*)
-    }
-}
-impl<C, T> ToTokenStream<C> for Option<T>
-where
-    T: ToTokenStream<C>,
-{
-    fn to_token_stream(&self, context: &C) -> TokenStream {
+    fn create_code(&self, context: &C, parental_prefix: String) -> Option<TokenStream> {
         match self {
-            Some(t) => t.to_token_stream(context),
-            None => quote::quote! {},
+            Some(t) => t.create_code(context, format!("{}Optional", parental_prefix)),
+            None => None,
+        }
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
+        match self {
+            Some(t) => t.create_identifier(format!("{}Optional", parental_prefix)),
+            None => None,
+        }
+    }
+
+    fn create_child_declarations(
+        &self,
+        context: &C,
+        parental_prefix: String,
+    ) -> HashMap<String, Declaration> {
+        match self {
+            Some(t) => t.create_child_declarations(context, format!("{}Optional", parental_prefix)),
+            None => HashMap::new(),
         }
     }
 }

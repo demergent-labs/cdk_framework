@@ -1,6 +1,10 @@
-use crate::{traits::ToIdent, ToTokenStream};
+use std::collections::HashMap;
+
+use crate::traits::ToIdent;
 use proc_macro2::TokenStream;
 use quote::quote;
+
+use super::full_declaration::{Declaration, ToDeclaration};
 
 #[derive(Debug, Clone)]
 pub struct FunctionGuard {
@@ -8,9 +12,21 @@ pub struct FunctionGuard {
     pub name: String,
 }
 
-impl ToTokenStream<Vec<String>> for FunctionGuard {
-    fn to_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
-        self.generate_function(keyword_list)
+impl ToDeclaration<Vec<String>> for FunctionGuard {
+    fn create_code(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
+        Some(self.generate_function(keyword_list))
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some(self.name.clone())
+    }
+
+    fn create_child_declarations(
+        &self,
+        _: &Vec<String>,
+        _: String,
+    ) -> HashMap<String, Declaration> {
+        HashMap::new()
     }
 }
 

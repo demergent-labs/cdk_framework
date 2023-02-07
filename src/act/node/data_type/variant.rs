@@ -2,7 +2,7 @@ use super::{
     traits::{HasMembers, ToTypeAnnotation},
     DataType,
 };
-use crate::{act::node::full_declaration::ToDeclaration, keyword, traits::ToIdent, ToTokenStream};
+use crate::{act::node::full_declaration::ToDeclaration, keyword, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -37,12 +37,6 @@ impl HasMembers for Variant {
 
     fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
         format!("{}VariantMember{}", self.get_name(parental_prefix), index)
-    }
-}
-
-impl<C> ToTokenStream<C> for Variant {
-    fn to_token_stream(&self, context: &C) -> TokenStream {
-        self.to_type_annotation(context, "".to_string())
     }
 }
 
