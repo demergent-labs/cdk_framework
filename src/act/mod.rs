@@ -12,7 +12,7 @@ use node::{
             QueryMethod, UpdateMethod,
         },
     },
-    data_type::{new_deduplicate, Func, Record, Tuple, TypeAlias, Variant},
+    data_type::{Func, Record, Tuple, TypeAlias, Variant},
     declaration::ToDeclaration,
     {data_type, external_canister, ExternalCanister, FunctionGuard},
 };
@@ -138,23 +138,23 @@ impl ToDeclaration<()> for AbstractCanisterTree {
             );
         add_declaration_to_map(post_upgrade_method, &mut result);
 
-        let pre_upgrade_method = self
+        let pre_upgrade_method_declaration = self
             .canister_methods
             .pre_upgrade_method
             .create_declaration(&self.cdk_name, "Canister".to_string());
-        add_declaration_to_map(pre_upgrade_method, &mut result);
+        add_declaration_to_map(pre_upgrade_method_declaration, &mut result);
 
-        let query_methods_full_declarations = self
+        let query_method_declarations = self
             .canister_methods
             .query_methods
             .create_declaration(&self.keywords, "QueryMethod".to_string());
-        add_declaration_to_map(query_methods_full_declarations, &mut result);
+        add_declaration_to_map(query_method_declarations, &mut result);
 
-        let update_method_full_declarations = self
+        let update_method_declarations = self
             .canister_methods
             .update_methods
             .create_declaration(&self.keywords, "UpdateMethod".to_string());
-        add_declaration_to_map(update_method_full_declarations, &mut result);
+        add_declaration_to_map(update_method_declarations, &mut result);
 
         let function_guards = self
             .function_guards
@@ -175,7 +175,6 @@ fn add_declaration_to_map(declaration: Declaration, map: &mut HashMap<String, To
 }
 
 impl AbstractCanisterTree {
-    // TODO I want this thing to use the acts
     pub fn to_token_stream(&self) -> TokenStream {
         // TODO all of these strings should actually be the AbstractCanisterTree's name, but also it shouldn't matter because none of these need the prefix
         // TODO is there a way to pass None when we don't use it? I don't think so because only the callee will know if it needs it or not
@@ -194,27 +193,9 @@ impl AbstractCanisterTree {
             .cloned()
             .collect();
 
-        // let funcs = new_deduplicate(&self.data_types.funcs, "GlocalFunc".to_string())
-        //     .create_code(&self.keywords, "GlobalFunc".to_string());
-        // let records = new_deduplicate(&self.data_types.records, "GlobalRecords".to_string())
-        //     .create_code(&self.keywords, "GlobalRecord".to_string());
-        // let tuples = new_deduplicate(&self.data_types.tuples, "GlobalTuples".to_string())
-        //     .create_code(&self.keywords, "GlobalTuples".to_string());
-        // let type_aliases =
-        //     new_deduplicate(&self.data_types.type_aliases, "GlobalTypeAlias".to_string())
-        //         .create_code(&self.keywords, "GlobalTypeAlias".to_string());
-        // let variants = new_deduplicate(&self.data_types.variants, "GlobalVariant".to_string())
-        //     .create_code(&self.keywords, "GlobalVariant".to_string());
-
         quote! {
             #canister_declaration_code
             #(#function_declarations)*
-
-            // #type_aliases
-            // #funcs
-            // #records
-            // #tuples
-            // #variants
         }
     }
 }
