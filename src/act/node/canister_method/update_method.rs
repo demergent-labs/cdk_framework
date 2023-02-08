@@ -23,7 +23,6 @@ pub struct UpdateMethod {
 }
 
 impl UpdateMethod {
-    // TODO this is exactly the same as the query version. Is that an issue we want to resolve?
     fn generate_function(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_name = self.name.to_identifier();
         let params = self.create_parameter_list_token_stream(keyword_list);

@@ -26,7 +26,6 @@ pub trait CanisterMethodBuilder {
     fn build_return_type(&self) -> DataType;
 }
 
-// TODO get rid of this?
 pub trait ToIdent {
     fn to_identifier(&self) -> Ident;
 }

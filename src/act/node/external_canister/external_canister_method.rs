@@ -154,7 +154,7 @@ impl ExternalCanisterMethod {
             .params
             .iter()
             .enumerate()
-            .filter_map(|(index, _)| self.create_param_type_annotation(index, keywords)) // TODO for code review. Is filter map the right call here. create param type returns none if a get index call returns none and that shouldn't happen since we are getting the index from enumerate right?
+            .filter_map(|(index, _)| self.create_param_type_annotation(index, keywords))
             .collect();
 
         let comma = if param_types.len() == 1 {

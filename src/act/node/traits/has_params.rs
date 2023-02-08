@@ -34,10 +34,9 @@ pub trait HasParams {
         param_index: usize,
         keyword_list: &Vec<String>,
     ) -> Option<TokenStream> {
-        match self.get_params().get(param_index) {
-            Some(param) => Some(
-                param
-                    .data_type
+        match self.get_param_types().get(param_index) {
+            Some(param_data_type) => Some(
+                param_data_type
                     .to_type_annotation(keyword_list, self.create_param_prefix(param_index)),
             ),
             None => None,

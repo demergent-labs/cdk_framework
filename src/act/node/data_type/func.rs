@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::{
-    act::{declaration::ToDeclaration, node::traits::has_members::HasMembers},
-    traits::ToIdent,
-};
+use crate::{act::declaration::ToDeclaration, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -26,21 +23,6 @@ impl Func {
             Some(name) => name.clone(),
             None => format!("{}Func", parental_prefix),
         }
-    }
-}
-
-impl HasMembers for Func {
-    fn get_members(&self) -> Vec<DataType> {
-        let return_type = match &*self.return_type {
-            Some(return_type) => vec![return_type.clone()],
-            None => vec![],
-        };
-        vec![self.params.clone(), return_type].concat()
-    }
-
-    fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
-        todo!("I am not sur that Has Members is the right fit for Func. Investigate why we have it and if we can get away with out it");
-        format!("{}FuncMember{}", self.get_name(parental_prefix), index)
     }
 }
 
@@ -71,10 +53,13 @@ impl ToDeclaration<Vec<String>> for Func {
 
     fn create_child_declarations(
         &self,
-        context: &Vec<String>,
-        parental_prefix: String,
+        _: &Vec<String>,
+        _: String,
     ) -> HashMap<String, TokenStream> {
-        todo!()
+        // My assumption here is that when we get to rust none of the children
+        // that were in the func will need to be defined unless they are used
+        // somewhere else, and if that's the case then we will pick it up there.
+        HashMap::new()
     }
 }
 

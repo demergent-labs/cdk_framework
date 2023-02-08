@@ -19,8 +19,8 @@ impl HasMembers for TypeAlias {
         vec![*self.aliased_type.clone()]
     }
 
-    fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
-        todo!("I don't think we will be using this. Is HasMembers also not good for this")
+    fn create_member_prefix(&self, _: usize, _: String) -> String {
+        format!("{}AliasedType", self.name)
     }
 }
 

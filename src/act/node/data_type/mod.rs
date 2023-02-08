@@ -26,8 +26,6 @@ use crate::act::declaration::ToDeclaration;
 
 use self::traits::ToTypeAnnotation;
 
-use super::traits::has_members::HasMembers;
-
 #[derive(Clone, Debug)]
 pub enum DataType {
     Array(Array),
@@ -125,78 +123,44 @@ impl DataType {
             _ => false,
         }
     }
+
     pub fn is_primitive(&self) -> bool {
         match self {
             DataType::Primitive(_) => true,
             _ => false,
         }
     }
+
     pub fn is_record(&self) -> bool {
         match self {
             DataType::Record(_) => true,
             _ => false,
         }
     }
+
     pub fn is_tuple(&self) -> bool {
         match self {
             DataType::Tuple(_) => true,
             _ => false,
         }
     }
+
     pub fn is_type_ref(&self) -> bool {
         match self {
             DataType::TypeRef(_) => true,
             _ => false,
         }
     }
+
     pub fn is_variant(&self) -> bool {
         match self {
             DataType::Variant(_) => true,
             _ => false,
         }
     }
-    pub fn needs_definition(&self) -> bool {
-        match self {
-            DataType::TypeAlias(_) => true,
-            DataType::Record(_) => true,
-            DataType::Variant(_) => true,
-            DataType::Func(_) => true,
-            DataType::Tuple(_) => true,
-            DataType::Primitive(_) => false,
-            DataType::TypeRef(_) => false,
-            DataType::Array(_) => false,
-            DataType::Option(_) => false,
-        }
-    }
 
     pub fn needs_to_be_boxed(&self) -> bool {
         true
-    }
-
-    pub fn get_members(&self) -> Vec<DataType> {
-        match self {
-            DataType::Record(record) => record.get_members(),
-            DataType::Variant(variant) => variant.get_members(),
-            DataType::Func(func) => func.get_members(),
-            DataType::Primitive(_) => vec![],
-            DataType::TypeRef(_) => vec![],
-            DataType::TypeAlias(alias) => alias.get_members(),
-            DataType::Array(array) => array.get_members(),
-            DataType::Tuple(tuple) => tuple.get_members(),
-            DataType::Option(option) => option.get_members(),
-        }
-    }
-
-    pub fn collect_inline_types(&self) -> Vec<DataType> {
-        let data_type = match self.needs_definition() {
-            true => vec![self.clone()],
-            false => vec![],
-        };
-        let member_data_types = self.get_members();
-        let all_descendant_data_types = member_data_types.iter().fold(vec![], |acc, member| {
-            vec![acc, member.collect_inline_types()].concat()
-        });
-        vec![data_type, all_descendant_data_types].concat()
     }
 }
 
@@ -224,12 +188,6 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
             DataType::Variant(variant) => variant.to_type_annotation(keyword_list, parental_prefix),
         }
     }
-}
-
-pub fn build_inline_data_types(type_aliases: &Vec<DataType>) -> Vec<DataType> {
-    type_aliases.iter().fold(vec![], |acc, type_alias| {
-        vec![acc, type_alias.collect_inline_types()].concat()
-    })
 }
 
 impl ToDeclaration<Vec<String>> for DataType {

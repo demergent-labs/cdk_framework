@@ -176,8 +176,6 @@ fn add_declaration_to_map(declaration: Declaration, map: &mut HashMap<String, To
 
 impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
-        // TODO all of these strings should actually be the AbstractCanisterTree's name, but also it shouldn't matter because none of these need the prefix
-        // TODO is there a way to pass None when we don't use it? I don't think so because only the callee will know if it needs it or not
         let canister_prefix = "Canister".to_string();
 
         let canister_declaration = self.create_declaration(&(), canister_prefix.clone());
