@@ -41,7 +41,7 @@ pub struct CanisterMethods {
     pub init_method: InitMethod,
     pub inspect_message_method: Option<InspectMessageMethod>,
     pub post_upgrade_method: PostUpgradeMethod,
-    pub pre_upgrade_method: PreUpgradeMethod,
+    pub pre_upgrade_method: Option<PreUpgradeMethod>,
     pub query_methods: Vec<QueryMethod>,
     pub update_methods: Vec<UpdateMethod>,
 }
