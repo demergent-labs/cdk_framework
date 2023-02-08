@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
-use super::{
-    traits::{HasMembers, ToTypeAnnotation},
-    DataType,
+use super::{traits::ToTypeAnnotation, DataType};
+use crate::{
+    act::{declaration::ToDeclaration, node::traits::has_members::HasMembers},
+    keyword,
+    traits::ToIdent,
 };
-use crate::{act::node::declaration::ToDeclaration, keyword, traits::ToIdent};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 

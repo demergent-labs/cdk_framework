@@ -5,9 +5,9 @@ use quote::quote;
 
 pub use external_canister_method::ExternalCanisterMethod;
 
-use self::external_canister_method::EcmContext;
+use crate::act::declaration::ToDeclaration;
 
-use super::declaration::ToDeclaration;
+use self::external_canister_method::EcmContext;
 
 pub mod external_canister_method;
 

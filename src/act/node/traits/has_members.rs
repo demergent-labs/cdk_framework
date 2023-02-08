@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
 
-use crate::act::node::declaration::ToDeclaration;
+use crate::act::declaration::ToDeclaration;
 
-use super::DataType;
+use crate::act::node::data_type::DataType;
 
 pub trait HasMembers {
     fn get_members(&self) -> Vec<DataType>;
@@ -32,8 +32,4 @@ pub trait HasMembers {
             },
         )
     }
-}
-
-pub trait ToTypeAnnotation<C> {
-    fn to_type_annotation(&self, context: &C, parental_prefix: String) -> TokenStream;
 }

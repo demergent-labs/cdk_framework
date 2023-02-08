@@ -22,9 +22,11 @@ pub use type_alias::TypeAlias;
 pub use type_ref::TypeRef;
 pub use variant::Variant;
 
-use self::traits::{HasMembers, ToTypeAnnotation};
+use crate::act::declaration::ToDeclaration;
 
-use super::declaration::ToDeclaration;
+use self::traits::ToTypeAnnotation;
+
+use super::traits::has_members::HasMembers;
 
 #[derive(Clone, Debug)]
 pub enum DataType {

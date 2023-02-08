@@ -1,4 +1,4 @@
-use act::node::declaration::ToDeclaration;
+use act::declaration::ToDeclaration;
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 use std::fmt;

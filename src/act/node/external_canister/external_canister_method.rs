@@ -3,10 +3,13 @@ use std::collections::HashMap;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::act::node::{
-    canister_method::{FnParam, HasParams, HasReturnValue},
+use crate::act::{
     declaration::ToDeclaration,
-    DataType,
+    node::{
+        canister_method::FnParam,
+        traits::{has_params::HasParams, has_return_value::HasReturnValue},
+        DataType,
+    },
 };
 
 #[derive(Clone, Debug)]

@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use super::{FnParam, HasParams};
-use crate::act::node::declaration::ToDeclaration;
+use super::FnParam;
+use crate::act::{declaration::ToDeclaration, node::traits::has_params::HasParams};
 
 #[derive(Clone)]
 pub struct InitMethod {

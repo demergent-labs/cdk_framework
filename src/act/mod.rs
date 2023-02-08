@@ -13,13 +13,13 @@ use node::{
         },
     },
     data_type::{Func, Record, Tuple, TypeAlias, Variant},
-    declaration::ToDeclaration,
     {data_type, external_canister, ExternalCanister, FunctionGuard},
 };
 
-use self::node::declaration::Declaration;
+use self::declaration::{Declaration, ToDeclaration};
 
 pub mod actable;
+pub mod declaration;
 pub mod node;
 
 /// An easily traversable representation of a rust canister

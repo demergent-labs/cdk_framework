@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    act::node::{declaration::ToDeclaration, DataType},
+    act::{declaration::ToDeclaration, node::DataType},
     traits::ToIdent,
 };
 use proc_macro2::TokenStream;

@@ -1,8 +1,8 @@
 pub mod canister_method;
 pub mod data_type;
-pub mod declaration;
 pub mod external_canister;
 pub mod function_guard;
+pub mod traits;
 
 pub use data_type::DataType;
 pub use external_canister::ExternalCanister;
