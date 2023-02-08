@@ -1,13 +1,3 @@
-// use act_data_type::{build_inline_type_acts, deduplicate, ActDataType};
-// use arrays::{ActArrayLiteral, ActArrayTypeAlias};
-// // pub use funcs::generate_func_arg_token;
-// use option::{ActOptionLiteral, ActOptionTypeAlias};
-// use primitives::{ActPrimitiveLit, ActPrimitiveTypeAlias};
-// use record::{ActRecordMember, Record};
-// use tuple::{ActTupleElem, Tuple};
-// use type_ref::{ActTypeRefLit, ActTypeRefTypeAlias};
-// use variants::{ActVariantMember, Variant};
-
 pub mod array;
 pub mod func;
 pub mod option;
@@ -183,29 +173,28 @@ impl DataType {
 
     pub fn get_members(&self) -> Vec<DataType> {
         match self {
-            DataType::Record(act_record) => act_record.get_members(),
-            DataType::Variant(act_variant) => act_variant.get_members(),
-            DataType::Func(act_func) => act_func.get_members(),
+            DataType::Record(record) => record.get_members(),
+            DataType::Variant(variant) => variant.get_members(),
+            DataType::Func(func) => func.get_members(),
             DataType::Primitive(_) => vec![],
             DataType::TypeRef(_) => vec![],
-            DataType::TypeAlias(type_alias) => type_alias.get_members(),
-            DataType::Array(act_array) => act_array.get_members(),
-            DataType::Tuple(act_tuple) => act_tuple.get_members(),
-            DataType::Option(act_option) => act_option.get_members(),
+            DataType::TypeAlias(alias) => alias.get_members(),
+            DataType::Array(array) => array.get_members(),
+            DataType::Tuple(tuple) => tuple.get_members(),
+            DataType::Option(option) => option.get_members(),
         }
     }
 
     pub fn collect_inline_types(&self) -> Vec<DataType> {
-        let act_data_type = match self.needs_definition() {
+        let data_type = match self.needs_definition() {
             true => vec![self.clone()],
             false => vec![],
         };
-        let member_act_data_types = self.get_members();
-        let all_descendant_act_data_types =
-            member_act_data_types.iter().fold(vec![], |acc, member| {
-                vec![acc, member.collect_inline_types()].concat()
-            });
-        vec![act_data_type, all_descendant_act_data_types].concat()
+        let member_data_types = self.get_members();
+        let all_descendant_data_types = member_data_types.iter().fold(vec![], |acc, member| {
+            vec![acc, member.collect_inline_types()].concat()
+        });
+        vec![data_type, all_descendant_data_types].concat()
     }
 }
 
@@ -235,30 +224,10 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
     }
 }
 
-pub fn build_inline_type_acts(type_aliases: &Vec<DataType>) -> Vec<DataType> {
+pub fn build_inline_data_types(type_aliases: &Vec<DataType>) -> Vec<DataType> {
     type_aliases.iter().fold(vec![], |acc, type_alias| {
         vec![acc, type_alias.collect_inline_types()].concat()
     })
-}
-
-pub fn new_deduplicate<C, T>(nodes: &Vec<T>, prefix: String) -> Vec<T>
-where
-    T: ToDeclaration<C>,
-    T: Clone,
-{
-    let map: HashMap<String, T> = nodes.iter().fold(HashMap::new(), |mut acc, node| {
-        match acc.get(&node.create_identifier(prefix.clone()).unwrap()) {
-            Some(_) => acc,
-            None => {
-                acc.insert(
-                    node.create_identifier(prefix.clone()).unwrap(),
-                    node.clone(),
-                );
-                acc
-            }
-        }
-    });
-    map.values().cloned().collect()
 }
 
 impl ToDeclaration<Vec<String>> for DataType {
@@ -329,25 +298,3 @@ impl ToDeclaration<Vec<String>> for DataType {
         }
     }
 }
-
-// pub fn deduplicate(
-//     act_data_type_nodes: Vec<DataType>,
-//     keyword_list: &Vec<String>,
-// ) -> Vec<DataType> {
-//     let map: HashMap<String, DataType> =
-//         act_data_type_nodes
-//             .iter()
-//             .fold(HashMap::new(), |mut acc, act_node| {
-//                 match acc.get(&act_node.to_token_stream(keyword_list).to_string()) {
-//                     Some(_) => acc,
-//                     None => {
-//                         acc.insert(
-//                             act_node.to_token_stream(keyword_list).to_string(),
-//                             act_node.clone(),
-//                         );
-//                         acc
-//                     }
-//                 }
-//             });
-//     map.values().cloned().collect()
-// }
