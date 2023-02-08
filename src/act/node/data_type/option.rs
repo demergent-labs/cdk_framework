@@ -37,11 +37,10 @@ impl ToDeclaration<Vec<String>> for Option {
 
     fn create_child_declarations(
         &self,
-        context: &Vec<String>,
+        keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
-        self.enclosed_type
-            .create_child_declarations(context, parental_prefix)
+        self.create_member_declarations(keyword_list, parental_prefix)
     }
 }
 
@@ -49,7 +48,7 @@ impl ToTypeAnnotation<Vec<String>> for Option {
     fn to_type_annotation(&self, context: &Vec<String>, parental_prefix: String) -> TokenStream {
         let enclosed_type_annotation = self
             .enclosed_type
-            .to_type_annotation(context, format!("{}Optional", parental_prefix));
+            .to_type_annotation(context, self.create_member_prefix(0, parental_prefix));
         quote!(Option<#enclosed_type_annotation>)
     }
 }

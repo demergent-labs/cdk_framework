@@ -45,10 +45,9 @@ impl ToDeclaration<Vec<String>> for TypeAlias {
 
     fn create_child_declarations(
         &self,
-        context: &Vec<String>,
+        keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
-        self.aliased_type
-            .create_child_declarations(context, parental_prefix)
+        self.create_member_declarations(keyword_list, parental_prefix)
     }
 }
