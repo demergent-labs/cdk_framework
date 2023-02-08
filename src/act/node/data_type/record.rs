@@ -58,7 +58,11 @@ impl HasMembers for Record {
 }
 
 impl ToDeclaration<Vec<String>> for Record {
-    fn create_code(&self, context: &Vec<String>, parental_prefix: String) -> Option<TokenStream> {
+    fn create_code(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> Option<TokenStream> {
         let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let member_token_streams: Vec<TokenStream> = self
             .members
@@ -66,7 +70,7 @@ impl ToDeclaration<Vec<String>> for Record {
             .enumerate()
             .map(|(index, member)| {
                 member.to_token_stream(
-                    context,
+                    keyword_list,
                     self.create_member_prefix(index, parental_prefix.clone()),
                 )
             })

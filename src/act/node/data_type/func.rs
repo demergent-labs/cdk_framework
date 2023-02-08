@@ -87,7 +87,7 @@ pub fn generate_func_arg_token() -> TokenStream {
 impl Func {
     pub fn generate_func_struct_and_impls(
         &self,
-        context: &Vec<String>,
+        keyword_list: &Vec<String>,
         name: String,
     ) -> TokenStream {
         let type_alias_name = name.to_identifier();
@@ -101,7 +101,11 @@ impl Func {
         let param_type_strings: Vec<String> = self
             .params
             .iter()
-            .map(|param| param.to_type_annotation(context, name.clone()).to_string())
+            .map(|param| {
+                param
+                    .to_type_annotation(keyword_list, name.clone())
+                    .to_string()
+            })
             .collect();
         let func_param_types: Vec<TokenStream> = param_type_strings
             .iter()
@@ -139,7 +143,9 @@ impl Func {
             })
             .collect();
         let return_type_string = match &*self.return_type {
-            Some(return_type) => return_type.to_type_annotation(context, name).to_string(),
+            Some(return_type) => return_type
+                .to_type_annotation(keyword_list, name)
+                .to_string(),
             None => "".to_string(),
         };
         let func_return_type = if return_type_string == "()" || return_type_string == "" {

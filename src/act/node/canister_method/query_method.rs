@@ -90,28 +90,7 @@ impl HasReturnValue for QueryMethod {
     }
 }
 
-// impl HasName for QueryMethod {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
-impl ToDeclaration<Vec<String>> for QueryMethod
-// where
-//     T: HasParams,
-//     T: HasReturnValue,
-//     T: HasName,
-//     T: ToDeclarationTokenStream<C>,
-{
-    /// When you create a child declaration what are we trying to accomplish?
-    /// We want to flatten it and deduplicate it.
-    /// 1) Get full declaration of child
-    /// 2) Get self declaration of child
-    /// 3) Get grandchildren full declarations
-    /// 4) Flatten 2 and 3 into one map
-    /// 5) Repeat for all of the children, flattening that into one map.
-    /// For the case of the query method, we are going to get the params and return type and do the thing. for each of those
-    ///
+impl ToDeclaration<Vec<String>> for QueryMethod {
     fn create_child_declarations(
         &self,
         keyword_list: &Vec<String>,

@@ -31,11 +31,15 @@ impl ToTypeAnnotation<Vec<String>> for TypeAlias {
 }
 
 impl ToDeclaration<Vec<String>> for TypeAlias {
-    fn create_code(&self, context: &Vec<String>, parental_prefix: String) -> Option<TokenStream> {
+    fn create_code(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> Option<TokenStream> {
         let name = self.name.to_identifier();
         let alias = self
             .aliased_type
-            .to_type_annotation(context, parental_prefix);
+            .to_type_annotation(keyword_list, parental_prefix);
         Some(quote!(type #name = #alias;))
     }
 

@@ -45,10 +45,14 @@ impl ToDeclaration<Vec<String>> for Option {
 }
 
 impl ToTypeAnnotation<Vec<String>> for Option {
-    fn to_type_annotation(&self, context: &Vec<String>, parental_prefix: String) -> TokenStream {
+    fn to_type_annotation(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> TokenStream {
         let enclosed_type_annotation = self
             .enclosed_type
-            .to_type_annotation(context, self.create_member_prefix(0, parental_prefix));
+            .to_type_annotation(keyword_list, self.create_member_prefix(0, parental_prefix));
         quote!(Option<#enclosed_type_annotation>)
     }
 }
