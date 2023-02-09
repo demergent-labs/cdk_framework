@@ -4,6 +4,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::act::{
+    self,
     declaration::ToDeclaration,
     node::{
         canister_method::FnParam,
@@ -54,9 +55,9 @@ impl ToDeclaration<EcmContext<'_>> for ExternalCanisterMethod {
         context: &EcmContext<'_>,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        let mut declarations = self.create_param_declarations(context.keyword_list);
-        declarations.extend(self.create_return_type_declarations(context.keyword_list));
-        declarations
+        let param_declarations = self.create_param_declarations(context.keyword_list);
+        let result_declarations = self.create_return_type_declarations(context.keyword_list);
+        act::combine_maps(param_declarations, result_declarations)
     }
 }
 

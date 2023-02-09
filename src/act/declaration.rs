@@ -1,5 +1,4 @@
 use proc_macro2::TokenStream;
-use quote::quote;
 use std::collections::HashMap;
 
 #[derive(Clone)]
@@ -36,22 +35,17 @@ where
         context: &C,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
-        self.iter().fold(HashMap::new(), |mut acc, declaration| {
-            let children = declaration.create_child_declarations(context, parental_prefix.clone());
-            acc.extend(children);
-            acc
+        self.iter().fold(HashMap::new(), |acc, declaration| {
+            let decl = declaration.create_declaration(context, parental_prefix.clone());
+            super::add_declaration_to_map(decl, acc)
         })
     }
 
-    fn create_code(&self, context: &C, parental_prefix: String) -> Option<TokenStream> {
-        let result_list: Vec<_> = self
-            .iter()
-            .map(|item| item.create_code(context, parental_prefix.clone()))
-            .collect();
-        Some(quote!(#(#result_list)*))
+    fn create_code(&self, _: &C, _: String) -> Option<TokenStream> {
+        None
     }
 
-    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
-        Some(format!("{}ListOfDeclarations", parental_prefix))
+    fn create_identifier(&self, _: String) -> Option<String> {
+        None
     }
 }

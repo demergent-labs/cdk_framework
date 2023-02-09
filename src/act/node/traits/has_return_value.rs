@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
 
+use crate::act;
 use crate::act::declaration::ToDeclaration;
 
 use crate::act::node::data_type::{traits::ToTypeAnnotation, DataType};
@@ -13,19 +14,11 @@ pub trait HasReturnValue {
         &self,
         keyword_list: &Vec<String>,
     ) -> HashMap<String, TokenStream> {
-        let mut result = HashMap::new();
         let declaration = self
             .get_return_type()
             .create_declaration(&keyword_list, self.create_return_type_prefix());
 
-        if let Some(identifier) = declaration.identifier {
-            if let Some(code) = declaration.code {
-                result.insert(identifier, code);
-            }
-        }
-        result.extend(declaration.children);
-
-        result
+        act::add_declaration_to_map(declaration, HashMap::new())
     }
     fn create_return_type_annotation(&self, keyword_list: &Vec<String>) -> TokenStream {
         self.get_return_type()

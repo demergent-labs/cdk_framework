@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::act;
 use crate::act::declaration::ToDeclaration;
 
 use crate::act::node::{
@@ -48,16 +49,10 @@ pub trait HasParams {
     ) -> HashMap<String, TokenStream> {
         self.get_param_types().iter().enumerate().fold(
             HashMap::new(),
-            |mut acc, (index, param_type)| {
+            |acc, (index, param_type)| {
                 let declaration =
                     param_type.create_declaration(keyword_list, self.create_param_prefix(index));
-                if let Some(identifier) = &declaration.identifier {
-                    if let Some(code) = declaration.code {
-                        acc.insert(identifier.clone(), code.clone());
-                    }
-                }
-                acc.extend(declaration.children.clone().into_iter());
-                acc
+                act::add_declaration_to_map(declaration, acc)
             },
         )
     }

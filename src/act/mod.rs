@@ -94,7 +94,7 @@ impl ToDeclaration<()> for AbstractCanisterTree {
     }
 
     fn create_child_declarations(&self, _: &(), _: String) -> HashMap<String, TokenStream> {
-        let mut result = HashMap::new();
+        let result = HashMap::new();
 
         let init_method_declaration = self.canister_methods.init_method.create_declaration(
             &init_method::TokenStreamContext {
@@ -103,7 +103,7 @@ impl ToDeclaration<()> for AbstractCanisterTree {
             },
             "InitMethod".to_string(),
         );
-        add_declaration_to_map(init_method_declaration, &mut result);
+        let result = add_declaration_to_map(init_method_declaration, result);
 
         let cross_canister_functions = self.external_canisters.create_declaration(
             &external_canister::TokenStreamContext {
@@ -112,19 +112,19 @@ impl ToDeclaration<()> for AbstractCanisterTree {
             },
             "ExternalCanisters".to_string(),
         );
-        add_declaration_to_map(cross_canister_functions, &mut result);
+        let result = add_declaration_to_map(cross_canister_functions, result);
 
         let heartbeat_method = self
             .canister_methods
             .heartbeat_method
             .create_declaration(&self.cdk_name, "HeartbeatMethod".to_string());
-        add_declaration_to_map(heartbeat_method, &mut result);
+        let result = add_declaration_to_map(heartbeat_method, result);
 
         let inspect_message_method = self
             .canister_methods
             .inspect_message_method
             .create_declaration(&self.cdk_name, "InspectMessageMethod".to_string());
-        add_declaration_to_map(inspect_message_method, &mut result);
+        let result = add_declaration_to_map(inspect_message_method, result);
 
         let post_upgrade_method = self
             .canister_methods
@@ -136,42 +136,60 @@ impl ToDeclaration<()> for AbstractCanisterTree {
                 },
                 "PostUpgradeMethod".to_string(),
             );
-        add_declaration_to_map(post_upgrade_method, &mut result);
+        let result = add_declaration_to_map(post_upgrade_method, result);
 
         let pre_upgrade_method_declaration = self
             .canister_methods
             .pre_upgrade_method
             .create_declaration(&self.cdk_name, "Canister".to_string());
-        add_declaration_to_map(pre_upgrade_method_declaration, &mut result);
+        let result = add_declaration_to_map(pre_upgrade_method_declaration, result);
 
         let query_method_declarations = self
             .canister_methods
             .query_methods
             .create_declaration(&self.keywords, "QueryMethod".to_string());
-        add_declaration_to_map(query_method_declarations, &mut result);
+        let result = add_declaration_to_map(query_method_declarations, result);
 
         let update_method_declarations = self
             .canister_methods
             .update_methods
             .create_declaration(&self.keywords, "UpdateMethod".to_string());
-        add_declaration_to_map(update_method_declarations, &mut result);
+        let result = add_declaration_to_map(update_method_declarations, result);
 
         let function_guards = self
             .function_guards
             .create_declaration(&self.keywords, "Canister".to_string());
-        add_declaration_to_map(function_guards, &mut result);
+        let result = add_declaration_to_map(function_guards, result);
 
         result
     }
 }
 
-fn add_declaration_to_map(declaration: Declaration, map: &mut HashMap<String, TokenStream>) {
+fn add_declaration_to_map(
+    declaration: Declaration,
+    map: HashMap<String, TokenStream>,
+) -> HashMap<String, TokenStream> {
+    let mut result = HashMap::new();
+    result.extend(map);
     if let Some(identifier) = declaration.identifier {
         if let Some(code) = declaration.code {
-            map.insert(identifier, code);
+            result.insert(identifier, code);
         }
     }
-    map.extend(declaration.children);
+    result.extend(declaration.children);
+    result
+}
+
+fn combine_maps<K, V>(map1: HashMap<K, V>, map2: HashMap<K, V>) -> HashMap<K, V>
+where
+    K: Eq + std::hash::Hash,
+{
+    let mut result = HashMap::new();
+
+    result.extend(map1);
+    result.extend(map2);
+
+    result
 }
 
 impl AbstractCanisterTree {
