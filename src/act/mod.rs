@@ -19,9 +19,9 @@ use self::{
 };
 use crate::generators::{candid_file_generation, random, vm_value_conversion};
 
-pub mod actable;
 pub mod declaration;
 pub mod node;
+pub mod to_node;
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {

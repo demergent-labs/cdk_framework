@@ -8,8 +8,8 @@ pub mod generators;
 pub mod keyword;
 pub mod traits;
 
-pub use act::actable::Actable;
-pub use act::actable::ToActDataType;
+pub use act::to_node::ToDataType;
+pub use act::to_node::ToNode;
 pub use act::AbstractCanisterTree;
 
 #[derive(Clone)]

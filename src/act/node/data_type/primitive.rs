@@ -3,7 +3,7 @@ use quote::quote;
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::{act::declaration::ToDeclaration, ToActDataType};
+use crate::{act::declaration::ToDeclaration, ToDataType};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
@@ -29,16 +29,9 @@ pub enum Primitive {
     Void,
 }
 
-impl ToActDataType for Primitive {
-    fn to_act_data_type(&self, alias_name: &Option<&String>) -> DataType {
-        let primitive = DataType::Primitive(self.clone());
-        match alias_name {
-            None => primitive,
-            Some(name) => DataType::TypeAlias(super::TypeAlias {
-                name: name.clone().clone(),
-                aliased_type: Box::new(primitive),
-            }),
-        }
+impl ToDataType for Primitive {
+    fn to_data_type(&self) -> DataType {
+        DataType::Primitive(self.clone())
     }
 }
 
