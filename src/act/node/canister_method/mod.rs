@@ -16,10 +16,7 @@ pub use pre_upgrade_method::PreUpgradeMethod;
 pub use query_method::QueryMethod;
 pub use update_method::UpdateMethod;
 
-use crate::act::node::{
-    traits::{has_params::HasParams, has_return_value::HasReturnValue},
-    DataType,
-};
+use crate::act::node::traits::{has_params::HasParams, has_return_value::HasReturnValue};
 
 #[derive(Clone)]
 pub enum CanisterMethod {
@@ -30,30 +27,4 @@ pub enum CanisterMethod {
     PostUpgrade(PostUpgradeMethod),
     InspectMessage(InspectMessageMethod),
     Heartbeat(HeartbeatMethod),
-}
-
-pub trait GetAllTypes {
-    fn get_all_types(&self) -> Vec<DataType>;
-}
-
-impl<T> GetAllTypes for Vec<T>
-where
-    T: GetAllTypes,
-{
-    fn get_all_types(&self) -> Vec<DataType> {
-        self.iter().fold(vec![], |acc, canister_method| {
-            let inline_types = canister_method.get_all_types();
-            vec![acc, inline_types].concat()
-        })
-    }
-}
-
-impl<T> GetAllTypes for T
-where
-    T: HasParams,
-    T: HasReturnValue,
-{
-    fn get_all_types(&self) -> Vec<DataType> {
-        vec![self.get_param_types(), vec![self.get_return_type()]].concat()
-    }
 }
