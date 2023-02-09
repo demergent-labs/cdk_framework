@@ -1,8 +1,8 @@
+use proc_macro2::TokenStream;
+use quote::quote;
 use std::collections::HashMap;
 
 use crate::{act::declaration::ToDeclaration, traits::ToIdent};
-use proc_macro2::TokenStream;
-use quote::quote;
 
 #[derive(Debug, Clone)]
 pub struct FunctionGuard {

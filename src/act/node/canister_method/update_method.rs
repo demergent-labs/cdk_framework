@@ -1,13 +1,19 @@
-use std::collections::HashMap;
-
-use crate::{
-    act::{self, declaration::ToDeclaration, node::DataType},
-    traits::ToIdent,
-};
 use proc_macro2::TokenStream;
 use quote::quote;
+use std::collections::HashMap;
 
-use super::{FnParam, HasParams, HasReturnValue};
+use super::FnParam;
+use crate::{
+    act::{
+        self,
+        declaration::ToDeclaration,
+        node::{
+            traits::{HasParams, HasReturnValue},
+            DataType,
+        },
+    },
+    traits::ToIdent,
+};
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]

@@ -1,13 +1,13 @@
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{declaration::ToDeclaration, node::traits::has_members::HasMembers},
+    act::{declaration::ToDeclaration, node::traits::HasMembers},
     keyword,
     traits::ToIdent,
 };
-use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct Variant {
@@ -91,12 +91,12 @@ impl ToDeclaration<Vec<String>> for Variant {
 }
 
 impl Member {
-    fn to_token_stream(&self, keyword_list: &Vec<String>, parental_prefix: String) -> TokenStream {
+    fn to_token_stream(&self, keyword_list: &Vec<String>, member_prefix: String) -> TokenStream {
         let member_type_token_stream = match self.member_type.clone() {
             DataType::Primitive(_) => {
                 if self
                     .member_type
-                    .to_type_annotation(keyword_list, parental_prefix.clone())
+                    .to_type_annotation(keyword_list, member_prefix.clone())
                     .to_string()
                     == quote!((())).to_string()
                 {
@@ -104,7 +104,7 @@ impl Member {
                 } else {
                     let member_type_token_stream = self
                         .member_type
-                        .to_type_annotation(keyword_list, parental_prefix);
+                        .to_type_annotation(keyword_list, member_prefix);
                     quote!((#member_type_token_stream))
                 }
             }
@@ -112,7 +112,7 @@ impl Member {
                 let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
                     let ident = self
                         .member_type
-                        .to_type_annotation(keyword_list, parental_prefix);
+                        .to_type_annotation(keyword_list, member_prefix);
                     quote!(Box<#ident>)
                 } else {
                     quote!(self.member_type.to_token_stream())

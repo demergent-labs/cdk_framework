@@ -1,3 +1,9 @@
+use proc_macro2::TokenStream;
+use std::collections::HashMap;
+
+use self::traits::ToTypeAnnotation;
+use crate::act::declaration::ToDeclaration;
+
 pub mod array;
 pub mod func;
 pub mod option;
@@ -8,9 +14,6 @@ pub mod tuple;
 pub mod type_alias;
 pub mod variant;
 
-use proc_macro2::TokenStream;
-use std::collections::HashMap;
-
 pub use array::Array;
 pub use func::Func;
 pub use option::Option;
@@ -19,10 +22,6 @@ pub use record::Record;
 pub use tuple::Tuple;
 pub use type_alias::TypeAlias;
 pub use variant::Variant;
-
-use crate::act::declaration::ToDeclaration;
-
-use self::traits::ToTypeAnnotation;
 
 #[derive(Clone, Debug)]
 pub enum DataType {

@@ -1,12 +1,12 @@
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{declaration::ToDeclaration, node::traits::has_members::HasMembers},
+    act::{declaration::ToDeclaration, node::traits::HasMembers},
     traits::ToIdent,
 };
-use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct TypeAlias {
@@ -39,7 +39,7 @@ impl ToDeclaration<Vec<String>> for TypeAlias {
         let name = self.name.to_identifier();
         let alias = self
             .aliased_type
-            .to_type_annotation(keyword_list, parental_prefix);
+            .to_type_annotation(keyword_list, self.create_member_prefix(0, parental_prefix));
         Some(quote!(type #name = #alias;))
     }
 

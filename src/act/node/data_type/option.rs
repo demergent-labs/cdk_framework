@@ -1,9 +1,9 @@
+use proc_macro2::TokenStream;
+use quote::quote;
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{declaration::ToDeclaration, node::traits::has_members::HasMembers};
-use proc_macro2::TokenStream;
-use quote::quote;
+use crate::act::{declaration::ToDeclaration, node::traits::HasMembers};
 
 #[derive(Clone, Debug)]
 pub struct Option {
@@ -15,8 +15,8 @@ impl HasMembers for Option {
         vec![self.get_enclosed_type()]
     }
 
-    fn create_member_prefix(&self, _: usize, _: String) -> String {
-        format!("OptionEnclosedType")
+    fn create_member_prefix(&self, _: usize, parental_prefix: String) -> String {
+        format!("{}OptionEnclosedType", parental_prefix)
     }
 }
 

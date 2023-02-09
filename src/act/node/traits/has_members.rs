@@ -1,11 +1,7 @@
+use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
-use proc_macro2::TokenStream;
-
-use crate::act;
-use crate::act::declaration::ToDeclaration;
-
-use crate::act::node::data_type::DataType;
+use crate::act::{self, declaration::ToDeclaration, node::data_type::DataType};
 
 pub trait HasMembers {
     fn get_members(&self) -> Vec<DataType>;

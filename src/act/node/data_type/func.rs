@@ -1,9 +1,9 @@
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{act::declaration::ToDeclaration, traits::ToIdent};
-use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct Func {
@@ -28,8 +28,7 @@ impl Func {
 
 impl<C> ToTypeAnnotation<C> for Func {
     fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
-        self.create_identifier(parental_prefix)
-            .unwrap()
+        self.get_name(parental_prefix)
             .to_identifier()
             .to_token_stream()
     }

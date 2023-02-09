@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use std::collections::HashMap;
 
 use crate::act::declaration::ToDeclaration;
 

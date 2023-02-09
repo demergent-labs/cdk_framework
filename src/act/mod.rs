@@ -1,22 +1,22 @@
-use std::collections::HashMap;
-
 use proc_macro2::TokenStream;
 use quote::quote;
+use std::collections::HashMap;
 
-use crate::generators::{candid_file_generation, random, vm_value_conversion};
-use node::{
-    canister_method::{
-        init_method, post_upgrade_method,
-        {
-            HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
-            QueryMethod, UpdateMethod,
+use self::{
+    declaration::{Declaration, ToDeclaration},
+    node::{
+        canister_method::{
+            init_method, post_upgrade_method,
+            {
+                HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
+                PreUpgradeMethod, QueryMethod, UpdateMethod,
+            },
         },
+        data_type::{Func, Record, Tuple, TypeAlias, Variant},
+        {data_type, external_canister, ExternalCanister, FunctionGuard},
     },
-    data_type::{Func, Record, Tuple, TypeAlias, Variant},
-    {data_type, external_canister, ExternalCanister, FunctionGuard},
 };
-
-use self::declaration::{Declaration, ToDeclaration};
+use crate::generators::{candid_file_generation, random, vm_value_conversion};
 
 pub mod actable;
 pub mod declaration;

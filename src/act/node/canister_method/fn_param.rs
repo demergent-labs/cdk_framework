@@ -24,9 +24,10 @@ impl FnParam {
         function_name: String,
     ) -> TokenStream {
         let name = self.prefixed_name().to_identifier();
-        let type_annotation = &self
-            .data_type
-            .to_type_annotation(keyword_list, function_name);
+        let type_annotation = &self.data_type.to_type_annotation(
+            keyword_list,
+            format!("{}{}", function_name, self.prefixed_name()),
+        );
         quote::quote! {
             #name: #type_annotation
         }

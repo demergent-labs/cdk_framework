@@ -3,14 +3,14 @@ use proc_macro2::TokenStream;
 use std::collections::HashMap;
 use std::fmt;
 
-pub use act::actable::Actable;
-pub use act::actable::ToActDataType;
-pub use act::AbstractCanisterTree;
-
 pub mod act;
 pub mod generators;
 pub mod keyword;
 pub mod traits;
+
+pub use act::actable::Actable;
+pub use act::actable::ToActDataType;
+pub use act::AbstractCanisterTree;
 
 #[derive(Clone)]
 pub enum CanisterMethodType {

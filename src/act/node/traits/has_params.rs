@@ -1,14 +1,15 @@
-use std::collections::HashMap;
-
-use crate::act;
-use crate::act::declaration::ToDeclaration;
-
-use crate::act::node::{
-    canister_method::FnParam,
-    data_type::{traits::ToTypeAnnotation, DataType},
-};
 use proc_macro2::TokenStream;
 use quote::quote;
+use std::collections::HashMap;
+
+use crate::act::{
+    self,
+    declaration::ToDeclaration,
+    node::{
+        canister_method::FnParam,
+        data_type::{traits::ToTypeAnnotation, DataType},
+    },
+};
 
 pub trait HasParams {
     fn get_params(&self) -> Vec<FnParam>;

@@ -16,8 +16,6 @@ pub use pre_upgrade_method::PreUpgradeMethod;
 pub use query_method::QueryMethod;
 pub use update_method::UpdateMethod;
 
-use crate::act::node::traits::{has_params::HasParams, has_return_value::HasReturnValue};
-
 #[derive(Clone)]
 pub enum CanisterMethod {
     Update(UpdateMethod),

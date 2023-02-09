@@ -1,14 +1,13 @@
-use std::collections::HashMap;
-
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use std::collections::HashMap;
 
 use crate::act::{
     self,
     declaration::ToDeclaration,
     node::{
         canister_method::FnParam,
-        traits::{has_params::HasParams, has_return_value::HasReturnValue},
+        traits::{HasParams, HasReturnValue},
         DataType,
     },
 };

@@ -1,15 +1,13 @@
-use std::collections::HashMap;
-
 use proc_macro2::TokenStream;
 use quote::quote;
-
-pub use external_canister_method::ExternalCanisterMethod;
-
-use crate::act::declaration::ToDeclaration;
+use std::collections::HashMap;
 
 use self::external_canister_method::EcmContext;
+use crate::act::declaration::ToDeclaration;
 
 pub mod external_canister_method;
+
+pub use external_canister_method::ExternalCanisterMethod;
 
 #[derive(Clone, Debug)]
 pub struct ExternalCanister {

@@ -1,3 +1,6 @@
+use proc_macro2::Ident;
+use quote::format_ident;
+
 use crate::{
     act::node::{
         canister_method::{
@@ -8,8 +11,6 @@ use crate::{
     },
     RequestType,
 };
-use proc_macro2::Ident;
-use quote::format_ident;
 
 pub trait SystemCanisterMethodBuilder {
     fn build_heartbeat_method(&self) -> Option<HeartbeatMethod>;

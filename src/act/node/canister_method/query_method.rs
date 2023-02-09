@@ -1,13 +1,19 @@
-use std::collections::HashMap;
-
-use crate::{
-    act::{self, declaration::ToDeclaration, node::DataType},
-    traits::ToIdent,
-};
 use proc_macro2::TokenStream;
 use quote::quote;
+use std::collections::HashMap;
 
-use super::{FnParam, HasParams, HasReturnValue};
+use super::FnParam;
+use crate::{
+    act::{
+        self,
+        declaration::ToDeclaration,
+        node::{
+            traits::{HasParams, HasReturnValue},
+            DataType,
+        },
+    },
+    traits::ToIdent,
+};
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
@@ -48,7 +54,7 @@ impl QueryMethod {
         }
     }
 
-    fn generate_function(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
+    fn generate_function(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_name = self.name.to_identifier();
         let params = self.create_parameter_list_token_stream(keyword_list);
         let function_body = &self.body;
@@ -101,13 +107,8 @@ impl ToDeclaration<Vec<String>> for QueryMethod {
         act::combine_maps(param_declarations, result_declarations)
     }
 
-    fn create_code(
-        &self,
-        keyword_list: &Vec<String>,
-        parental_prefix: String,
-    ) -> Option<TokenStream> {
-        let prefix = format!("{}{}", parental_prefix, self.name);
-        let function_signature = self.generate_function(keyword_list, prefix);
+    fn create_code(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
+        let function_signature = self.generate_function(keyword_list);
         let macro_args = if self.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
         } else {

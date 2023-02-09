@@ -1,3 +1,5 @@
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
@@ -6,8 +8,6 @@ use crate::{
     keyword,
     traits::ToIdent,
 };
-use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
 
 #[derive(Clone, Debug)]
 pub struct Record {

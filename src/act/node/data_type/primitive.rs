@@ -1,11 +1,9 @@
-use std::collections::HashMap;
-
 use proc_macro2::TokenStream;
 use quote::quote;
-
-use crate::{act::declaration::ToDeclaration, ToActDataType};
+use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
+use crate::{act::declaration::ToDeclaration, ToActDataType};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
