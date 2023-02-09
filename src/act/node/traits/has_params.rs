@@ -11,14 +11,16 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 pub trait HasParams {
+    fn get_params(&self) -> Vec<FnParam>;
+    fn create_param_prefix(&self, param_index: usize) -> String;
+
     fn get_param_types(&self) -> Vec<DataType> {
         self.get_params()
             .iter()
             .map(|param| param.data_type.clone())
             .collect()
     }
-    fn get_params(&self) -> Vec<FnParam>;
-    fn create_param_prefix(&self, param_index: usize) -> String;
+
     fn create_parameter_list_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let params: Vec<_> = self
             .get_params()
@@ -30,6 +32,7 @@ pub trait HasParams {
             .collect();
         quote!(#(#params),*)
     }
+
     fn create_param_type_annotation(
         &self,
         param_index: usize,
@@ -43,6 +46,7 @@ pub trait HasParams {
             None => None,
         }
     }
+
     fn create_param_declarations(
         &self,
         keyword_list: &Vec<String>,

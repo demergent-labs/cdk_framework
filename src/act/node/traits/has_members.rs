@@ -10,6 +10,7 @@ use crate::act::node::data_type::DataType;
 pub trait HasMembers {
     fn get_members(&self) -> Vec<DataType>;
     fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String;
+
     fn create_member_declarations(
         &self,
         keyword_list: &Vec<String>,
