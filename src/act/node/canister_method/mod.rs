@@ -4,8 +4,7 @@ pub mod init_method;
 pub mod inspect_message_method;
 pub mod post_upgrade_method;
 pub mod pre_upgrade_method;
-pub mod query_method;
-pub mod update_method;
+mod public_canister_methods;
 
 use std::collections::HashMap;
 
@@ -16,8 +15,8 @@ pub use inspect_message_method::InspectMessageMethod;
 pub use post_upgrade_method::PostUpgradeMethod;
 pub use pre_upgrade_method::PreUpgradeMethod;
 use proc_macro2::TokenStream;
-pub use query_method::QueryMethod;
-pub use update_method::UpdateMethod;
+pub use public_canister_methods::query_method::QueryMethod;
+pub use public_canister_methods::update_method::UpdateMethod;
 
 use crate::act::declaration::ToDeclaration;
 

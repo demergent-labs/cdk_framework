@@ -2,18 +2,17 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use std::collections::HashMap;
 
-use super::FnParam;
-use crate::{
-    act::{
-        self,
-        declaration::ToDeclaration,
-        node::{
-            traits::{HasParams, HasReturnValue},
-            DataType,
-        },
+use crate::act::{
+    self,
+    declaration::ToDeclaration,
+    node::{
+        canister_method::FnParam,
+        traits::{HasParams, HasReturnValue},
+        DataType,
     },
-    traits::ToIdent,
 };
+
+use super::PublicCanisterMethod;
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
@@ -53,27 +52,6 @@ impl QueryMethod {
             quote! {}
         }
     }
-
-    fn generate_function(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let function_name = self.name.to_identifier();
-        let params = self.create_parameter_list_token_stream(keyword_list);
-        let function_body = &self.body;
-
-        let return_type_token = self.create_return_type_annotation(keyword_list);
-        let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
-            quote! {
-                ic_cdk::api::call::ManualReply<#return_type_token>
-            }
-        } else {
-            return_type_token
-        };
-
-        quote! {
-            async fn #function_name(#params) -> #wrapped_return_type {
-                #function_body
-            }
-        }
-    }
 }
 
 impl HasParams for QueryMethod {
@@ -96,6 +74,28 @@ impl HasReturnValue for QueryMethod {
     }
 }
 
+impl PublicCanisterMethod for QueryMethod {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    fn get_body(&self) -> TokenStream {
+        self.body.clone()
+    }
+
+    fn get_cdk_name(&self) -> String {
+        self.cdk_name.clone()
+    }
+
+    fn is_manual(&self) -> bool {
+        self.is_manual
+    }
+
+    fn is_async(&self) -> bool {
+        self.is_async
+    }
+}
+
 impl ToDeclaration<Vec<String>> for QueryMethod {
     fn create_child_declarations(
         &self,
@@ -108,7 +108,7 @@ impl ToDeclaration<Vec<String>> for QueryMethod {
     }
 
     fn create_code(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
-        let function_signature = self.generate_function(keyword_list);
+        let function_declaration = self.generate_function_declaration(keyword_list);
         let macro_args = if self.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
         } else {
@@ -117,7 +117,7 @@ impl ToDeclaration<Vec<String>> for QueryMethod {
         Some(quote! {
             #[ic_cdk_macros::query(#macro_args)]
             #[candid::candid_method(query)]
-            #function_signature
+            #function_declaration
         })
     }
 
