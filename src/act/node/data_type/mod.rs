@@ -6,7 +6,6 @@ pub mod record;
 pub mod traits;
 pub mod tuple;
 pub mod type_alias;
-pub mod type_ref;
 pub mod variant;
 
 use proc_macro2::TokenStream;
@@ -19,7 +18,6 @@ pub use primitive::Primitive;
 pub use record::Record;
 pub use tuple::Tuple;
 pub use type_alias::TypeAlias;
-pub use type_ref::TypeRef;
 pub use variant::Variant;
 
 use crate::act::declaration::ToDeclaration;
@@ -35,7 +33,6 @@ pub enum DataType {
     Record(Record),
     Tuple(Tuple),
     TypeAlias(TypeAlias),
-    TypeRef(TypeRef),
     Variant(Variant),
 }
 
@@ -78,13 +75,6 @@ impl DataType {
     pub fn as_tuple(&self) -> core::option::Option<&Tuple> {
         match self {
             DataType::Tuple(tuple) => Some(&tuple),
-            _ => None,
-        }
-    }
-
-    pub fn as_type_ref(&self) -> core::option::Option<&TypeRef> {
-        match self {
-            DataType::TypeRef(type_ref) => Some(&type_ref),
             _ => None,
         }
     }
@@ -145,13 +135,6 @@ impl DataType {
         }
     }
 
-    pub fn is_type_ref(&self) -> bool {
-        match self {
-            DataType::TypeRef(_) => true,
-            _ => false,
-        }
-    }
-
     pub fn is_variant(&self) -> bool {
         match self {
             DataType::Variant(_) => true,
@@ -181,9 +164,6 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
             DataType::Tuple(tuple) => tuple.to_type_annotation(keyword_list, parental_prefix),
             DataType::TypeAlias(type_alias) => {
                 type_alias.to_type_annotation(keyword_list, parental_prefix)
-            }
-            DataType::TypeRef(type_ref) => {
-                type_ref.to_type_annotation(keyword_list, parental_prefix)
             }
             DataType::Variant(variant) => variant.to_type_annotation(keyword_list, parental_prefix),
         }
@@ -216,9 +196,6 @@ impl ToDeclaration<Vec<String>> for DataType {
             DataType::TypeAlias(type_alias) => {
                 type_alias.create_child_declarations(keyword_list, parental_prefix)
             }
-            DataType::TypeRef(type_ref) => {
-                type_ref.create_child_declarations(keyword_list, parental_prefix)
-            }
             DataType::Variant(variant) => {
                 variant.create_child_declarations(keyword_list, parental_prefix)
             }
@@ -239,7 +216,6 @@ impl ToDeclaration<Vec<String>> for DataType {
             DataType::Record(record) => record.create_code(keyword_list, prefix),
             DataType::Tuple(tuple) => tuple.create_code(keyword_list, parental_prefix),
             DataType::TypeAlias(type_alias) => type_alias.create_code(keyword_list, prefix),
-            DataType::TypeRef(type_ref) => type_ref.create_code(keyword_list, prefix),
             DataType::Variant(variant) => variant.create_code(keyword_list, parental_prefix),
         }
     }
@@ -253,7 +229,6 @@ impl ToDeclaration<Vec<String>> for DataType {
             DataType::Record(record) => record.create_identifier(parental_prefix),
             DataType::Tuple(tuple) => tuple.create_identifier(parental_prefix),
             DataType::TypeAlias(type_alias) => type_alias.create_identifier(parental_prefix),
-            DataType::TypeRef(type_ref) => type_ref.create_identifier(parental_prefix),
             DataType::Variant(variant) => variant.create_identifier(parental_prefix),
         }
     }
