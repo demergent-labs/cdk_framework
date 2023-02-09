@@ -1,6 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 use std::collections::HashMap;
+use std::hash::Hash;
 
 use self::{
     declaration::{Declaration, ToDeclaration},
@@ -12,8 +13,8 @@ use self::{
                 PreUpgradeMethod, QueryMethod, UpdateMethod,
             },
         },
-        data_type::{Func, Record, Tuple, TypeAlias, Variant},
-        {data_type, external_canister, ExternalCanister, FunctionGuard},
+        data_type::{func, Func, Record, Tuple, TypeAlias, Variant},
+        {external_canister, ExternalCanister, FunctionGuard},
     },
 };
 use crate::generators::{candid_file_generation, random, vm_value_conversion};
@@ -66,12 +67,12 @@ impl ToDeclaration<()> for AbstractCanisterTree {
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
         let try_from_vm_value_impls = &self.try_from_vm_value_impls;
 
-        let func_arg_token = data_type::func::generate_func_arg_token();
+        let func_arg_token = func::generate_func_arg_token();
 
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
-        Some(quote::quote! {
+        Some(quote! {
             #header
 
             #randomness_implementation
@@ -182,7 +183,7 @@ fn add_declaration_to_map(
 
 fn combine_maps<K, V>(map1: HashMap<K, V>, map2: HashMap<K, V>) -> HashMap<K, V>
 where
-    K: Eq + std::hash::Hash,
+    K: Eq + Hash,
 {
     let mut result = HashMap::new();
 

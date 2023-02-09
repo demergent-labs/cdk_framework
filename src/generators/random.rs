@@ -1,6 +1,7 @@
+use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-pub fn generate_randomness_implementation(cdk_name: &String) -> proc_macro2::TokenStream {
+pub fn generate_randomness_implementation(cdk_name: &String) -> TokenStream {
     let random_function_name = format_ident!("_{}_custom_getrandom", cdk_name.to_lowercase());
 
     quote! {
