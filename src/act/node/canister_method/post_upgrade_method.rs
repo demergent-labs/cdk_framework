@@ -2,18 +2,13 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::collections::HashMap;
 
-use super::FnParam;
+use super::{CanisterMethodContext, FnParam};
 use crate::act::{declaration::ToDeclaration, node::traits::HasParams};
 
 #[derive(Clone)]
 pub struct PostUpgradeMethod {
     pub params: Vec<FnParam>,
     pub body: TokenStream,
-}
-
-pub struct TokenStreamContext<'a> {
-    pub keyword_list: &'a Vec<String>,
-    pub cdk_name: &'a String,
 }
 
 impl HasParams for PostUpgradeMethod {
@@ -26,11 +21,11 @@ impl HasParams for PostUpgradeMethod {
     }
 }
 
-impl ToDeclaration<TokenStreamContext<'_>> for PostUpgradeMethod {
-    fn create_code(&self, context: &TokenStreamContext<'_>, _: String) -> Option<TokenStream> {
+impl ToDeclaration<CanisterMethodContext> for PostUpgradeMethod {
+    fn create_code(&self, context: &CanisterMethodContext, _: String) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_post_upgrade", context.cdk_name.to_lowercase());
         let body = &self.body;
-        let params = self.create_parameter_list_token_stream(context.keyword_list);
+        let params = self.create_parameter_list_token_stream(&context.keyword_list);
         Some(quote! {
             #[ic_cdk_macros::post_upgrade]
             fn #function_name(#params) {
@@ -45,9 +40,9 @@ impl ToDeclaration<TokenStreamContext<'_>> for PostUpgradeMethod {
 
     fn create_child_declarations(
         &self,
-        context: &TokenStreamContext<'_>,
+        context: &CanisterMethodContext,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        self.create_param_declarations(context.keyword_list)
+        self.create_param_declarations(&context.keyword_list)
     }
 }

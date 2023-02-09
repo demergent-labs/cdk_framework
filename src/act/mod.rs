@@ -7,14 +7,14 @@ use self::{
     declaration::{Declaration, ToDeclaration},
     node::{
         canister_method::{
-            init_method, post_upgrade_method,
+            CanisterMethod, CanisterMethodContext,
             {
                 HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
                 PreUpgradeMethod, QueryMethod, UpdateMethod,
             },
         },
         data_type::{func, Func, Record, Tuple, TypeAlias, Variant},
-        {external_canister, ExternalCanister, FunctionGuard},
+        {ExternalCanister, FunctionGuard},
     },
 };
 use crate::generators::{candid_file_generation, random, vm_value_conversion};
@@ -95,78 +95,20 @@ impl ToDeclaration<()> for AbstractCanisterTree {
     }
 
     fn create_child_declarations(&self, _: &(), _: String) -> HashMap<String, TokenStream> {
-        let result = HashMap::new();
+        let canister_method_context = CanisterMethodContext {
+            cdk_name: self.cdk_name.clone(),
+            keyword_list: self.keywords.clone(),
+        };
 
-        let init_method_declaration = self.canister_methods.init_method.create_declaration(
-            &init_method::TokenStreamContext {
-                keyword_list: &self.keywords,
-                cdk_name: &self.cdk_name,
-            },
-            "InitMethod".to_string(),
-        );
-        let result = add_declaration_to_map(init_method_declaration, result);
+        let canister_methods = self.collect_children();
+        let children_declaration = canister_methods
+            .create_declaration(&canister_method_context, "CanisterMethods".to_string());
 
-        let cross_canister_functions = self.external_canisters.create_declaration(
-            &external_canister::TokenStreamContext {
-                cdk_name: &self.cdk_name,
-                keyword_list: &self.keywords,
-            },
-            "ExternalCanisters".to_string(),
-        );
-        let result = add_declaration_to_map(cross_canister_functions, result);
-
-        let heartbeat_method = self
-            .canister_methods
-            .heartbeat_method
-            .create_declaration(&self.cdk_name, "HeartbeatMethod".to_string());
-        let result = add_declaration_to_map(heartbeat_method, result);
-
-        let inspect_message_method = self
-            .canister_methods
-            .inspect_message_method
-            .create_declaration(&self.cdk_name, "InspectMessageMethod".to_string());
-        let result = add_declaration_to_map(inspect_message_method, result);
-
-        let post_upgrade_method = self
-            .canister_methods
-            .post_upgrade_method
-            .create_declaration(
-                &post_upgrade_method::TokenStreamContext {
-                    cdk_name: &self.cdk_name,
-                    keyword_list: &self.keywords,
-                },
-                "PostUpgradeMethod".to_string(),
-            );
-        let result = add_declaration_to_map(post_upgrade_method, result);
-
-        let pre_upgrade_method_declaration = self
-            .canister_methods
-            .pre_upgrade_method
-            .create_declaration(&self.cdk_name, "Canister".to_string());
-        let result = add_declaration_to_map(pre_upgrade_method_declaration, result);
-
-        let query_method_declarations = self
-            .canister_methods
-            .query_methods
-            .create_declaration(&self.keywords, "QueryMethod".to_string());
-        let result = add_declaration_to_map(query_method_declarations, result);
-
-        let update_method_declarations = self
-            .canister_methods
-            .update_methods
-            .create_declaration(&self.keywords, "UpdateMethod".to_string());
-        let result = add_declaration_to_map(update_method_declarations, result);
-
-        let function_guards = self
-            .function_guards
-            .create_declaration(&self.keywords, "Canister".to_string());
-        let result = add_declaration_to_map(function_guards, result);
-
-        result
+        flatten_declaration(children_declaration, HashMap::new())
     }
 }
 
-fn add_declaration_to_map(
+fn flatten_declaration(
     declaration: Declaration,
     map: HashMap<String, TokenStream>,
 ) -> HashMap<String, TokenStream> {
@@ -195,24 +137,69 @@ where
 
 impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
-        let canister_prefix = "Canister".to_string();
-
-        let canister_declaration = self.create_declaration(&(), canister_prefix.clone());
+        let canister_declaration = self.create_declaration(&(), "Canister".to_string());
 
         let canister_declaration_code = match canister_declaration.code {
             Some(code) => code,
             None => quote!(),
         };
 
-        let function_declarations: Vec<_> = self
-            .create_child_declarations(&(), canister_prefix.clone())
-            .values()
-            .cloned()
-            .collect();
+        let canister_declaration_children: Vec<_> =
+            canister_declaration.children.values().cloned().collect();
 
         quote! {
             #canister_declaration_code
-            #(#function_declarations)*
+            #(#canister_declaration_children)*
         }
+    }
+
+    fn collect_children(&self) -> Vec<CanisterMethod> {
+        let init_method = Some(CanisterMethod::Init(
+            self.canister_methods.init_method.clone(),
+        ));
+        let heartbeat_method = match &self.canister_methods.heartbeat_method {
+            Some(heartbeat_method) => Some(CanisterMethod::Heartbeat(heartbeat_method.clone())),
+            None => None,
+        };
+        let inspect_message_method = match &self.canister_methods.inspect_message_method {
+            Some(inspect_message_method) => Some(CanisterMethod::InspectMessage(
+                inspect_message_method.clone(),
+            )),
+            None => None,
+        };
+        let pre_upgrade_method = match &self.canister_methods.pre_upgrade_method {
+            Some(pre_upgrade_method) => {
+                Some(CanisterMethod::PreUpgrade(pre_upgrade_method.clone()))
+            }
+            None => None,
+        };
+        let post_upgrade_method = Some(CanisterMethod::PostUpgrade(
+            self.canister_methods.post_upgrade_method.clone(),
+        ));
+        let system_canister_methods: Vec<_> = vec![
+            init_method,
+            heartbeat_method,
+            inspect_message_method,
+            pre_upgrade_method,
+            post_upgrade_method,
+        ]
+        .iter()
+        .filter_map(|thing| thing.clone())
+        .collect();
+
+        let query_methods = self
+            .canister_methods
+            .query_methods
+            .iter()
+            .map(|query| CanisterMethod::Query(query.clone()))
+            .collect();
+        let update_methods = self
+            .canister_methods
+            .update_methods
+            .iter()
+            .map(|update| CanisterMethod::Update(update.clone()))
+            .collect();
+
+        vec![system_canister_methods, query_methods, update_methods].concat()
     }
 }

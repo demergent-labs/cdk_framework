@@ -57,7 +57,7 @@ pub trait HasParams {
             |acc, (index, param_type)| {
                 let declaration =
                     param_type.create_declaration(keyword_list, self.create_param_prefix(index));
-                act::add_declaration_to_map(declaration, acc)
+                act::flatten_declaration(declaration, acc)
             },
         )
     }

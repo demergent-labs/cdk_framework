@@ -37,7 +37,7 @@ where
     ) -> HashMap<String, TokenStream> {
         self.iter().fold(HashMap::new(), |acc, declaration| {
             let decl = declaration.create_declaration(context, parental_prefix.clone());
-            super::add_declaration_to_map(decl, acc)
+            super::flatten_declaration(decl, acc)
         })
     }
 

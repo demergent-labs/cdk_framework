@@ -20,7 +20,7 @@ pub trait HasMembers {
                     keyword_list,
                     self.create_member_prefix(index, parental_prefix.clone()),
                 );
-                act::add_declaration_to_map(declaration, acc)
+                act::flatten_declaration(declaration, acc)
             })
     }
 }
