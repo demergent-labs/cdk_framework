@@ -12,7 +12,7 @@ pub use external_canister::ExternalCanisterMethod;
 pub use function_guard::FunctionGuard;
 
 #[derive(Clone)]
-pub enum ActNode {
+pub enum Node {
     CanisterMethod(CanisterMethod),
     DataType(DataType),
     ExternalCanister(ExternalCanister),
