@@ -103,8 +103,8 @@ impl ToDeclaration<Vec<String>> for QueryMethod {
         _: String,
     ) -> HashMap<String, TokenStream> {
         let param_declarations = self.create_param_declarations(keyword_list);
-        let result_declarations = self.create_return_type_declarations(keyword_list);
-        act::combine_maps(param_declarations, result_declarations)
+        let return_declarations = self.create_return_type_declarations(keyword_list);
+        act::combine_maps(param_declarations, return_declarations)
     }
 
     fn create_code(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {

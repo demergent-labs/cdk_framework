@@ -13,7 +13,7 @@ use self::{
                 PreUpgradeMethod, QueryMethod, UpdateMethod,
             },
         },
-        data_type::{func, Func, Record, Tuple, TypeAlias, Variant},
+        data_type::func,
         {ExternalCanister, FunctionGuard},
     },
 };
@@ -27,7 +27,7 @@ pub mod to_node;
 pub struct AbstractCanisterTree {
     pub cdk_name: String,
     pub canister_methods: CanisterMethods,
-    pub external_canisters: Vec<ExternalCanister>,
+    pub external_canisters: Vec<ExternalCanister>, // TODO Make sure these are collected as children
     pub function_guards: Vec<FunctionGuard>,
     pub header: TokenStream,
     pub body: TokenStream,
@@ -44,14 +44,6 @@ pub struct CanisterMethods {
     pub pre_upgrade_method: Option<PreUpgradeMethod>,
     pub query_methods: Vec<QueryMethod>,
     pub update_methods: Vec<UpdateMethod>,
-}
-
-pub struct DataTypes {
-    pub funcs: Vec<Func>,
-    pub records: Vec<Record>,
-    pub tuples: Vec<Tuple>,
-    pub type_aliases: Vec<TypeAlias>,
-    pub variants: Vec<Variant>,
 }
 
 impl ToDeclaration<()> for AbstractCanisterTree {
@@ -183,7 +175,7 @@ impl AbstractCanisterTree {
             post_upgrade_method,
         ]
         .iter()
-        .filter_map(|thing| thing.clone())
+        .filter_map(|system_canister_method| system_canister_method.clone())
         .collect();
 
         let query_methods = self

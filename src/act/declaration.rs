@@ -16,6 +16,7 @@ pub trait ToDeclaration<C> {
             children: self.create_child_declarations(&context, parental_prefix.clone()),
         }
     }
+
     fn create_code(&self, context: &C, parental_prefix: String) -> Option<TokenStream>;
     fn create_identifier(&self, parental_prefix: String) -> Option<String>;
     fn create_child_declarations(
