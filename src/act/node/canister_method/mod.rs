@@ -1,12 +1,16 @@
+use proc_macro2::TokenStream;
+use std::collections::HashMap;
+
+use crate::act::declaration::ToDeclaration;
+
+mod public_canister_methods;
+
 pub mod fn_param;
 pub mod heartbeat_method;
 pub mod init_method;
 pub mod inspect_message_method;
 pub mod post_upgrade_method;
 pub mod pre_upgrade_method;
-mod public_canister_methods;
-
-use std::collections::HashMap;
 
 pub use fn_param::FnParam;
 pub use heartbeat_method::HeartbeatMethod;
@@ -14,11 +18,8 @@ pub use init_method::InitMethod;
 pub use inspect_message_method::InspectMessageMethod;
 pub use post_upgrade_method::PostUpgradeMethod;
 pub use pre_upgrade_method::PreUpgradeMethod;
-use proc_macro2::TokenStream;
 pub use public_canister_methods::query_method::QueryMethod;
 pub use public_canister_methods::update_method::UpdateMethod;
-
-use crate::act::declaration::ToDeclaration;
 
 #[derive(Clone)]
 pub enum CanisterMethod {
