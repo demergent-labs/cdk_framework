@@ -30,8 +30,8 @@ pub enum Primitive {
 }
 
 impl ToDataType for Primitive {
-    fn to_data_type(&self) -> DataType {
-        DataType::Primitive(self.clone())
+    fn to_data_type(&self, found_types: Vec<String>) -> (DataType, Vec<String>) {
+        (DataType::Primitive(self.clone()), found_types)
     }
 }
 

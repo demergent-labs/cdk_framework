@@ -1,35 +1,19 @@
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{quote, ToTokens};
 use std::collections::HashMap;
 
-use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{declaration::ToDeclaration, node::traits::HasMembers};
+use super::traits::ToTypeAnnotation;
+use crate::{act::declaration::ToDeclaration, traits::ToIdent};
 
 #[derive(Clone, Debug)]
 pub struct Boxed {
-    pub enclosed_type: Box<DataType>,
-}
-
-impl HasMembers for Boxed {
-    fn get_members(&self) -> Vec<DataType> {
-        vec![*self.enclosed_type.clone()]
-    }
-
-    fn create_member_prefix(&self, _: usize, parental_prefix: String) -> String {
-        format!("{}Boxed", parental_prefix)
-    }
+    pub enclosed_type: String,
 }
 
 impl ToTypeAnnotation<Vec<String>> for Boxed {
-    fn to_type_annotation(
-        &self,
-        keyword_list: &Vec<String>,
-        parental_prefix: String,
-    ) -> TokenStream {
-        let enclosed_rust_ident = self
-            .enclosed_type
-            .to_type_annotation(keyword_list, self.create_member_prefix(0, parental_prefix));
-        quote!(Box<#enclosed_rust_ident>)
+    fn to_type_annotation(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
+        let ident = self.enclosed_type.to_identifier().to_token_stream();
+        quote!(Box<#ident>)
     }
 }
 

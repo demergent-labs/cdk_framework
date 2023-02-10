@@ -157,10 +157,6 @@ impl DataType {
             _ => false,
         }
     }
-
-    pub fn needs_to_be_boxed(&self) -> bool {
-        true
-    }
 }
 
 impl ToTypeAnnotation<Vec<String>> for DataType {

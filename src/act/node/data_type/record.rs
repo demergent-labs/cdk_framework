@@ -23,15 +23,10 @@ pub struct Member {
 
 impl Member {
     fn to_token_stream(&self, keyword_list: &Vec<String>, prefix: String) -> TokenStream {
-        let ident = self.member_type.to_type_annotation(keyword_list, prefix);
-        let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
-            quote!(Box<#ident>)
-        } else {
-            ident
-        };
+        let member_type_annotation = self.member_type.to_type_annotation(keyword_list, prefix);
         let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
         let rename = keyword::generate_rename_attribute(&member_name, keyword_list);
-        quote!(#rename#member_name: #member_type_token_stream)
+        quote!(#rename#member_name: #member_type_annotation)
     }
 }
 

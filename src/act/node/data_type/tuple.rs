@@ -98,11 +98,6 @@ impl ToDeclaration<Vec<String>> for Tuple {
 
 impl Elem {
     fn to_token_stream(&self, keyword_list: &Vec<String>, elem_prefix: String) -> TokenStream {
-        if self.elem_type.needs_to_be_boxed() {
-            let ident = self.elem_type.to_type_annotation(keyword_list, elem_prefix);
-            quote!(Box<#ident>)
-        } else {
-            quote!(self.elem_type.to_token_stream())
-        }
+        self.elem_type.to_type_annotation(keyword_list, elem_prefix)
     }
 }

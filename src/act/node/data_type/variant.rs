@@ -109,15 +109,10 @@ impl Member {
                 }
             }
             _ => {
-                let member_type_token_stream = if self.member_type.needs_to_be_boxed() {
-                    let ident = self
-                        .member_type
-                        .to_type_annotation(keyword_list, member_prefix);
-                    quote!(Box<#ident>)
-                } else {
-                    quote!(self.member_type.to_token_stream())
-                };
-                quote!((#member_type_token_stream))
+                let member_type_annotation = self
+                    .member_type
+                    .to_type_annotation(keyword_list, member_prefix);
+                quote!((#member_type_annotation))
             }
         };
         let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();

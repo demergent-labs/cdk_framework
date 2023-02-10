@@ -27,7 +27,6 @@ pub mod to_node;
 pub struct AbstractCanisterTree {
     pub cdk_name: String,
     pub canister_methods: CanisterMethods,
-    pub data_types: DataTypes,
     pub external_canisters: Vec<ExternalCanister>,
     pub function_guards: Vec<FunctionGuard>,
     pub header: TokenStream,
