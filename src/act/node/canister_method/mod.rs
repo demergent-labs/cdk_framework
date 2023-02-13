@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
-use crate::act::declaration::ToDeclaration;
+use crate::act::proclamation::Proclaim;
 
 mod public_canister_methods;
 
@@ -38,31 +38,33 @@ pub struct CanisterMethodContext {
     pub cdk_name: String,
 }
 
-impl ToDeclaration<CanisterMethodContext> for CanisterMethod {
-    fn create_code(
+impl Proclaim<CanisterMethodContext> for CanisterMethod {
+    fn create_declaration(
         &self,
         context: &CanisterMethodContext,
         parental_prefix: String,
     ) -> Option<TokenStream> {
         match self {
             CanisterMethod::Update(update_method) => {
-                update_method.create_code(&context.keyword_list, parental_prefix)
+                update_method.create_declaration(&context.keyword_list, parental_prefix)
             }
             CanisterMethod::Query(query_method) => {
-                query_method.create_code(&context.keyword_list, parental_prefix)
+                query_method.create_declaration(&context.keyword_list, parental_prefix)
             }
-            CanisterMethod::Init(init_method) => init_method.create_code(context, parental_prefix),
+            CanisterMethod::Init(init_method) => {
+                init_method.create_declaration(context, parental_prefix)
+            }
             CanisterMethod::PreUpgrade(pre_upgrade_method) => {
-                pre_upgrade_method.create_code(&context.cdk_name, parental_prefix)
+                pre_upgrade_method.create_declaration(&context.cdk_name, parental_prefix)
             }
             CanisterMethod::PostUpgrade(post_upgrade_method) => {
-                post_upgrade_method.create_code(context, parental_prefix)
+                post_upgrade_method.create_declaration(context, parental_prefix)
             }
             CanisterMethod::InspectMessage(inspect_method) => {
-                inspect_method.create_code(&context.cdk_name, parental_prefix)
+                inspect_method.create_declaration(&context.cdk_name, parental_prefix)
             }
             CanisterMethod::Heartbeat(heartbeat_method) => {
-                heartbeat_method.create_code(&context.cdk_name, parental_prefix)
+                heartbeat_method.create_declaration(&context.cdk_name, parental_prefix)
             }
         }
     }
@@ -89,32 +91,31 @@ impl ToDeclaration<CanisterMethodContext> for CanisterMethod {
         }
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         context: &CanisterMethodContext,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {
             CanisterMethod::Update(update_method) => {
-                update_method.create_child_declarations(&context.keyword_list, parental_prefix)
+                update_method.create_inline_declarations(&context.keyword_list, parental_prefix)
             }
             CanisterMethod::Query(query_method) => {
-                query_method.create_child_declarations(&context.keyword_list, parental_prefix)
+                query_method.create_inline_declarations(&context.keyword_list, parental_prefix)
             }
             CanisterMethod::Init(init_method) => {
-                init_method.create_child_declarations(&context, parental_prefix)
+                init_method.create_inline_declarations(&context, parental_prefix)
             }
             CanisterMethod::PreUpgrade(pre_upgrade_method) => {
-                pre_upgrade_method.create_child_declarations(&context.cdk_name, parental_prefix)
+                pre_upgrade_method.create_inline_declarations(&context.cdk_name, parental_prefix)
             }
             CanisterMethod::PostUpgrade(post_upgrade_method) => {
-                post_upgrade_method.create_child_declarations(context, parental_prefix)
+                post_upgrade_method.create_inline_declarations(context, parental_prefix)
             }
-            CanisterMethod::InspectMessage(inspect_message_method) => {
-                inspect_message_method.create_child_declarations(&context.cdk_name, parental_prefix)
-            }
+            CanisterMethod::InspectMessage(inspect_message_method) => inspect_message_method
+                .create_inline_declarations(&context.cdk_name, parental_prefix),
             CanisterMethod::Heartbeat(heartbeat_method) => {
-                heartbeat_method.create_child_declarations(&context.cdk_name, parental_prefix)
+                heartbeat_method.create_inline_declarations(&context.cdk_name, parental_prefix)
             }
         }
     }

@@ -2,15 +2,15 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::collections::HashMap;
 
-use crate::act::declaration::ToDeclaration;
+use crate::act::proclamation::Proclaim;
 
 #[derive(Clone)]
 pub struct PreUpgradeMethod {
     pub body: TokenStream,
 }
 
-impl ToDeclaration<String> for PreUpgradeMethod {
-    fn create_code(&self, cdk_name: &String, _: String) -> Option<TokenStream> {
+impl Proclaim<String> for PreUpgradeMethod {
+    fn create_declaration(&self, cdk_name: &String, _: String) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_pre_upgrade", cdk_name.to_lowercase());
         let body = &self.body;
         Some(quote! {
@@ -25,7 +25,7 @@ impl ToDeclaration<String> for PreUpgradeMethod {
         Some("PreUpgradeMethod".to_string())
     }
 
-    fn create_child_declarations(&self, _: &String, _: String) -> HashMap<String, TokenStream> {
+    fn create_inline_declarations(&self, _: &String, _: String) -> HashMap<String, TokenStream> {
         HashMap::new()
     }
 }

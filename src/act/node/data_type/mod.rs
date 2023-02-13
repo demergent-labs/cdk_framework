@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
 use self::traits::ToTypeAnnotation;
-use crate::act::declaration::ToDeclaration;
+use crate::act::proclamation::Proclaim;
 
 pub mod array;
 pub mod boxed;
@@ -183,57 +183,59 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
     }
 }
 
-impl ToDeclaration<Vec<String>> for DataType {
-    fn create_child_declarations(
+impl Proclaim<Vec<String>> for DataType {
+    fn create_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {
             DataType::Array(array) => {
-                array.create_child_declarations(keyword_list, parental_prefix)
+                array.create_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Boxed(boxed) => {
-                boxed.create_child_declarations(keyword_list, parental_prefix)
+                boxed.create_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::Func(func) => func.create_child_declarations(keyword_list, parental_prefix),
+            DataType::Func(func) => func.create_inline_declarations(keyword_list, parental_prefix),
             DataType::Option(option) => {
-                option.create_child_declarations(keyword_list, parental_prefix)
+                option.create_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Primitive(primitive) => {
-                primitive.create_child_declarations(keyword_list, parental_prefix)
+                primitive.create_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Record(record) => {
-                record.create_child_declarations(keyword_list, parental_prefix)
+                record.create_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Tuple(tuple) => {
-                tuple.create_child_declarations(keyword_list, parental_prefix)
+                tuple.create_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::TypeAlias(type_alias) => {
-                type_alias.create_child_declarations(keyword_list, parental_prefix)
+                type_alias.create_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Variant(variant) => {
-                variant.create_child_declarations(keyword_list, parental_prefix)
+                variant.create_inline_declarations(keyword_list, parental_prefix)
             }
         }
     }
 
-    fn create_code(
+    fn create_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> std::option::Option<TokenStream> {
         let prefix = format!("DataType{}", parental_prefix);
         match self {
-            DataType::Array(array) => array.create_code(keyword_list, parental_prefix),
-            DataType::Boxed(boxed) => boxed.create_code(keyword_list, parental_prefix),
-            DataType::Func(func) => func.create_code(keyword_list, parental_prefix),
-            DataType::Option(option) => option.create_code(keyword_list, parental_prefix),
-            DataType::Primitive(primitive) => primitive.create_code(keyword_list, parental_prefix),
-            DataType::Record(record) => record.create_code(keyword_list, prefix),
-            DataType::Tuple(tuple) => tuple.create_code(keyword_list, parental_prefix),
-            DataType::TypeAlias(type_alias) => type_alias.create_code(keyword_list, prefix),
-            DataType::Variant(variant) => variant.create_code(keyword_list, parental_prefix),
+            DataType::Array(array) => array.create_declaration(keyword_list, parental_prefix),
+            DataType::Boxed(boxed) => boxed.create_declaration(keyword_list, parental_prefix),
+            DataType::Func(func) => func.create_declaration(keyword_list, parental_prefix),
+            DataType::Option(option) => option.create_declaration(keyword_list, parental_prefix),
+            DataType::Primitive(primitive) => {
+                primitive.create_declaration(keyword_list, parental_prefix)
+            }
+            DataType::Record(record) => record.create_declaration(keyword_list, prefix),
+            DataType::Tuple(tuple) => tuple.create_declaration(keyword_list, parental_prefix),
+            DataType::TypeAlias(type_alias) => type_alias.create_declaration(keyword_list, prefix),
+            DataType::Variant(variant) => variant.create_declaration(keyword_list, parental_prefix),
         }
     }
 

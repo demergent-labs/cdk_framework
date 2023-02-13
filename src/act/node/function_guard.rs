@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use std::collections::HashMap;
 
-use crate::{act::declaration::ToDeclaration, traits::ToIdent};
+use crate::{act::proclamation::Proclaim, traits::ToIdent};
 
 #[derive(Debug, Clone)]
 pub struct FunctionGuard {
@@ -10,8 +10,8 @@ pub struct FunctionGuard {
     pub name: String,
 }
 
-impl ToDeclaration<Vec<String>> for FunctionGuard {
-    fn create_code(&self, _keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
+impl Proclaim<Vec<String>> for FunctionGuard {
+    fn create_declaration(&self, _keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
         // TODO we will eventually need that _keyword list for when we analyze function names for keywords
         let function_name = self.name.to_identifier();
         let function_body = &self.body;
@@ -27,7 +27,7 @@ impl ToDeclaration<Vec<String>> for FunctionGuard {
         Some(self.name.clone())
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         _: &Vec<String>,
         _: String,

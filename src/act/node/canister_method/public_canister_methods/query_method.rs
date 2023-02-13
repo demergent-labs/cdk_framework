@@ -4,12 +4,12 @@ use std::collections::HashMap;
 
 use crate::act::{
     self,
-    declaration::ToDeclaration,
     node::{
         canister_method::FnParam,
         traits::{HasParams, HasReturnValue},
         DataType,
     },
+    proclamation::Proclaim,
 };
 
 use super::PublicCanisterMethod;
@@ -96,8 +96,8 @@ impl PublicCanisterMethod for QueryMethod {
     }
 }
 
-impl ToDeclaration<Vec<String>> for QueryMethod {
-    fn create_child_declarations(
+impl Proclaim<Vec<String>> for QueryMethod {
+    fn create_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         _: String,
@@ -107,7 +107,7 @@ impl ToDeclaration<Vec<String>> for QueryMethod {
         act::combine_maps(param_declarations, return_declarations)
     }
 
-    fn create_code(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
         let function_declaration = self.generate_function_declaration(keyword_list);
         let macro_args = if self.cdk_name == "kybra" {
             self.generate_kybra_macro_args()

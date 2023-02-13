@@ -4,11 +4,11 @@ use std::collections::HashMap;
 
 use crate::act::{
     self,
-    declaration::ToDeclaration,
     node::{
         canister_method::FnParam,
         data_type::{traits::ToTypeAnnotation, DataType},
     },
+    proclamation::Proclaim,
 };
 
 pub trait HasParams {
@@ -56,7 +56,7 @@ pub trait HasParams {
             HashMap::new(),
             |acc, (index, param_type)| {
                 let declaration =
-                    param_type.create_declaration(keyword_list, self.create_param_prefix(index));
+                    param_type.create_proclamation(keyword_list, self.create_param_prefix(index));
                 act::flatten_declaration(declaration, acc)
             },
         )

@@ -3,8 +3,8 @@ use std::collections::HashMap;
 
 use crate::act::{
     self,
-    declaration::ToDeclaration,
     node::data_type::{traits::ToTypeAnnotation, DataType},
+    proclamation::Proclaim,
 };
 
 pub trait HasReturnValue {
@@ -17,7 +17,7 @@ pub trait HasReturnValue {
     ) -> HashMap<String, TokenStream> {
         let declaration = self
             .get_return_type()
-            .create_declaration(&keyword_list, self.create_return_type_prefix());
+            .create_proclamation(&keyword_list, self.create_return_type_prefix());
 
         act::flatten_declaration(declaration, HashMap::new())
     }

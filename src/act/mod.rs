@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use std::hash::Hash;
 
 use self::{
-    declaration::{Declaration, ToDeclaration},
     node::{
         canister_method::{
             CanisterMethod, CanisterMethodContext,
@@ -16,11 +15,12 @@ use self::{
         data_type::func,
         {ExternalCanister, FunctionGuard},
     },
+    proclamation::{Proclaim, Proclamation},
 };
 use crate::generators::{candid_file_generation, random, vm_value_conversion};
 
-pub mod declaration;
 pub mod node;
+pub mod proclamation;
 pub mod to_node;
 
 /// An easily traversable representation of a rust canister
@@ -46,8 +46,8 @@ pub struct CanisterMethods {
     pub update_methods: Vec<UpdateMethod>,
 }
 
-impl ToDeclaration<()> for AbstractCanisterTree {
-    fn create_code(&self, _: &(), _: String) -> Option<TokenStream> {
+impl Proclaim<()> for AbstractCanisterTree {
+    fn create_declaration(&self, _: &(), _: String) -> Option<TokenStream> {
         let body = &self.body;
         let header = &self.header;
 
@@ -85,7 +85,7 @@ impl ToDeclaration<()> for AbstractCanisterTree {
         Some("Canister".to_string())
     }
 
-    fn create_child_declarations(&self, _: &(), _: String) -> HashMap<String, TokenStream> {
+    fn create_inline_declarations(&self, _: &(), _: String) -> HashMap<String, TokenStream> {
         let canister_method_context = CanisterMethodContext {
             cdk_name: self.cdk_name.clone(),
             keyword_list: self.keywords.clone(),
@@ -93,24 +93,24 @@ impl ToDeclaration<()> for AbstractCanisterTree {
 
         let canister_methods = self.collect_children();
         let children_declaration = canister_methods
-            .create_declaration(&canister_method_context, "CanisterMethods".to_string());
+            .create_proclamation(&canister_method_context, "CanisterMethods".to_string());
 
         flatten_declaration(children_declaration, HashMap::new())
     }
 }
 
 fn flatten_declaration(
-    declaration: Declaration,
+    declaration: Proclamation,
     map: HashMap<String, TokenStream>,
 ) -> HashMap<String, TokenStream> {
     let mut result = HashMap::new();
     result.extend(map);
     if let Some(identifier) = declaration.identifier {
-        if let Some(code) = declaration.code {
+        if let Some(code) = declaration.declaration {
             result.insert(identifier, code);
         }
     }
-    result.extend(declaration.children);
+    result.extend(declaration.inline_declarations);
     result
 }
 
@@ -128,15 +128,18 @@ where
 
 impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
-        let canister_declaration = self.create_declaration(&(), "Canister".to_string());
+        let canister_declaration = self.create_proclamation(&(), "Canister".to_string());
 
-        let canister_declaration_code = match canister_declaration.code {
+        let canister_declaration_code = match canister_declaration.declaration {
             Some(code) => code,
             None => quote!(),
         };
 
-        let canister_declaration_children: Vec<_> =
-            canister_declaration.children.values().cloned().collect();
+        let canister_declaration_children: Vec<_> = canister_declaration
+            .inline_declarations
+            .values()
+            .cloned()
+            .collect();
 
         quote! {
             #canister_declaration_code

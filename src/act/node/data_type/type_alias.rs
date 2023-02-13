@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{declaration::ToDeclaration, node::traits::HasMembers},
+    act::{node::traits::HasMembers, proclamation::Proclaim},
     traits::ToIdent,
 };
 
@@ -30,8 +30,8 @@ impl ToTypeAnnotation<Vec<String>> for TypeAlias {
     }
 }
 
-impl ToDeclaration<Vec<String>> for TypeAlias {
-    fn create_code(
+impl Proclaim<Vec<String>> for TypeAlias {
+    fn create_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
@@ -47,7 +47,7 @@ impl ToDeclaration<Vec<String>> for TypeAlias {
         Some(self.name.clone())
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,

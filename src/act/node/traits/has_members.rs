@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 
-use crate::act::{self, declaration::ToDeclaration, node::data_type::DataType};
+use crate::act::{self, node::data_type::DataType, proclamation::Proclaim};
 
 pub trait HasMembers {
     fn get_members(&self) -> Vec<DataType>;
@@ -16,7 +16,7 @@ pub trait HasMembers {
             .iter()
             .enumerate()
             .fold(HashMap::new(), |acc, (index, member_type)| {
-                let declaration = member_type.create_declaration(
+                let declaration = member_type.create_proclamation(
                     keyword_list,
                     self.create_member_prefix(index, parental_prefix.clone()),
                 );

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{declaration::ToDeclaration, node::traits::has_members::HasMembers},
+    act::{node::traits::has_members::HasMembers, proclamation::Proclaim},
     keyword,
     traits::ToIdent,
 };
@@ -52,8 +52,8 @@ impl HasMembers for Record {
     }
 }
 
-impl ToDeclaration<Vec<String>> for Record {
-    fn create_code(
+impl Proclaim<Vec<String>> for Record {
+    fn create_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
@@ -82,7 +82,7 @@ impl ToDeclaration<Vec<String>> for Record {
         Some(self.get_name(parental_prefix))
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,

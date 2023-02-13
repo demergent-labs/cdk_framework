@@ -3,7 +3,7 @@ use quote::quote;
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{declaration::ToDeclaration, node::traits::HasMembers};
+use crate::act::{node::traits::HasMembers, proclamation::Proclaim};
 
 #[derive(Clone, Debug)]
 pub struct Array {
@@ -33,8 +33,8 @@ impl ToTypeAnnotation<Vec<String>> for Array {
     }
 }
 
-impl ToDeclaration<Vec<String>> for Array {
-    fn create_code(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+impl Proclaim<Vec<String>> for Array {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
         None
     }
 
@@ -42,7 +42,7 @@ impl ToDeclaration<Vec<String>> for Array {
         None
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,

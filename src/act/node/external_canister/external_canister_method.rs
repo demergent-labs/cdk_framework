@@ -4,12 +4,12 @@ use std::collections::HashMap;
 
 use crate::act::{
     self,
-    declaration::ToDeclaration,
     node::{
         canister_method::FnParam,
         traits::{HasParams, HasReturnValue},
         DataType,
     },
+    proclamation::Proclaim,
 };
 
 #[derive(Clone, Debug)]
@@ -26,8 +26,8 @@ pub struct EcmContext<'a> {
     pub cdk_name: &'a String,
 }
 
-impl ToDeclaration<EcmContext<'_>> for ExternalCanisterMethod {
-    fn create_code(&self, context: &EcmContext<'_>, _: String) -> Option<TokenStream> {
+impl Proclaim<EcmContext<'_>> for ExternalCanisterMethod {
+    fn create_declaration(&self, context: &EcmContext<'_>, _: String) -> Option<TokenStream> {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -49,7 +49,7 @@ impl ToDeclaration<EcmContext<'_>> for ExternalCanisterMethod {
         Some(self.name.clone())
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         context: &EcmContext<'_>,
         _: String,

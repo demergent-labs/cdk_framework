@@ -3,7 +3,7 @@ use quote::{format_ident, quote};
 use std::collections::HashMap;
 
 use super::{CanisterMethodContext, FnParam};
-use crate::act::{declaration::ToDeclaration, node::traits::HasParams};
+use crate::act::{node::traits::HasParams, proclamation::Proclaim};
 
 #[derive(Clone)]
 pub struct PostUpgradeMethod {
@@ -21,8 +21,12 @@ impl HasParams for PostUpgradeMethod {
     }
 }
 
-impl ToDeclaration<CanisterMethodContext> for PostUpgradeMethod {
-    fn create_code(&self, context: &CanisterMethodContext, _: String) -> Option<TokenStream> {
+impl Proclaim<CanisterMethodContext> for PostUpgradeMethod {
+    fn create_declaration(
+        &self,
+        context: &CanisterMethodContext,
+        _: String,
+    ) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_post_upgrade", context.cdk_name.to_lowercase());
         let body = &self.body;
         let params = self.create_parameter_list_token_stream(&context.keyword_list);
@@ -38,7 +42,7 @@ impl ToDeclaration<CanisterMethodContext> for PostUpgradeMethod {
         Some("PostUpgrade".to_string())
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         context: &CanisterMethodContext,
         _: String,

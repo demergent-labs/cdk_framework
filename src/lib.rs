@@ -1,4 +1,4 @@
-use act::declaration::ToDeclaration;
+use act::proclamation::Proclaim;
 use proc_macro2::TokenStream;
 use std::collections::HashMap;
 use std::fmt;
@@ -49,13 +49,13 @@ pub trait ToAct {
     fn to_act(&self) -> AbstractCanisterTree;
 }
 
-impl<C, T> ToDeclaration<C> for Option<T>
+impl<C, T> Proclaim<C> for Option<T>
 where
-    T: ToDeclaration<C>,
+    T: Proclaim<C>,
 {
-    fn create_code(&self, context: &C, parental_prefix: String) -> Option<TokenStream> {
+    fn create_declaration(&self, context: &C, parental_prefix: String) -> Option<TokenStream> {
         match self {
-            Some(t) => t.create_code(context, format!("{}Optional", parental_prefix)),
+            Some(t) => t.create_declaration(context, format!("{}Optional", parental_prefix)),
             None => None,
         }
     }
@@ -67,13 +67,15 @@ where
         }
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         context: &C,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {
-            Some(t) => t.create_child_declarations(context, format!("{}Optional", parental_prefix)),
+            Some(t) => {
+                t.create_inline_declarations(context, format!("{}Optional", parental_prefix))
+            }
             None => HashMap::new(),
         }
     }

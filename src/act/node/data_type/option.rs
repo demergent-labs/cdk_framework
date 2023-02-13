@@ -3,7 +3,7 @@ use quote::quote;
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{declaration::ToDeclaration, node::traits::HasMembers};
+use crate::act::{node::traits::HasMembers, proclamation::Proclaim};
 
 #[derive(Clone, Debug)]
 pub struct Option {
@@ -26,8 +26,8 @@ impl Option {
     }
 }
 
-impl ToDeclaration<Vec<String>> for Option {
-    fn create_code(&self, _: &Vec<String>, _: String) -> std::option::Option<TokenStream> {
+impl Proclaim<Vec<String>> for Option {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> std::option::Option<TokenStream> {
         None
     }
 
@@ -35,7 +35,7 @@ impl ToDeclaration<Vec<String>> for Option {
         None
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,

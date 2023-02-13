@@ -4,12 +4,12 @@ use std::collections::HashMap;
 
 use crate::act::{
     self,
-    declaration::ToDeclaration,
     node::{
         canister_method::FnParam,
         traits::{HasParams, HasReturnValue},
         DataType,
     },
+    proclamation::Proclaim,
 };
 
 use super::PublicCanisterMethod;
@@ -64,8 +64,8 @@ impl PublicCanisterMethod for UpdateMethod {
     }
 }
 
-impl ToDeclaration<Vec<String>> for UpdateMethod {
-    fn create_code(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
+impl Proclaim<Vec<String>> for UpdateMethod {
+    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
         let function_declaration = self.generate_function_declaration(keyword_list);
 
         let macro_args = self.generate_macro_args();
@@ -81,7 +81,7 @@ impl ToDeclaration<Vec<String>> for UpdateMethod {
         Some(self.name.clone())
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         _: String,

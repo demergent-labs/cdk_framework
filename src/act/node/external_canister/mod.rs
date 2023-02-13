@@ -3,7 +3,7 @@ use quote::quote;
 use std::collections::HashMap;
 
 use self::external_canister_method::EcmContext;
-use crate::act::declaration::ToDeclaration;
+use crate::act::proclamation::Proclaim;
 
 pub mod external_canister_method;
 
@@ -21,13 +21,17 @@ pub struct TokenStreamContext<'a> {
     pub cdk_name: &'a String,
 }
 
-impl ToDeclaration<TokenStreamContext<'_>> for ExternalCanister {
-    fn create_code(&self, context: &TokenStreamContext<'_>, _: String) -> Option<TokenStream> {
+impl Proclaim<TokenStreamContext<'_>> for ExternalCanister {
+    fn create_declaration(
+        &self,
+        context: &TokenStreamContext<'_>,
+        _: String,
+    ) -> Option<TokenStream> {
         let cross_canister_call_functions: Vec<TokenStream> = self
             .methods
             .iter()
             .filter_map(|method| {
-                method.create_code(
+                method.create_declaration(
                     &EcmContext {
                         canister_name: self.name.clone(),
                         keyword_list: &context.keyword_list,
@@ -44,12 +48,12 @@ impl ToDeclaration<TokenStreamContext<'_>> for ExternalCanister {
         Some(self.name.clone())
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         context: &TokenStreamContext<'_>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
-        self.methods.create_child_declarations(
+        self.methods.create_inline_declarations(
             &EcmContext {
                 canister_name: self.name.clone(),
                 keyword_list: &context.keyword_list,

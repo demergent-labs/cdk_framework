@@ -3,7 +3,7 @@ use quote::quote;
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::{act::declaration::ToDeclaration, ToDataType};
+use crate::{act::proclamation::Proclaim, ToDataType};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
@@ -62,8 +62,8 @@ impl<C> ToTypeAnnotation<C> for Primitive {
     }
 }
 
-impl ToDeclaration<Vec<String>> for Primitive {
-    fn create_code(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+impl Proclaim<Vec<String>> for Primitive {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
         None
     }
 
@@ -71,7 +71,7 @@ impl ToDeclaration<Vec<String>> for Primitive {
         None
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         _: &Vec<String>,
         _: String,

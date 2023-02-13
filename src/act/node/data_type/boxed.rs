@@ -3,7 +3,7 @@ use quote::{quote, ToTokens};
 use std::collections::HashMap;
 
 use super::traits::ToTypeAnnotation;
-use crate::{act::declaration::ToDeclaration, traits::ToIdent};
+use crate::{act::proclamation::Proclaim, traits::ToIdent};
 
 #[derive(Clone, Debug)]
 pub struct Boxed {
@@ -17,8 +17,8 @@ impl ToTypeAnnotation<Vec<String>> for Boxed {
     }
 }
 
-impl ToDeclaration<Vec<String>> for Boxed {
-    fn create_code(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+impl Proclaim<Vec<String>> for Boxed {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
         None
     }
 
@@ -26,7 +26,7 @@ impl ToDeclaration<Vec<String>> for Boxed {
         None
     }
 
-    fn create_child_declarations(
+    fn create_inline_declarations(
         &self,
         _: &Vec<String>,
         _: String,
