@@ -21,6 +21,8 @@ pub use pre_upgrade_method::PreUpgradeMethod;
 pub use public_canister_methods::query_method::QueryMethod;
 pub use public_canister_methods::update_method::UpdateMethod;
 
+use super::NodeContext;
+
 #[derive(Clone)]
 pub enum CanisterMethod {
     Update(UpdateMethod),
@@ -32,16 +34,10 @@ pub enum CanisterMethod {
     Heartbeat(HeartbeatMethod),
 }
 
-#[derive(Clone)]
-pub struct CanisterMethodContext {
-    pub keyword_list: Vec<String>,
-    pub cdk_name: String,
-}
-
-impl Proclaim<CanisterMethodContext> for CanisterMethod {
+impl Proclaim<NodeContext> for CanisterMethod {
     fn create_declaration(
         &self,
-        context: &CanisterMethodContext,
+        context: &NodeContext,
         parental_prefix: String,
     ) -> Option<TokenStream> {
         match self {
@@ -93,7 +89,7 @@ impl Proclaim<CanisterMethodContext> for CanisterMethod {
 
     fn create_inline_declarations(
         &self,
-        context: &CanisterMethodContext,
+        context: &NodeContext,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {

@@ -9,24 +9,16 @@ pub mod external_canister_method;
 
 pub use external_canister_method::ExternalCanisterMethod;
 
+use super::NodeContext;
+
 #[derive(Clone, Debug)]
 pub struct ExternalCanister {
     pub name: String,
     pub methods: Vec<ExternalCanisterMethod>,
 }
 
-#[derive(Clone)]
-pub struct TokenStreamContext<'a> {
-    pub keyword_list: &'a Vec<String>,
-    pub cdk_name: &'a String,
-}
-
-impl Proclaim<TokenStreamContext<'_>> for ExternalCanister {
-    fn create_declaration(
-        &self,
-        context: &TokenStreamContext<'_>,
-        _: String,
-    ) -> Option<TokenStream> {
+impl Proclaim<NodeContext> for ExternalCanister {
+    fn create_declaration(&self, context: &NodeContext, _: String) -> Option<TokenStream> {
         let cross_canister_call_functions: Vec<TokenStream> = self
             .methods
             .iter()
@@ -34,8 +26,8 @@ impl Proclaim<TokenStreamContext<'_>> for ExternalCanister {
                 method.create_declaration(
                     &EcmContext {
                         canister_name: self.name.clone(),
-                        keyword_list: &context.keyword_list,
-                        cdk_name: context.cdk_name,
+                        keyword_list: context.keyword_list.clone(),
+                        cdk_name: context.cdk_name.clone(),
                     },
                     self.name.clone(),
                 )
@@ -50,14 +42,14 @@ impl Proclaim<TokenStreamContext<'_>> for ExternalCanister {
 
     fn create_inline_declarations(
         &self,
-        context: &TokenStreamContext<'_>,
+        context: &NodeContext,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         self.methods.create_inline_declarations(
             &EcmContext {
                 canister_name: self.name.clone(),
-                keyword_list: &context.keyword_list,
-                cdk_name: context.cdk_name,
+                keyword_list: context.keyword_list.clone(),
+                cdk_name: context.cdk_name.clone(),
             },
             parental_prefix,
         )

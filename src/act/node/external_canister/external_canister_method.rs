@@ -20,14 +20,14 @@ pub struct ExternalCanisterMethod {
 }
 
 #[derive(Clone)]
-pub struct EcmContext<'a> {
+pub struct EcmContext {
     pub canister_name: String,
-    pub keyword_list: &'a Vec<String>,
-    pub cdk_name: &'a String,
+    pub keyword_list: Vec<String>,
+    pub cdk_name: String,
 }
 
-impl Proclaim<EcmContext<'_>> for ExternalCanisterMethod {
-    fn create_declaration(&self, context: &EcmContext<'_>, _: String) -> Option<TokenStream> {
+impl Proclaim<EcmContext> for ExternalCanisterMethod {
+    fn create_declaration(&self, context: &EcmContext, _: String) -> Option<TokenStream> {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -51,11 +51,11 @@ impl Proclaim<EcmContext<'_>> for ExternalCanisterMethod {
 
     fn create_inline_declarations(
         &self,
-        context: &EcmContext<'_>,
+        context: &EcmContext,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        let param_declarations = self.create_param_declarations(context.keyword_list);
-        let result_declarations = self.create_return_type_declarations(context.keyword_list);
+        let param_declarations = self.create_param_declarations(&context.keyword_list);
+        let result_declarations = self.create_return_type_declarations(&context.keyword_list);
         act::combine_maps(param_declarations, result_declarations)
     }
 }
@@ -98,7 +98,7 @@ impl ExternalCanisterMethod {
             &self.name
         );
 
-        let param_types = self.param_types_as_tuple(context.keyword_list);
+        let param_types = self.param_types_as_tuple(&context.keyword_list);
 
         let cycles_param = if function_type.contains("with_payment128") {
             quote! { , cycles: u128 }
@@ -108,7 +108,7 @@ impl ExternalCanisterMethod {
             quote! {}
         };
 
-        let function_return_type = self.create_return_type_annotation(context.keyword_list);
+        let function_return_type = self.create_return_type_annotation(&context.keyword_list);
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
