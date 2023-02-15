@@ -9,12 +9,19 @@ use crate::{act::proclamation::Proclaim, traits::ToIdent};
 pub struct Func {
     pub name: Option<String>,
     pub params: Vec<DataType>,
-    pub return_type: Box<Option<DataType>>,
-    pub mode: String,
+    pub return_type: Box<DataType>,
+    pub mode: Mode,
     pub to_vm_value: TokenStream,
     pub list_to_vm_value: TokenStream,
     pub from_vm_value: TokenStream,
     pub list_from_vm_value: TokenStream,
+}
+
+#[derive(Clone, Debug)]
+pub enum Mode {
+    Query,
+    Update,
+    Oneway,
 }
 
 impl Func {
@@ -90,12 +97,10 @@ impl Func {
         name: String,
     ) -> TokenStream {
         let type_alias_name = name.to_identifier();
-        let func_mode = if self.mode == "Query" {
-            quote! {candid::parser::types::FuncMode::Query }
-        } else if self.mode == "Oneway" {
-            quote! {candid::parser::types::FuncMode::Oneway }
-        } else {
-            quote! {}
+        let func_mode = match self.mode {
+            Mode::Query => quote! {candid::parser::types::FuncMode::Query },
+            Mode::Oneway => quote! {candid::parser::types::FuncMode::Oneway },
+            Mode::Update => quote! {},
         };
         let param_type_strings: Vec<String> = self
             .params
@@ -141,12 +146,10 @@ impl Func {
                 }
             })
             .collect();
-        let return_type_string = match &*self.return_type {
-            Some(return_type) => return_type
-                .to_type_annotation(keyword_list, name)
-                .to_string(),
-            None => "".to_string(),
-        };
+        let return_type_string = self
+            .return_type
+            .to_type_annotation(keyword_list, name)
+            .to_string();
         let func_return_type = if return_type_string == "()" || return_type_string == "" {
             quote! {}
         } else if return_type_string == "(())" {

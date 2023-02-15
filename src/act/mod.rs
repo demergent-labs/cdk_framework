@@ -24,6 +24,10 @@ pub mod node;
 pub mod proclamation;
 pub mod to_node;
 
+pub trait ToAct {
+    fn to_act(&self) -> AbstractCanisterTree;
+}
+
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
     pub cdk_name: String,

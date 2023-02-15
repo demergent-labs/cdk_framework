@@ -3,7 +3,7 @@ use quote::quote;
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::{act::proclamation::Proclaim, ToDataType};
+use crate::act::{proclamation::Proclaim, to_node::ToDataType};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
