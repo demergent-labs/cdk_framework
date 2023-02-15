@@ -19,7 +19,7 @@ pub trait HasReturnValue {
             .get_return_type()
             .create_proclamation(&keyword_list, self.create_return_type_prefix());
 
-        act::flatten_declaration(declaration, HashMap::new())
+        act::flatten_proclamation(declaration, HashMap::new())
     }
 
     fn create_return_type_annotation(&self, keyword_list: &Vec<String>) -> TokenStream {

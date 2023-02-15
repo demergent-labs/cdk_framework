@@ -87,31 +87,31 @@ impl Proclaim<NodeContext> for CanisterMethod {
         }
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         context: &NodeContext,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {
             CanisterMethod::Update(update_method) => {
-                update_method.create_inline_declarations(&context.keyword_list, parental_prefix)
+                update_method.collect_inline_declarations(&context.keyword_list, parental_prefix)
             }
             CanisterMethod::Query(query_method) => {
-                query_method.create_inline_declarations(&context.keyword_list, parental_prefix)
+                query_method.collect_inline_declarations(&context.keyword_list, parental_prefix)
             }
             CanisterMethod::Init(init_method) => {
-                init_method.create_inline_declarations(&context, parental_prefix)
+                init_method.collect_inline_declarations(&context, parental_prefix)
             }
             CanisterMethod::PreUpgrade(pre_upgrade_method) => {
-                pre_upgrade_method.create_inline_declarations(&context.cdk_name, parental_prefix)
+                pre_upgrade_method.collect_inline_declarations(&context.cdk_name, parental_prefix)
             }
             CanisterMethod::PostUpgrade(post_upgrade_method) => {
-                post_upgrade_method.create_inline_declarations(context, parental_prefix)
+                post_upgrade_method.collect_inline_declarations(context, parental_prefix)
             }
             CanisterMethod::InspectMessage(inspect_message_method) => inspect_message_method
-                .create_inline_declarations(&context.cdk_name, parental_prefix),
+                .collect_inline_declarations(&context.cdk_name, parental_prefix),
             CanisterMethod::Heartbeat(heartbeat_method) => {
-                heartbeat_method.create_inline_declarations(&context.cdk_name, parental_prefix)
+                heartbeat_method.collect_inline_declarations(&context.cdk_name, parental_prefix)
             }
         }
     }

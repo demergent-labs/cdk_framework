@@ -27,7 +27,7 @@ impl Proclaim<Vec<String>> for FunctionGuard {
         Some(self.name.clone())
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         _: &Vec<String>,
         _: String,

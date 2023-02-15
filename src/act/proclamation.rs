@@ -13,13 +13,14 @@ pub trait Proclaim<C> {
         Proclamation {
             identifier: self.create_identifier(parental_prefix.clone()),
             declaration: self.create_declaration(context, parental_prefix.clone()),
-            inline_declarations: self.create_inline_declarations(&context, parental_prefix.clone()),
+            inline_declarations: self
+                .collect_inline_declarations(&context, parental_prefix.clone()),
         }
     }
 
     fn create_declaration(&self, context: &C, parental_prefix: String) -> Option<TokenStream>;
     fn create_identifier(&self, parental_prefix: String) -> Option<String>;
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         context: &C,
         parental_prefix: String,
@@ -31,14 +32,14 @@ where
     C: Clone,
     T: Proclaim<C>,
 {
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         context: &C,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         self.iter().fold(HashMap::new(), |acc, declaration| {
             let decl = declaration.create_proclamation(context, parental_prefix.clone());
-            super::flatten_declaration(decl, acc)
+            super::flatten_proclamation(decl, acc)
         })
     }
 

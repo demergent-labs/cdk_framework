@@ -49,12 +49,12 @@ impl Proclaim<EcmContext> for ExternalCanisterMethod {
         Some(self.name.clone())
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         context: &EcmContext,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        let param_declarations = self.create_param_declarations(&context.keyword_list);
+        let param_declarations = self.collect_param_inline_types(&context.keyword_list);
         let result_declarations = self.create_return_type_declarations(&context.keyword_list);
         act::combine_maps(param_declarations, result_declarations)
     }

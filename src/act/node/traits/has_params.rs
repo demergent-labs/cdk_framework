@@ -48,16 +48,16 @@ pub trait HasParams {
         }
     }
 
-    fn create_param_declarations(
+    fn collect_param_inline_types(
         &self,
         keyword_list: &Vec<String>,
     ) -> HashMap<String, TokenStream> {
         self.get_param_types().iter().enumerate().fold(
             HashMap::new(),
             |acc, (index, param_type)| {
-                let declaration =
+                let proclamation =
                     param_type.create_proclamation(keyword_list, self.create_param_prefix(index));
-                act::flatten_declaration(declaration, acc)
+                act::flatten_proclamation(proclamation, acc)
             },
         )
     }

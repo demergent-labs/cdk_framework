@@ -25,7 +25,7 @@ impl Proclaim<String> for HeartbeatMethod {
         Some("HeartbeatMethod".to_string())
     }
 
-    fn create_inline_declarations(&self, _: &String, _: String) -> HashMap<String, TokenStream> {
+    fn collect_inline_declarations(&self, _: &String, _: String) -> HashMap<String, TokenStream> {
         HashMap::new()
     }
 }

@@ -71,7 +71,7 @@ impl Proclaim<Vec<String>> for Primitive {
         None
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         _: &Vec<String>,
         _: String,

@@ -97,12 +97,12 @@ impl PublicCanisterMethod for QueryMethod {
 }
 
 impl Proclaim<Vec<String>> for QueryMethod {
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        let param_declarations = self.create_param_declarations(keyword_list);
+        let param_declarations = self.collect_param_inline_types(keyword_list);
         let return_declarations = self.create_return_type_declarations(keyword_list);
         act::combine_maps(param_declarations, return_declarations)
     }

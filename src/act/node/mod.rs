@@ -70,24 +70,24 @@ impl Proclaim<NodeContext> for Node {
         }
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         context: &NodeContext,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {
             Node::CanisterMethod(canister_method) => {
-                canister_method.create_inline_declarations(context, parental_prefix)
+                canister_method.collect_inline_declarations(context, parental_prefix)
             }
             Node::DataType(data_type) => {
-                data_type.create_inline_declarations(&context.keyword_list, parental_prefix)
+                data_type.collect_inline_declarations(&context.keyword_list, parental_prefix)
             }
             Node::ExternalCanister(external_canister) => {
-                external_canister.create_inline_declarations(context, parental_prefix)
+                external_canister.collect_inline_declarations(context, parental_prefix)
             }
             Node::StableBTreeMap => todo!(),
             Node::FunctionGuard(function_guard) => {
-                function_guard.create_inline_declarations(&context.keyword_list, parental_prefix)
+                function_guard.collect_inline_declarations(&context.keyword_list, parental_prefix)
             }
         }
     }

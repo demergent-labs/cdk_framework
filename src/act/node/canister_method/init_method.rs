@@ -42,11 +42,11 @@ impl Proclaim<NodeContext> for InitMethod {
         Some("InitMethod".to_string())
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         context: &NodeContext,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        self.create_param_declarations(&context.keyword_list)
+        self.collect_param_inline_types(&context.keyword_list)
     }
 }

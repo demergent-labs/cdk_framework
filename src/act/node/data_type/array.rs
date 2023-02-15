@@ -42,7 +42,7 @@ impl Proclaim<Vec<String>> for Array {
         None
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,

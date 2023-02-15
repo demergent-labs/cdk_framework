@@ -50,7 +50,7 @@ impl Proclaim<Vec<String>> for Func {
         Some(self.get_name(parental_prefix))
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         _: &Vec<String>,
         _: String,

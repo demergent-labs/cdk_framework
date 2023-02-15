@@ -67,14 +67,14 @@ where
         }
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         context: &C,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {
             Some(t) => {
-                t.create_inline_declarations(context, format!("{}Optional", parental_prefix))
+                t.collect_inline_declarations(context, format!("{}Optional", parental_prefix))
             }
             None => HashMap::new(),
         }

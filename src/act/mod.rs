@@ -246,7 +246,7 @@ impl AbstractCanisterTree {
     }
 }
 
-fn flatten_declaration(
+fn flatten_proclamation(
     declaration: Proclamation,
     map: HashMap<String, TokenStream>,
 ) -> HashMap<String, TokenStream> {

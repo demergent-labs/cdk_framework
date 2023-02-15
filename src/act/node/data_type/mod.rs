@@ -13,6 +13,7 @@ pub mod record;
 pub mod traits;
 pub mod tuple;
 pub mod type_alias;
+pub mod type_ref;
 pub mod variant;
 
 pub use array::Array;
@@ -23,6 +24,7 @@ pub use primitive::Primitive;
 pub use record::Record;
 pub use tuple::Tuple;
 pub use type_alias::TypeAlias;
+pub use type_ref::TypeRef;
 pub use variant::Variant;
 
 #[derive(Clone, Debug)]
@@ -35,6 +37,7 @@ pub enum DataType {
     Record(Record),
     Tuple(Tuple),
     TypeAlias(TypeAlias),
+    TypeRef(TypeRef),
     Variant(Variant),
 }
 
@@ -178,42 +181,48 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
             DataType::TypeAlias(type_alias) => {
                 type_alias.to_type_annotation(keyword_list, parental_prefix)
             }
+            DataType::TypeRef(type_ref) => {
+                type_ref.to_type_annotation(keyword_list, parental_prefix)
+            }
             DataType::Variant(variant) => variant.to_type_annotation(keyword_list, parental_prefix),
         }
     }
 }
 
 impl Proclaim<Vec<String>> for DataType {
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         match self {
             DataType::Array(array) => {
-                array.create_inline_declarations(keyword_list, parental_prefix)
+                array.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Boxed(boxed) => {
-                boxed.create_inline_declarations(keyword_list, parental_prefix)
+                boxed.collect_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::Func(func) => func.create_inline_declarations(keyword_list, parental_prefix),
+            DataType::Func(func) => func.collect_inline_declarations(keyword_list, parental_prefix),
             DataType::Option(option) => {
-                option.create_inline_declarations(keyword_list, parental_prefix)
+                option.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Primitive(primitive) => {
-                primitive.create_inline_declarations(keyword_list, parental_prefix)
+                primitive.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Record(record) => {
-                record.create_inline_declarations(keyword_list, parental_prefix)
+                record.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Tuple(tuple) => {
-                tuple.create_inline_declarations(keyword_list, parental_prefix)
+                tuple.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::TypeAlias(type_alias) => {
-                type_alias.create_inline_declarations(keyword_list, parental_prefix)
+                type_alias.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::TypeRef(type_ref) => {
+                type_ref.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Variant(variant) => {
-                variant.create_inline_declarations(keyword_list, parental_prefix)
+                variant.collect_inline_declarations(keyword_list, parental_prefix)
             }
         }
     }
@@ -235,6 +244,9 @@ impl Proclaim<Vec<String>> for DataType {
             DataType::Record(record) => record.create_declaration(keyword_list, prefix),
             DataType::Tuple(tuple) => tuple.create_declaration(keyword_list, parental_prefix),
             DataType::TypeAlias(type_alias) => type_alias.create_declaration(keyword_list, prefix),
+            DataType::TypeRef(type_ref) => {
+                type_ref.create_declaration(keyword_list, parental_prefix)
+            }
             DataType::Variant(variant) => variant.create_declaration(keyword_list, parental_prefix),
         }
     }
@@ -249,6 +261,7 @@ impl Proclaim<Vec<String>> for DataType {
             DataType::Record(record) => record.create_identifier(parental_prefix),
             DataType::Tuple(tuple) => tuple.create_identifier(parental_prefix),
             DataType::TypeAlias(type_alias) => type_alias.create_identifier(parental_prefix),
+            DataType::TypeRef(type_ref) => type_ref.create_identifier(parental_prefix),
             DataType::Variant(variant) => variant.create_identifier(parental_prefix),
         }
     }
