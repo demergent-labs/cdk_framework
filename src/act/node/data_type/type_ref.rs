@@ -6,19 +6,18 @@ use super::traits::ToTypeAnnotation;
 use crate::{act::proclamation::Proclaim, traits::ToIdent};
 
 #[derive(Clone, Debug)]
-pub struct Boxed {
+pub struct TypeRef {
     pub enclosed_type: String,
 }
 
-impl ToTypeAnnotation<Vec<String>> for Boxed {
-    fn to_type_annotation(&self, _keyword_list: &Vec<String>, _: String) -> TokenStream {
-        // TODO use the keyword list
+impl ToTypeAnnotation<Vec<String>> for TypeRef {
+    fn to_type_annotation(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
         let ident = self.enclosed_type.to_identifier().to_token_stream();
-        quote!(Box<#ident>)
+        quote!(#ident)
     }
 }
 
-impl Proclaim<Vec<String>> for Boxed {
+impl Proclaim<Vec<String>> for TypeRef {
     fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
         None
     }
@@ -27,7 +26,7 @@ impl Proclaim<Vec<String>> for Boxed {
         None
     }
 
-    fn create_inline_declarations(
+    fn collect_inline_declarations(
         &self,
         _: &Vec<String>,
         _: String,
