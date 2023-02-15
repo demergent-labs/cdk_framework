@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::act::{
     self,
     node::{
-        canister_method::FnParam,
+        param::Param,
         traits::{HasParams, HasReturnValue},
         DataType,
     },
@@ -18,13 +18,13 @@ use super::PublicCanisterMethod;
 #[derive(Debug, Clone)]
 pub struct QueryMethod {
     pub body: TokenStream,
-    pub params: Vec<FnParam>,
+    pub params: Vec<Param>,
     pub is_manual: bool,
     pub is_async: bool,
     pub name: String,
     pub return_type: DataType,
     pub cdk_name: String,
-    pub function_guard_name: Option<String>,
+    pub guard_function_name: Option<String>,
 }
 
 impl QueryMethod {
@@ -36,7 +36,7 @@ impl QueryMethod {
         if self.is_manual {
             args.push(quote! {manual_reply = true});
         };
-        if let Some(guard_function) = &self.function_guard_name {
+        if let Some(guard_function) = &self.guard_function_name {
             args.push(quote! {guard = #guard_function});
         };
 
@@ -59,7 +59,7 @@ impl HasParams for QueryMethod {
         format!("{}ParamNum{}", self.name, param_index)
     }
 
-    fn get_params(&self) -> Vec<FnParam> {
+    fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
 }

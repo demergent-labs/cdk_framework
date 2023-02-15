@@ -2,20 +2,19 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::collections::HashMap;
 
-use super::FnParam;
 use crate::act::{
-    node::{traits::HasParams, NodeContext},
+    node::{param::Param, traits::HasParams, NodeContext},
     proclamation::Proclaim,
 };
 
 #[derive(Clone)]
 pub struct InitMethod {
-    pub params: Vec<FnParam>,
+    pub params: Vec<Param>,
     pub body: TokenStream,
 }
 
 impl HasParams for InitMethod {
-    fn get_params(&self) -> Vec<FnParam> {
+    fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
 

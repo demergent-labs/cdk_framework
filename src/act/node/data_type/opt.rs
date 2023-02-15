@@ -6,11 +6,11 @@ use super::{traits::ToTypeAnnotation, DataType};
 use crate::act::{node::traits::HasMembers, proclamation::Proclaim};
 
 #[derive(Clone, Debug)]
-pub struct Option {
+pub struct Opt {
     pub enclosed_type: Box<DataType>,
 }
 
-impl HasMembers for Option {
+impl HasMembers for Opt {
     fn get_members(&self) -> Vec<DataType> {
         vec![self.get_enclosed_type()]
     }
@@ -20,18 +20,18 @@ impl HasMembers for Option {
     }
 }
 
-impl Option {
+impl Opt {
     pub fn get_enclosed_type(&self) -> DataType {
         *self.enclosed_type.clone()
     }
 }
 
-impl Proclaim<Vec<String>> for Option {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> std::option::Option<TokenStream> {
+impl Proclaim<Vec<String>> for Opt {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
         None
     }
 
-    fn create_identifier(&self, _: String) -> std::option::Option<String> {
+    fn create_identifier(&self, _: String) -> Option<String> {
         None
     }
 
@@ -44,7 +44,7 @@ impl Proclaim<Vec<String>> for Option {
     }
 }
 
-impl ToTypeAnnotation<Vec<String>> for Option {
+impl ToTypeAnnotation<Vec<String>> for Opt {
     fn to_type_annotation(
         &self,
         keyword_list: &Vec<String>,

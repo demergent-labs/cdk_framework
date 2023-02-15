@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::act::{
     self,
     node::{
-        canister_method::FnParam,
+        param::Param,
         traits::{HasParams, HasReturnValue},
         DataType,
     },
@@ -15,7 +15,7 @@ use crate::act::{
 #[derive(Clone, Debug)]
 pub struct ExternalCanisterMethod {
     pub name: String,
-    pub params: Vec<FnParam>,
+    pub params: Vec<Param>,
     pub return_type: DataType,
 }
 
@@ -71,7 +71,7 @@ impl HasReturnValue for ExternalCanisterMethod {
 }
 
 impl HasParams for ExternalCanisterMethod {
-    fn get_params(&self) -> Vec<FnParam> {
+    fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
 

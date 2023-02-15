@@ -14,7 +14,7 @@ use self::{
             },
         },
         data_type::{func, Record, Tuple, TypeAlias, Variant},
-        DataType, Node, NodeContext, {ExternalCanister, FunctionGuard},
+        DataType, Node, NodeContext, {ExternalCanister, GuardFunction},
     },
     proclamation::{Proclaim, Proclamation},
 };
@@ -29,8 +29,8 @@ pub struct AbstractCanisterTree {
     pub cdk_name: String,
     pub canister_methods: CanisterMethods,
     pub data_types: DataTypes,
-    pub external_canisters: Vec<ExternalCanister>, // TODO Make sure these are collected as children
-    pub function_guards: Vec<FunctionGuard>,
+    pub external_canisters: Vec<ExternalCanister>,
+    pub guard_functions: Vec<GuardFunction>,
     pub header: TokenStream,
     pub body: TokenStream,
     pub try_from_vm_value_impls: TokenStream,
@@ -139,10 +139,10 @@ impl AbstractCanisterTree {
             .map(|data_type| Node::DataType(data_type.clone()))
             .collect();
 
-        let function_guards = self
-            .function_guards
+        let guard_functions = self
+            .guard_functions
             .iter()
-            .map(|function_guard| Node::FunctionGuard(function_guard.clone()))
+            .map(|function_guard| Node::GuardFunction(function_guard.clone()))
             .collect();
 
         let external_canisters = self
@@ -154,7 +154,7 @@ impl AbstractCanisterTree {
         vec![
             canister_methods,
             data_types,
-            function_guards,
+            guard_functions,
             external_canisters,
         ]
         .concat()

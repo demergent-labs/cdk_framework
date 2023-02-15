@@ -7,12 +7,12 @@ use crate::{act::proclamation::Proclaim, traits::ToIdent};
 
 #[derive(Clone, Debug)]
 pub struct TypeRef {
-    pub enclosed_type: String,
+    pub name: String,
 }
 
 impl ToTypeAnnotation<Vec<String>> for TypeRef {
     fn to_type_annotation(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
-        let ident = self.enclosed_type.to_identifier().to_token_stream();
+        let ident = self.name.to_identifier().to_token_stream();
         quote!(#ident)
     }
 }

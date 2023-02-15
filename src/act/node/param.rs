@@ -5,15 +5,13 @@ use crate::{
     traits::ToIdent,
 };
 
-// TODO Consider having access to both strings and idents as necessary
-
 #[derive(Debug, Clone)]
-pub struct FnParam {
+pub struct Param {
     pub name: String,
-    pub data_type: DataType,
+    pub type_: DataType,
 }
 
-impl FnParam {
+impl Param {
     pub fn prefixed_name(&self) -> String {
         format!("_cdk_user_defined_{}", self.name)
     }
@@ -24,7 +22,7 @@ impl FnParam {
         function_name: String,
     ) -> TokenStream {
         let name = self.prefixed_name().to_identifier();
-        let type_annotation = &self.data_type.to_type_annotation(
+        let type_annotation = &self.type_.to_type_annotation(
             keyword_list,
             format!("{}{}", function_name, self.prefixed_name()),
         );

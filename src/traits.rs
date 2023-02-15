@@ -4,9 +4,10 @@ use quote::format_ident;
 use crate::{
     act::node::{
         canister_method::{
-            FnParam, HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod,
-            PreUpgradeMethod, QueryMethod, UpdateMethod,
+            HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
+            QueryMethod, UpdateMethod,
         },
+        param::Param,
         DataType,
     },
     RequestType,
@@ -23,7 +24,7 @@ pub trait SystemCanisterMethodBuilder {
 pub trait CanisterMethodBuilder {
     fn build_update_method_node(&self, request_type: &RequestType) -> UpdateMethod;
     fn build_query_method_node(&self, request_type: &RequestType) -> QueryMethod;
-    fn build_params(&self) -> Vec<FnParam>;
+    fn build_params(&self) -> Vec<Param>;
     fn build_return_type(&self) -> DataType;
 }
 

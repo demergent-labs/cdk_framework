@@ -5,14 +5,12 @@ use crate::act::proclamation::Proclaim;
 
 mod public_canister_methods;
 
-pub mod fn_param;
 pub mod heartbeat_method;
 pub mod init_method;
 pub mod inspect_message_method;
 pub mod post_upgrade_method;
 pub mod pre_upgrade_method;
 
-pub use fn_param::FnParam;
 pub use heartbeat_method::HeartbeatMethod;
 pub use init_method::InitMethod;
 pub use inspect_message_method::InspectMessageMethod;

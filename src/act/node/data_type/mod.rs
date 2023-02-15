@@ -7,7 +7,7 @@ use crate::act::proclamation::Proclaim;
 pub mod array;
 pub mod boxed;
 pub mod func;
-pub mod option;
+pub mod opt;
 pub mod primitive;
 pub mod record;
 pub mod traits;
@@ -19,7 +19,7 @@ pub mod variant;
 pub use array::Array;
 pub use boxed::Boxed;
 pub use func::Func;
-pub use option::Option;
+pub use opt::Opt;
 pub use primitive::Primitive;
 pub use record::Record;
 pub use tuple::Tuple;
@@ -32,7 +32,7 @@ pub enum DataType {
     Array(Array),
     Boxed(Boxed),
     Func(Func),
-    Option(self::Option),
+    Opt(Opt),
     Primitive(Primitive),
     Record(Record),
     Tuple(Tuple),
@@ -42,63 +42,63 @@ pub enum DataType {
 }
 
 impl DataType {
-    pub fn as_array(&self) -> core::option::Option<&Array> {
+    pub fn as_array(&self) -> Option<&Array> {
         match self {
             DataType::Array(array) => Some(&array),
             _ => None,
         }
     }
 
-    pub fn as_boxed(&self) -> core::option::Option<&Boxed> {
+    pub fn as_boxed(&self) -> Option<&Boxed> {
         match self {
             DataType::Boxed(boxed) => Some(&boxed),
             _ => None,
         }
     }
 
-    pub fn as_func(&self) -> core::option::Option<&Func> {
+    pub fn as_func(&self) -> Option<&Func> {
         match self {
             DataType::Func(func) => Some(&func),
             _ => None,
         }
     }
 
-    pub fn as_option(&self) -> core::option::Option<&self::Option> {
+    pub fn as_opt(&self) -> Option<&Opt> {
         match self {
-            DataType::Option(option) => Some(&option),
+            DataType::Opt(option) => Some(&option),
             _ => None,
         }
     }
 
-    pub fn as_primitive(&self) -> core::option::Option<&Primitive> {
+    pub fn as_primitive(&self) -> Option<&Primitive> {
         match self {
             DataType::Primitive(primitive) => Some(&primitive),
             _ => None,
         }
     }
 
-    pub fn as_record(&self) -> core::option::Option<&Record> {
+    pub fn as_record(&self) -> Option<&Record> {
         match self {
             DataType::Record(record) => Some(&record),
             _ => None,
         }
     }
 
-    pub fn as_tuple(&self) -> core::option::Option<&Tuple> {
+    pub fn as_tuple(&self) -> Option<&Tuple> {
         match self {
             DataType::Tuple(tuple) => Some(&tuple),
             _ => None,
         }
     }
 
-    pub fn as_type_alias(&self) -> core::option::Option<&TypeAlias> {
+    pub fn as_type_alias(&self) -> Option<&TypeAlias> {
         match self {
             DataType::TypeAlias(type_alias) => Some(&type_alias),
             _ => None,
         }
     }
 
-    pub fn as_variant(&self) -> core::option::Option<&Variant> {
+    pub fn as_variant(&self) -> Option<&Variant> {
         match self {
             DataType::Variant(variant) => Some(&variant),
             _ => None,
@@ -126,9 +126,9 @@ impl DataType {
         }
     }
 
-    pub fn is_option(&self) -> bool {
+    pub fn is_opt(&self) -> bool {
         match self {
-            DataType::Option(_) => true,
+            DataType::Opt(_) => true,
             _ => false,
         }
     }
@@ -172,7 +172,7 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
             DataType::Array(array) => array.to_type_annotation(keyword_list, parental_prefix),
             DataType::Boxed(boxed) => boxed.to_type_annotation(keyword_list, parental_prefix),
             DataType::Func(func) => func.to_type_annotation(keyword_list, parental_prefix),
-            DataType::Option(option) => option.to_type_annotation(keyword_list, parental_prefix),
+            DataType::Opt(opt) => opt.to_type_annotation(keyword_list, parental_prefix),
             DataType::Primitive(primitive) => {
                 primitive.to_type_annotation(keyword_list, parental_prefix)
             }
@@ -203,9 +203,7 @@ impl Proclaim<Vec<String>> for DataType {
                 boxed.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Func(func) => func.collect_inline_declarations(keyword_list, parental_prefix),
-            DataType::Option(option) => {
-                option.collect_inline_declarations(keyword_list, parental_prefix)
-            }
+            DataType::Opt(opt) => opt.collect_inline_declarations(keyword_list, parental_prefix),
             DataType::Primitive(primitive) => {
                 primitive.collect_inline_declarations(keyword_list, parental_prefix)
             }
@@ -237,7 +235,7 @@ impl Proclaim<Vec<String>> for DataType {
             DataType::Array(array) => array.create_declaration(keyword_list, parental_prefix),
             DataType::Boxed(boxed) => boxed.create_declaration(keyword_list, parental_prefix),
             DataType::Func(func) => func.create_declaration(keyword_list, parental_prefix),
-            DataType::Option(option) => option.create_declaration(keyword_list, parental_prefix),
+            DataType::Opt(opt) => opt.create_declaration(keyword_list, parental_prefix),
             DataType::Primitive(primitive) => {
                 primitive.create_declaration(keyword_list, parental_prefix)
             }
@@ -256,7 +254,7 @@ impl Proclaim<Vec<String>> for DataType {
             DataType::Array(array) => array.create_identifier(parental_prefix),
             DataType::Boxed(boxed) => boxed.create_identifier(parental_prefix),
             DataType::Func(func) => func.create_identifier(parental_prefix),
-            DataType::Option(option) => option.create_identifier(parental_prefix),
+            DataType::Opt(opt) => opt.create_identifier(parental_prefix),
             DataType::Primitive(primitive) => primitive.create_identifier(parental_prefix),
             DataType::Record(record) => record.create_identifier(parental_prefix),
             DataType::Tuple(tuple) => tuple.create_identifier(parental_prefix),

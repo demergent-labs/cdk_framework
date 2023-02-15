@@ -5,13 +5,14 @@ use self::canister_method::CanisterMethod;
 pub mod canister_method;
 pub mod data_type;
 pub mod external_canister;
-pub mod function_guard;
+pub mod guard_function;
+pub mod param;
 pub mod traits;
 
 pub use data_type::DataType;
 pub use external_canister::ExternalCanister;
 pub use external_canister::ExternalCanisterMethod;
-pub use function_guard::FunctionGuard;
+pub use guard_function::GuardFunction;
 use proc_macro2::TokenStream;
 
 use super::proclamation::Proclaim;
@@ -21,8 +22,7 @@ pub enum Node {
     CanisterMethod(CanisterMethod),
     DataType(DataType),
     ExternalCanister(ExternalCanister),
-    StableBTreeMap,
-    FunctionGuard(FunctionGuard),
+    GuardFunction(GuardFunction),
 }
 
 #[derive(Clone)]
@@ -47,9 +47,8 @@ impl Proclaim<NodeContext> for Node {
             Node::ExternalCanister(external_canister) => {
                 external_canister.create_declaration(context, parental_prefix)
             }
-            Node::StableBTreeMap => todo!(),
-            Node::FunctionGuard(function_guard) => {
-                function_guard.create_declaration(&context.keyword_list, parental_prefix)
+            Node::GuardFunction(guard_function) => {
+                guard_function.create_declaration(&context.keyword_list, parental_prefix)
             }
         }
     }
@@ -63,9 +62,8 @@ impl Proclaim<NodeContext> for Node {
             Node::ExternalCanister(external_canister) => {
                 external_canister.create_identifier(parental_prefix)
             }
-            Node::StableBTreeMap => todo!(),
-            Node::FunctionGuard(function_guard) => {
-                function_guard.create_identifier(parental_prefix)
+            Node::GuardFunction(guard_function) => {
+                guard_function.create_identifier(parental_prefix)
             }
         }
     }
@@ -85,9 +83,8 @@ impl Proclaim<NodeContext> for Node {
             Node::ExternalCanister(external_canister) => {
                 external_canister.collect_inline_declarations(context, parental_prefix)
             }
-            Node::StableBTreeMap => todo!(),
-            Node::FunctionGuard(function_guard) => {
-                function_guard.collect_inline_declarations(&context.keyword_list, parental_prefix)
+            Node::GuardFunction(guard_function) => {
+                guard_function.collect_inline_declarations(&context.keyword_list, parental_prefix)
             }
         }
     }

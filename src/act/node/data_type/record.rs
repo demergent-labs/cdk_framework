@@ -17,14 +17,14 @@ pub struct Record {
 
 #[derive(Clone, Debug)]
 pub struct Member {
-    pub member_name: String,
-    pub member_type: DataType,
+    pub name: String,
+    pub type_: DataType,
 }
 
 impl Member {
     fn to_token_stream(&self, keyword_list: &Vec<String>, prefix: String) -> TokenStream {
-        let member_type_annotation = self.member_type.to_type_annotation(keyword_list, prefix);
-        let member_name = keyword::make_rust_safe(&self.member_name, keyword_list).to_identifier();
+        let member_type_annotation = self.type_.to_type_annotation(keyword_list, prefix);
+        let member_name = keyword::make_rust_safe(&self.name, keyword_list).to_identifier();
         let rename_attr = keyword::generate_rename_attribute(&member_name, keyword_list);
         quote!(#rename_attr #member_name: #member_type_annotation)
     }
@@ -43,7 +43,7 @@ impl HasMembers for Record {
     fn get_members(&self) -> Vec<DataType> {
         self.members
             .iter()
-            .map(|member| member.member_type.clone())
+            .map(|member| member.type_.clone())
             .collect()
     }
 

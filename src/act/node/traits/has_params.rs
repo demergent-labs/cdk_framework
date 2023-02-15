@@ -5,20 +5,20 @@ use std::collections::HashMap;
 use crate::act::{
     self,
     node::{
-        canister_method::FnParam,
         data_type::{traits::ToTypeAnnotation, DataType},
+        param::Param,
     },
     proclamation::Proclaim,
 };
 
 pub trait HasParams {
-    fn get_params(&self) -> Vec<FnParam>;
+    fn get_params(&self) -> Vec<Param>;
     fn create_param_prefix(&self, param_index: usize) -> String;
 
     fn get_param_types(&self) -> Vec<DataType> {
         self.get_params()
             .iter()
-            .map(|param| param.data_type.clone())
+            .map(|param| param.type_.clone())
             .collect()
     }
 
