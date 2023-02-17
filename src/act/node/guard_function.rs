@@ -1,7 +1,10 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{act::proclamation::Proclaim, traits::ToIdent};
+use crate::{
+    act::{proclamation::Proclaim, Declaration},
+    traits::ToIdent,
+};
 
 #[derive(Debug, Clone)]
 pub struct GuardFunction {
@@ -10,7 +13,7 @@ pub struct GuardFunction {
 }
 
 impl Proclaim<Vec<String>> for GuardFunction {
-    fn create_declaration(&self, _keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, _keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         // TODO we will eventually need that _keyword list for when we analyze function names for keywords
         let name = self.name.to_identifier();
         let body = &self.body;
@@ -26,7 +29,7 @@ impl Proclaim<Vec<String>> for GuardFunction {
         Some(self.name.clone())
     }
 
-    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<TokenStream> {
+    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
         vec![]
     }
 }

@@ -1,8 +1,11 @@
 use quote::{quote, ToTokens};
 
-use super::{traits::ToTypeAnnotation, DataType};
+use super::{
+    type_annotation::{ToTypeAnnotation, TypeAnnotation},
+    DataType,
+};
 use crate::{
-    act::{node::traits::HasEnclosedType, proclamation::Proclaim, Declaration, TypeAnnotation},
+    act::{node::traits::HasEnclosedType, proclamation::Proclaim, Declaration},
     traits::ToIdent,
 };
 

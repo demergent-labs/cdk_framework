@@ -102,7 +102,7 @@ impl ExternalCanisterMethod {
     }
 
     fn param_types_as_tuple(&self, keywords: &Vec<String>, canister_name: &String) -> TokenStream {
-        let param_types: Vec<TokenStream> = self
+        let param_types: Vec<_> = self
             .params
             .iter()
             .enumerate()

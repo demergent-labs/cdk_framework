@@ -1,7 +1,6 @@
-use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-use super::traits::ToTypeAnnotation;
+use super::type_annotation::{ToTypeAnnotation, TypeAnnotation};
 use crate::{
     act::{proclamation::Proclaim, Declaration},
     traits::ToIdent,
@@ -13,7 +12,7 @@ pub struct TypeRef {
 }
 
 impl ToTypeAnnotation<Vec<String>> for TypeRef {
-    fn to_type_annotation(&self, _keyword_list: &Vec<String>, _: String) -> TokenStream {
+    fn to_type_annotation(&self, _keyword_list: &Vec<String>, _: String) -> TypeAnnotation {
         // TODO use the keyword list to make the identifier rust safe
         let ident = self.name.to_identifier().to_token_stream();
         quote!(#ident)

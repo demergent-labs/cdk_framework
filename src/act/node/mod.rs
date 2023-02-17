@@ -1,7 +1,6 @@
-use proc_macro2::TokenStream;
-
 use self::canister_method::CanisterMethod;
 use super::proclamation::Proclaim;
+use super::Declaration;
 
 pub mod canister_method;
 pub mod data_type;
@@ -34,7 +33,7 @@ impl Proclaim<NodeContext> for Node {
         &self,
         context: &NodeContext,
         parental_prefix: String,
-    ) -> Option<TokenStream> {
+    ) -> Option<Declaration> {
         match self {
             Node::CanisterMethod(canister_method) => {
                 canister_method.create_declaration(context, parental_prefix)
@@ -70,7 +69,7 @@ impl Proclaim<NodeContext> for Node {
         &self,
         context: &NodeContext,
         parental_prefix: String,
-    ) -> Vec<TokenStream> {
+    ) -> Vec<Declaration> {
         match self {
             Node::CanisterMethod(canister_method) => {
                 canister_method.collect_inline_declarations(context, parental_prefix)

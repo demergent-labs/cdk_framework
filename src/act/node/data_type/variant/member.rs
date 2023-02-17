@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::node::{data_type::traits::ToTypeAnnotation, DataType},
+    act::node::{data_type::type_annotation::ToTypeAnnotation, DataType},
     keyword,
     traits::ToIdent,
 };

@@ -27,7 +27,6 @@ pub trait ToAct {
 }
 
 type Declaration = TokenStream;
-type TypeAnnotation = TokenStream;
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -249,7 +248,7 @@ impl AbstractCanisterTree {
     }
 }
 
-fn flatten_proclamation(proclamation: &Proclamation) -> Vec<TokenStream> {
+fn flatten_proclamation(proclamation: &Proclamation) -> Vec<Declaration> {
     let declaration = if let Some(_) = proclamation.identifier {
         if let Some(code) = proclamation.declaration.clone() {
             vec![code]

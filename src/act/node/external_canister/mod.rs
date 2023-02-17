@@ -1,8 +1,7 @@
-use proc_macro2::TokenStream;
 use quote::quote;
 
 use self::external_canister_method::EcmContext;
-use crate::act::proclamation::Proclaim;
+use crate::act::{proclamation::Proclaim, Declaration};
 
 pub mod external_canister_method;
 
@@ -17,8 +16,8 @@ pub struct ExternalCanister {
 }
 
 impl Proclaim<NodeContext> for ExternalCanister {
-    fn create_declaration(&self, context: &NodeContext, _: String) -> Option<TokenStream> {
-        let cross_canister_call_functions: Vec<TokenStream> = self
+    fn create_declaration(&self, context: &NodeContext, _: String) -> Option<Declaration> {
+        let cross_canister_call_functions: Vec<_> = self
             .methods
             .iter()
             .filter_map(|method| {
@@ -39,7 +38,7 @@ impl Proclaim<NodeContext> for ExternalCanister {
         Some(self.name.clone())
     }
 
-    fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<TokenStream> {
+    fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<Declaration> {
         self.methods.iter().fold(vec![], |acc, method| {
             vec![
                 acc,

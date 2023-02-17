@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 
-use crate::act::node::{data_type::traits::ToTypeAnnotation, DataType};
+use crate::act::node::{data_type::type_annotation::ToTypeAnnotation, DataType};
 
 #[derive(Clone, Debug)]
 pub struct Member {

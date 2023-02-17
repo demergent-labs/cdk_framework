@@ -1,8 +1,11 @@
 use crate::act::{
     self,
-    node::data_type::{traits::ToTypeAnnotation, DataType},
+    node::data_type::{
+        type_annotation::{ToTypeAnnotation, TypeAnnotation},
+        DataType,
+    },
     proclamation::Proclaim,
-    Declaration, TypeAnnotation,
+    Declaration,
 };
 
 pub trait HasReturnValue {

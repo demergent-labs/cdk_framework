@@ -1,15 +1,15 @@
-pub mod member;
-
-use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-use super::{traits::ToTypeAnnotation, DataType};
+use super::{
+    type_annotation::{ToTypeAnnotation, TypeAnnotation},
+    DataType,
+};
 use crate::{
-    act::{
-        node::traits::has_members::HasMembers, proclamation::Proclaim, Declaration, TypeAnnotation,
-    },
+    act::{node::traits::has_members::HasMembers, proclamation::Proclaim, Declaration},
     traits::ToIdent,
 };
+
+pub mod member;
 
 pub use self::member::Member;
 
@@ -46,7 +46,7 @@ impl Proclaim<Vec<String>> for Record {
         parental_prefix: String,
     ) -> Option<Declaration> {
         let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
-        let member_token_streams: Vec<TokenStream> = self
+        let member_token_streams: Vec<_> = self
             .members
             .iter()
             .enumerate()

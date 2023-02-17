@@ -1,15 +1,16 @@
-pub mod member;
-
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-use super::{traits::ToTypeAnnotation, DataType};
+use super::{
+    type_annotation::{ToTypeAnnotation, TypeAnnotation},
+    DataType,
+};
 use crate::{
-    act::{
-        node::traits::has_members::HasMembers, proclamation::Proclaim, Declaration, TypeAnnotation,
-    },
+    act::{node::traits::has_members::HasMembers, proclamation::Proclaim, Declaration},
     traits::ToIdent,
 };
+
+pub mod member;
 
 pub use self::member::Member;
 

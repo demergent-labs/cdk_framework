@@ -4,11 +4,14 @@ use quote::quote;
 use crate::act::{
     self,
     node::{
-        data_type::{traits::ToTypeAnnotation, DataType},
+        data_type::{
+            type_annotation::{ToTypeAnnotation, TypeAnnotation},
+            DataType,
+        },
         param::Param,
     },
     proclamation::Proclaim,
-    Declaration, TypeAnnotation,
+    Declaration,
 };
 
 pub trait HasParams {

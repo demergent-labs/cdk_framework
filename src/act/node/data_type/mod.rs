@@ -1,5 +1,5 @@
-use self::traits::ToTypeAnnotation;
-use crate::act::{proclamation::Proclaim, Declaration, TypeAnnotation};
+use self::type_annotation::{ToTypeAnnotation, TypeAnnotation};
+use crate::act::{proclamation::Proclaim, Declaration};
 
 pub mod array;
 pub mod boxed;
@@ -7,9 +7,9 @@ pub mod func;
 pub mod opt;
 pub mod primitive;
 pub mod record;
-pub mod traits;
 pub mod tuple;
 pub mod type_alias;
+pub mod type_annotation;
 pub mod type_ref;
 pub mod variant;
 

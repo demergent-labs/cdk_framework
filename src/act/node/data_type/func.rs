@@ -1,9 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-use super::{traits::ToTypeAnnotation, DataType};
+use super::{
+    type_annotation::{ToTypeAnnotation, TypeAnnotation},
+    DataType,
+};
 use crate::{
-    act::{proclamation::Proclaim, Declaration, TypeAnnotation},
+    act::{proclamation::Proclaim, Declaration},
     traits::ToIdent,
 };
 
@@ -45,7 +48,7 @@ impl Func {
             Mode::Oneway => quote! {candid::parser::types::FuncMode::Oneway },
             Mode::Update => quote! {},
         };
-        let param_type_strings: Vec<String> = self
+        let param_type_strings: Vec<_> = self
             .params
             .iter()
             .map(|param| {
@@ -54,7 +57,7 @@ impl Func {
                     .to_string()
             })
             .collect();
-        let func_param_types: Vec<TokenStream> = param_type_strings
+        let func_param_types: Vec<_> = param_type_strings
             .iter()
             .map(|rust_type| {
                 let modified_rust_type = if rust_type.starts_with("Vec") {

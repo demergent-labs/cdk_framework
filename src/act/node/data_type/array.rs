@@ -1,9 +1,10 @@
 use quote::quote;
 
-use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{
-    node::traits::HasEnclosedType, proclamation::Proclaim, Declaration, TypeAnnotation,
+use super::{
+    type_annotation::{ToTypeAnnotation, TypeAnnotation},
+    DataType,
 };
+use crate::act::{node::traits::HasEnclosedType, proclamation::Proclaim, Declaration};
 
 #[derive(Clone, Debug)]
 pub struct Array {
