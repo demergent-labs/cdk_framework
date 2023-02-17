@@ -1,3 +1,5 @@
+pub mod member;
+
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use std::collections::HashMap;
@@ -8,48 +10,40 @@ use crate::{
     traits::ToIdent,
 };
 
+pub use self::member::Member;
+
 #[derive(Clone, Debug)]
-pub struct Tuple {
+pub struct Record {
     pub name: Option<String>,
     pub members: Vec<Member>,
 }
 
-#[derive(Clone, Debug)]
-pub struct Member {
-    pub type_: DataType,
-}
-
-impl Tuple {
+impl Record {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Tuple", parental_prefix),
+            None => format!("{}Record", parental_prefix),
         }
     }
 }
 
-impl HasMembers for Tuple {
+impl HasMembers for Record {
     fn get_members(&self) -> Vec<DataType> {
-        self.members.iter().map(|elem| elem.type_.clone()).collect()
+        self.members
+            .iter()
+            .map(|member| member.type_.clone())
+            .collect()
     }
 }
 
-impl<C> ToTypeAnnotation<C> for Tuple {
-    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
-        self.get_name(parental_prefix)
-            .to_identifier()
-            .to_token_stream()
-    }
-}
-
-impl Proclaim<Vec<String>> for Tuple {
+impl Proclaim<Vec<String>> for Record {
     fn create_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<TokenStream> {
         let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
-        let member_idents: Vec<TokenStream> = self
+        let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
             .enumerate()
@@ -60,19 +54,11 @@ impl Proclaim<Vec<String>> for Tuple {
                 )
             })
             .collect();
-
-        let member_idents = if member_idents.len() == 1 {
-            let member_ident = &member_idents[0];
-            quote!((#member_ident,))
-        } else {
-            quote!(#(#member_idents),*)
-        };
-
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            struct #type_ident (
-                #member_idents
-            );
+            struct #type_ident {
+                #(#member_token_streams),*
+            }
         ))
     }
 
@@ -89,8 +75,13 @@ impl Proclaim<Vec<String>> for Tuple {
     }
 }
 
-impl Member {
-    fn to_token_stream(&self, keyword_list: &Vec<String>, member_prefix: String) -> TokenStream {
-        self.type_.to_type_annotation(keyword_list, member_prefix)
+impl ToTypeAnnotation<Vec<String>> for Record {
+    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TokenStream {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Record", parental_prefix),
+        }
+        .to_identifier()
+        .to_token_stream()
     }
 }

@@ -1,3 +1,5 @@
+pub mod member;
+
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use std::collections::HashMap;
@@ -5,20 +7,15 @@ use std::collections::HashMap;
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
     act::{node::traits::HasMembers, proclamation::Proclaim},
-    keyword,
     traits::ToIdent,
 };
+
+pub use self::member::Member;
 
 #[derive(Clone, Debug)]
 pub struct Variant {
     pub name: Option<String>,
     pub members: Vec<Member>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Member {
-    pub name: String,
-    pub type_: DataType,
 }
 
 impl Variant {
@@ -83,34 +80,5 @@ impl Proclaim<Vec<String>> for Variant {
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
         self.create_member_declarations(keyword_list, self.get_name(parental_prefix.clone()))
-    }
-}
-
-impl Member {
-    fn to_token_stream(&self, keyword_list: &Vec<String>, member_prefix: String) -> TokenStream {
-        let member_type_token_stream = match self.type_.clone() {
-            DataType::Primitive(_) => {
-                if self
-                    .type_
-                    .to_type_annotation(keyword_list, member_prefix.clone())
-                    .to_string()
-                    == quote!((())).to_string()
-                {
-                    quote!()
-                } else {
-                    let member_type_token_stream =
-                        self.type_.to_type_annotation(keyword_list, member_prefix);
-                    quote!((#member_type_token_stream))
-                }
-            }
-            _ => {
-                let member_type_annotation =
-                    self.type_.to_type_annotation(keyword_list, member_prefix);
-                quote!((#member_type_annotation))
-            }
-        };
-        let member_name = keyword::make_rust_safe(&self.name, keyword_list).to_identifier();
-        let rename_attr = keyword::generate_rename_attribute(&member_name, keyword_list);
-        quote! {#rename_attr #member_name #member_type_token_stream}
     }
 }
