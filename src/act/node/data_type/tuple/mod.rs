@@ -43,7 +43,7 @@ impl Proclaim<Vec<String>> for Tuple {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
+        let tuple_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let member_idents: Vec<TokenStream> = self
             .members
             .iter()
@@ -65,7 +65,7 @@ impl Proclaim<Vec<String>> for Tuple {
 
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            struct #type_ident (
+            struct #tuple_ident (
                 #member_idents
             );
         ))

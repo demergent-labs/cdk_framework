@@ -43,7 +43,7 @@ impl Proclaim<Vec<String>> for Variant {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
+        let variant_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
@@ -57,7 +57,7 @@ impl Proclaim<Vec<String>> for Variant {
             .collect();
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            enum #type_ident {
+            enum #variant_ident {
                 #(#member_token_streams),*
             }
         ))

@@ -45,7 +45,7 @@ impl Proclaim<Vec<String>> for Record {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
+        let record_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let member_token_streams: Vec<_> = self
             .members
             .iter()
@@ -59,7 +59,7 @@ impl Proclaim<Vec<String>> for Record {
             .collect();
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            struct #type_ident {
+            struct #record_ident {
                 #(#member_token_streams),*
             }
         ))
