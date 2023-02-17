@@ -2,7 +2,6 @@ use self::type_annotation::{ToTypeAnnotation, TypeAnnotation};
 use crate::act::{proclamation::Proclaim, Declaration};
 
 pub mod array;
-pub mod boxed;
 pub mod func;
 pub mod opt;
 pub mod primitive;
@@ -14,7 +13,6 @@ pub mod type_ref;
 pub mod variant;
 
 pub use array::Array;
-pub use boxed::Boxed;
 pub use func::Func;
 pub use opt::Opt;
 pub use primitive::Primitive;
@@ -27,7 +25,6 @@ pub use variant::Variant;
 #[derive(Clone, Debug)]
 pub enum DataType {
     Array(Array),
-    Boxed(Boxed),
     Func(Func),
     Opt(Opt),
     Primitive(Primitive),
@@ -42,13 +39,6 @@ impl DataType {
     pub fn as_array(&self) -> Option<&Array> {
         match self {
             DataType::Array(array) => Some(&array),
-            _ => None,
-        }
-    }
-
-    pub fn as_boxed(&self) -> Option<&Boxed> {
-        match self {
-            DataType::Boxed(boxed) => Some(&boxed),
             _ => None,
         }
     }
@@ -167,7 +157,6 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
     ) -> TypeAnnotation {
         match self {
             DataType::Array(array) => array.to_type_annotation(keyword_list, parental_prefix),
-            DataType::Boxed(boxed) => boxed.to_type_annotation(keyword_list, parental_prefix),
             DataType::Func(func) => func.to_type_annotation(keyword_list, parental_prefix),
             DataType::Opt(opt) => opt.to_type_annotation(keyword_list, parental_prefix),
             DataType::Primitive(primitive) => {
@@ -195,7 +184,6 @@ impl Proclaim<Vec<String>> for DataType {
         let prefix = format!("DataType{}", parental_prefix);
         match self {
             DataType::Array(array) => array.create_declaration(keyword_list, parental_prefix),
-            DataType::Boxed(boxed) => boxed.create_declaration(keyword_list, parental_prefix),
             DataType::Func(func) => func.create_declaration(keyword_list, parental_prefix),
             DataType::Opt(opt) => opt.create_declaration(keyword_list, parental_prefix),
             DataType::Primitive(primitive) => {
@@ -214,7 +202,6 @@ impl Proclaim<Vec<String>> for DataType {
     fn create_identifier(&self, parental_prefix: String) -> std::option::Option<String> {
         match self {
             DataType::Array(array) => array.create_identifier(parental_prefix),
-            DataType::Boxed(boxed) => boxed.create_identifier(parental_prefix),
             DataType::Func(func) => func.create_identifier(parental_prefix),
             DataType::Opt(opt) => opt.create_identifier(parental_prefix),
             DataType::Primitive(primitive) => primitive.create_identifier(parental_prefix),
@@ -234,9 +221,6 @@ impl Proclaim<Vec<String>> for DataType {
         match self {
             DataType::Array(array) => {
                 array.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::Boxed(boxed) => {
-                boxed.collect_inline_declarations(keyword_list, parental_prefix)
             }
             DataType::Func(func) => func.collect_inline_declarations(keyword_list, parental_prefix),
             DataType::Opt(opt) => opt.collect_inline_declarations(keyword_list, parental_prefix),
