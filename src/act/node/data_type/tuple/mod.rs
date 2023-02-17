@@ -6,7 +6,7 @@ use super::{
     DataType,
 };
 use crate::{
-    act::{node::traits::has_members::HasMembers, proclamation::Proclaim, Declaration},
+    act::node::{proclamation::Proclaim, traits::has_members::HasMembers, Declaration},
     traits::ToIdent,
 };
 

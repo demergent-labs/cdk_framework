@@ -1,13 +1,12 @@
 use quote::quote;
 
 use self::external_canister_method::EcmContext;
-use crate::act::{proclamation::Proclaim, Declaration};
 
 pub mod external_canister_method;
 
 pub use external_canister_method::ExternalCanisterMethod;
 
-use super::NodeContext;
+use super::{proclamation::Proclaim, Declaration, NodeContext};
 
 #[derive(Clone, Debug)]
 pub struct ExternalCanister {

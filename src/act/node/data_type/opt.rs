@@ -4,7 +4,7 @@ use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
     DataType,
 };
-use crate::act::{node::traits::HasEnclosedType, proclamation::Proclaim, Declaration};
+use crate::act::node::{proclamation::Proclaim, traits::HasEnclosedType, Declaration};
 
 #[derive(Clone, Debug)]
 pub struct Opt {

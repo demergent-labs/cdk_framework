@@ -1,15 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::{
-    self,
-    node::{
-        data_type::{
-            type_annotation::{ToTypeAnnotation, TypeAnnotation},
-            DataType,
-        },
-        param::Param,
+use crate::act::node::{
+    data_type::{
+        type_annotation::{ToTypeAnnotation, TypeAnnotation},
+        DataType,
     },
+    param::Param,
     proclamation::Proclaim,
     Declaration,
 };
@@ -70,7 +67,7 @@ pub trait HasParams {
             .fold(vec![], |acc, (index, param_type)| {
                 let proclamation = param_type
                     .create_proclamation(keyword_list, self.create_param_prefix(index, name));
-                vec![acc, act::flatten_proclamation(&proclamation)].concat()
+                vec![acc, proclamation.flatten()].concat()
             })
     }
 }

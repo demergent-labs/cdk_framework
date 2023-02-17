@@ -7,6 +7,21 @@ pub struct Proclamation {
     pub inline_declarations: Vec<Declaration>,
 }
 
+impl Proclamation {
+    pub fn flatten(&self) -> Vec<Declaration> {
+        let declaration = if let Some(_) = self.identifier {
+            if let Some(code) = self.declaration.clone() {
+                vec![code]
+            } else {
+                vec![]
+            }
+        } else {
+            vec![]
+        };
+        vec![declaration, self.inline_declarations.clone()].concat()
+    }
+}
+
 pub trait Proclaim<C> {
     fn create_proclamation(&self, context: &C, parental_prefix: String) -> Proclamation {
         Proclamation {

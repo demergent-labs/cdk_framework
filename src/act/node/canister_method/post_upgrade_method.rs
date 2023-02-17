@@ -1,10 +1,8 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::act::{
-    node::{param::Param, traits::HasParams, NodeContext},
-    proclamation::Proclaim,
-    Declaration,
+use crate::act::node::{
+    param::Param, proclamation::Proclaim, traits::HasParams, Declaration, NodeContext,
 };
 
 #[derive(Clone)]

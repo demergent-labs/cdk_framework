@@ -5,7 +5,7 @@ use super::{
     DataType,
 };
 use crate::{
-    act::{node::traits::HasEnclosedType, proclamation::Proclaim, Declaration},
+    act::node::{proclamation::Proclaim, traits::HasEnclosedType, Declaration},
     traits::ToIdent,
 };
 

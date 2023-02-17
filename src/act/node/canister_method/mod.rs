@@ -1,8 +1,5 @@
 use std::fmt;
 
-use crate::act::proclamation::Proclaim;
-use crate::act::Declaration;
-
 mod public_canister_methods;
 
 pub mod heartbeat_method;
@@ -19,7 +16,7 @@ pub use pre_upgrade_method::PreUpgradeMethod;
 pub use public_canister_methods::query_method::QueryMethod;
 pub use public_canister_methods::update_method::UpdateMethod;
 
-use super::NodeContext;
+use super::{proclamation::Proclaim, Declaration, NodeContext};
 
 #[derive(Clone)]
 pub enum CanisterMethod {

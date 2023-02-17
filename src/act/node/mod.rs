@@ -1,18 +1,20 @@
 use self::canister_method::CanisterMethod;
-use super::proclamation::Proclaim;
-use super::Declaration;
+use self::proclamation::Proclaim;
 
 pub mod canister_method;
 pub mod data_type;
 pub mod external_canister;
 pub mod guard_function;
 pub mod param;
+pub mod proclamation;
+pub mod to_node;
 pub mod traits;
 
 pub use data_type::DataType;
 pub use external_canister::ExternalCanister;
 pub use external_canister::ExternalCanisterMethod;
 pub use guard_function::GuardFunction;
+use proc_macro2::TokenStream;
 
 #[derive(Clone)]
 pub enum Node {
@@ -27,6 +29,8 @@ pub struct NodeContext {
     pub keyword_list: Vec<String>,
     pub cdk_name: String,
 }
+
+type Declaration = TokenStream;
 
 impl Proclaim<NodeContext> for Node {
     fn create_declaration(

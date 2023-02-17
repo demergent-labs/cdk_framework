@@ -1,9 +1,8 @@
-use func::Func;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use self::{
-    node::{
+use crate::{
+    act::node::{
         canister_method::{
             CanisterMethod,
             {
@@ -11,22 +10,18 @@ use self::{
                 PreUpgradeMethod, QueryMethod, UpdateMethod,
             },
         },
-        data_type::{func, Record, Tuple, TypeAlias, Variant},
+        data_type::{func, Func, Record, Tuple, TypeAlias, Variant},
+        proclamation::Proclaim,
         DataType, Node, NodeContext, {ExternalCanister, GuardFunction},
     },
-    proclamation::{Proclaim, Proclamation},
+    generators::{candid_file_generation, random, vm_value_conversion},
 };
-use crate::generators::{candid_file_generation, random, vm_value_conversion};
 
 pub mod node;
-pub mod proclamation;
-pub mod to_node;
 
 pub trait ToAct {
     fn to_act(&self) -> AbstractCanisterTree;
 }
-
-type Declaration = TokenStream;
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -84,7 +79,7 @@ impl AbstractCanisterTree {
         let inline_declarations = child_node_proclamations
             .iter()
             .fold(vec![], |acc, child_proclamation| {
-                vec![acc, flatten_proclamation(child_proclamation)].concat()
+                vec![acc, child_proclamation.flatten()].concat()
             });
 
         quote! {
@@ -246,17 +241,4 @@ impl AbstractCanisterTree {
 
         vec![funcs, records, tuples, type_aliases, variants].concat()
     }
-}
-
-fn flatten_proclamation(proclamation: &Proclamation) -> Vec<Declaration> {
-    let declaration = if let Some(_) = proclamation.identifier {
-        if let Some(code) = proclamation.declaration.clone() {
-            vec![code]
-        } else {
-            vec![]
-        }
-    } else {
-        vec![]
-    };
-    vec![declaration, proclamation.inline_declarations.clone()].concat()
 }

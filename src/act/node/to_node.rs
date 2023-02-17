@@ -1,4 +1,4 @@
-use super::node::{DataType, Node};
+use super::{DataType, Node};
 
 pub trait ToNode {
     fn to_node(&self) -> Node;

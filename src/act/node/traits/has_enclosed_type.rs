@@ -1,6 +1,4 @@
-use crate::act::{
-    flatten_proclamation, node::data_type::DataType, proclamation::Proclaim, Declaration,
-};
+use crate::act::node::{data_type::DataType, proclamation::Proclaim, Declaration};
 
 pub trait HasEnclosedType {
     fn get_enclosed_type(&self) -> DataType;
@@ -15,7 +13,7 @@ pub trait HasEnclosedType {
             keyword_list,
             self.create_enclosed_type_prefix(parental_prefix, enclosing_type),
         );
-        flatten_proclamation(&proclamation)
+        proclamation.flatten()
     }
 
     fn create_enclosed_type_prefix(

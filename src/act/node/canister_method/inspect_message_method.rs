@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::act::{proclamation::Proclaim, Declaration};
+use crate::act::node::{proclamation::Proclaim, Declaration};
 
 #[derive(Clone)]
 pub struct InspectMessageMethod {

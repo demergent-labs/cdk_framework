@@ -2,7 +2,7 @@ use quote::{quote, ToTokens};
 
 use super::type_annotation::{ToTypeAnnotation, TypeAnnotation};
 use crate::{
-    act::{proclamation::Proclaim, Declaration},
+    act::node::{proclamation::Proclaim, Declaration},
     traits::ToIdent,
 };
 

@@ -1,4 +1,4 @@
-use crate::act::{self, node::data_type::DataType, proclamation::Proclaim, Declaration};
+use crate::act::node::{data_type::DataType, proclamation::Proclaim, Declaration};
 
 pub trait HasMembers {
     fn get_members(&self) -> Vec<DataType>;
@@ -12,11 +12,11 @@ pub trait HasMembers {
             .iter()
             .enumerate()
             .fold(vec![], |acc, (index, member_type)| {
-                let declaration = member_type.create_proclamation(
+                let proclamation = member_type.create_proclamation(
                     keyword_list,
                     self.create_member_prefix(index, name.clone()),
                 );
-                vec![acc, act::flatten_proclamation(&declaration)].concat()
+                vec![acc, proclamation.flatten()].concat()
             })
     }
 

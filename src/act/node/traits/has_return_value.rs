@@ -1,6 +1,5 @@
-use crate::act::{
-    self,
-    node::data_type::{
+use crate::act::node::{
+    data_type::{
         type_annotation::{ToTypeAnnotation, TypeAnnotation},
         DataType,
     },
@@ -25,11 +24,11 @@ pub trait HasReturnValue {
         keyword_list: &Vec<String>,
         name: &String,
     ) -> Vec<Declaration> {
-        let declaration = self
+        let proclamation = self
             .get_return_type()
             .create_proclamation(&keyword_list, self.create_return_type_prefix(name));
 
-        act::flatten_proclamation(&declaration)
+        proclamation.flatten()
     }
 
     fn create_return_type_prefix(&self, parental_prefix: &String) -> String {

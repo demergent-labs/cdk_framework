@@ -1,5 +1,5 @@
 use self::type_annotation::{ToTypeAnnotation, TypeAnnotation};
-use crate::act::{proclamation::Proclaim, Declaration};
+use crate::act::node::{proclamation::Proclaim, Declaration};
 
 pub mod array;
 pub mod func;
