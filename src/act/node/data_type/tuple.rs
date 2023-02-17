@@ -11,29 +11,26 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct Tuple {
     pub name: Option<String>,
-    pub elems: Vec<Elem>,
+    pub members: Vec<Member>,
 }
 
 #[derive(Clone, Debug)]
-pub struct Elem {
-    pub elem_type: DataType,
+pub struct Member {
+    pub type_: DataType,
 }
 
 impl Tuple {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Func", parental_prefix),
+            None => format!("{}Tuple", parental_prefix),
         }
     }
 }
 
 impl HasMembers for Tuple {
     fn get_members(&self) -> Vec<DataType> {
-        self.elems
-            .iter()
-            .map(|elem| elem.elem_type.clone())
-            .collect()
+        self.members.iter().map(|elem| elem.type_.clone()).collect()
     }
 }
 
@@ -52,29 +49,29 @@ impl Proclaim<Vec<String>> for Tuple {
         parental_prefix: String,
     ) -> Option<TokenStream> {
         let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
-        let elem_idents: Vec<TokenStream> = self
-            .elems
+        let member_idents: Vec<TokenStream> = self
+            .members
             .iter()
             .enumerate()
-            .map(|(index, elem)| {
-                elem.to_token_stream(
+            .map(|(index, member)| {
+                member.to_token_stream(
                     keyword_list,
                     self.create_member_prefix(index, self.get_name(parental_prefix.clone())),
                 )
             })
             .collect();
 
-        let elem_idents = if elem_idents.len() == 1 {
-            let elem_ident = &elem_idents[0];
-            quote!((#elem_ident,))
+        let member_idents = if member_idents.len() == 1 {
+            let member_ident = &member_idents[0];
+            quote!((#member_ident,))
         } else {
-            quote!(#(#elem_idents),*)
+            quote!(#(#member_idents),*)
         };
 
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
             struct #type_ident (
-                #elem_idents
+                #member_idents
             );
         ))
     }
@@ -92,8 +89,8 @@ impl Proclaim<Vec<String>> for Tuple {
     }
 }
 
-impl Elem {
-    fn to_token_stream(&self, keyword_list: &Vec<String>, elem_prefix: String) -> TokenStream {
-        self.elem_type.to_type_annotation(keyword_list, elem_prefix)
+impl Member {
+    fn to_token_stream(&self, keyword_list: &Vec<String>, member_prefix: String) -> TokenStream {
+        self.type_.to_type_annotation(keyword_list, member_prefix)
     }
 }
