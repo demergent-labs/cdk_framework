@@ -40,13 +40,19 @@ impl Proclaim<NodeContext> for ExternalCanister {
     }
 
     fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<TokenStream> {
-        self.methods.collect_inline_declarations(
-            &EcmContext {
-                canister_name: self.name.clone(),
-                keyword_list: context.keyword_list.clone(),
-                cdk_name: context.cdk_name.clone(),
-            },
-            self.name.clone(),
-        )
+        self.methods.iter().fold(vec![], |acc, method| {
+            vec![
+                acc,
+                method.collect_inline_declarations(
+                    &EcmContext {
+                        canister_name: self.name.clone(),
+                        keyword_list: context.keyword_list.clone(),
+                        cdk_name: context.cdk_name.clone(),
+                    },
+                    self.name.clone(),
+                ),
+            ]
+            .concat()
+        })
     }
 }
