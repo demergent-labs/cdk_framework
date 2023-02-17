@@ -5,7 +5,7 @@ use crate::act::{
 pub trait HasEnclosedType {
     fn get_enclosed_type(&self) -> DataType;
 
-    fn create_enclosed_type_declaration(
+    fn collect_enclosed_type_inline_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,

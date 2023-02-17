@@ -3,7 +3,7 @@ use crate::act::{self, node::data_type::DataType, proclamation::Proclaim, Declar
 pub trait HasMembers {
     fn get_members(&self) -> Vec<DataType>;
 
-    fn create_member_declarations(
+    fn collect_member_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         name: String,

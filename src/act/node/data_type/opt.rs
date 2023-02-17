@@ -39,7 +39,11 @@ impl Proclaim<Vec<String>> for Opt {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Vec<Declaration> {
-        self.create_enclosed_type_declaration(keyword_list, parental_prefix, "Opt".to_string())
+        self.collect_enclosed_type_inline_declaration(
+            keyword_list,
+            parental_prefix,
+            "Opt".to_string(),
+        )
     }
 }
 

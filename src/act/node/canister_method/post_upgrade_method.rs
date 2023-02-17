@@ -38,7 +38,7 @@ impl Proclaim<NodeContext> for PostUpgradeMethod {
     }
 
     fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<Declaration> {
-        self.collect_param_inline_types(&context.keyword_list, &self.get_name())
+        self.collect_param_inline_declarations(&context.keyword_list, &self.get_name())
     }
 }
 

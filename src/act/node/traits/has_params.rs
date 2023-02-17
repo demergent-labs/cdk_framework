@@ -59,7 +59,7 @@ pub trait HasParams {
         format!("{}ParamNum{}", parental_prefix, param_index)
     }
 
-    fn collect_param_inline_types(
+    fn collect_param_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         name: &String,

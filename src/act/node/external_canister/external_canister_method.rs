@@ -152,11 +152,11 @@ impl Proclaim<EcmContext> for ExternalCanisterMethod {
         context: &EcmContext,
         canister_name: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_types(
+        let param_declarations = self.collect_param_inline_declarations(
             &context.keyword_list,
             &self.create_qualified_name(&canister_name),
         );
-        let return_declarations = self.create_return_type_declarations(
+        let return_declarations = self.collect_return_inline_declarations(
             &context.keyword_list,
             &self.create_qualified_name(&canister_name),
         );

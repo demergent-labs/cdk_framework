@@ -72,7 +72,10 @@ impl Proclaim<Vec<String>> for Variant {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Vec<Declaration> {
-        self.create_member_declarations(keyword_list, self.get_name(parental_prefix.clone()))
+        self.collect_member_inline_declarations(
+            keyword_list,
+            self.get_name(parental_prefix.clone()),
+        )
     }
 }
 

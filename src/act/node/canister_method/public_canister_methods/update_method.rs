@@ -63,8 +63,8 @@ impl Proclaim<Vec<String>> for UpdateMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_types(keyword_list, &self.name);
-        let return_declarations = self.create_return_type_declarations(keyword_list, &self.name);
+        let param_declarations = self.collect_param_inline_declarations(keyword_list, &self.name);
+        let return_declarations = self.collect_return_inline_declarations(keyword_list, &self.name);
         vec![param_declarations, return_declarations].concat()
     }
 }

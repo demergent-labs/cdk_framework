@@ -44,7 +44,7 @@ impl Proclaim<Vec<String>> for TypeAlias {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Vec<Declaration> {
-        self.create_enclosed_type_declaration(
+        self.collect_enclosed_type_inline_declaration(
             keyword_list,
             parental_prefix,
             "TypeAlias".to_string(),

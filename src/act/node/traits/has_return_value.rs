@@ -20,7 +20,7 @@ pub trait HasReturnValue {
             .to_type_annotation(keyword_list, self.create_return_type_prefix(name))
     }
 
-    fn create_return_type_declarations(
+    fn collect_return_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
         name: &String,
