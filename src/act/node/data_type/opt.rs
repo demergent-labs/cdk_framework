@@ -3,25 +3,15 @@ use quote::quote;
 use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{node::traits::HasMembers, proclamation::Proclaim};
+use crate::act::{node::traits::HasEnclosedType, proclamation::Proclaim};
 
 #[derive(Clone, Debug)]
 pub struct Opt {
     pub enclosed_type: Box<DataType>,
 }
 
-impl HasMembers for Opt {
-    fn get_members(&self) -> Vec<DataType> {
-        vec![self.get_enclosed_type()]
-    }
-
-    fn create_member_prefix(&self, _: usize, parental_prefix: String) -> String {
-        format!("{}OptionEnclosedType", parental_prefix)
-    }
-}
-
-impl Opt {
-    pub fn get_enclosed_type(&self) -> DataType {
+impl HasEnclosedType for Opt {
+    fn get_enclosed_type(&self) -> DataType {
         *self.enclosed_type.clone()
     }
 }
@@ -40,7 +30,7 @@ impl Proclaim<Vec<String>> for Opt {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
-        self.create_member_declarations(keyword_list, parental_prefix)
+        self.create_enclosed_type_declaration(keyword_list, parental_prefix, "Opt".to_string())
     }
 }
 
@@ -50,9 +40,10 @@ impl ToTypeAnnotation<Vec<String>> for Opt {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> TokenStream {
-        let enclosed_type_annotation = self
-            .enclosed_type
-            .to_type_annotation(keyword_list, self.create_member_prefix(0, parental_prefix));
+        let enclosed_type_annotation = self.enclosed_type.to_type_annotation(
+            keyword_list,
+            self.create_enclosed_type_prefix(parental_prefix, "Opt".to_string()),
+        );
         quote!(Option<#enclosed_type_annotation>)
     }
 }

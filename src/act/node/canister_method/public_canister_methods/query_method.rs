@@ -55,10 +55,6 @@ impl QueryMethod {
 }
 
 impl HasParams for QueryMethod {
-    fn create_param_prefix(&self, param_index: usize) -> String {
-        format!("{}ParamNum{}", self.name, param_index)
-    }
-
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
@@ -67,10 +63,6 @@ impl HasParams for QueryMethod {
 impl HasReturnValue for QueryMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
-    }
-
-    fn create_return_type_prefix(&self) -> String {
-        format!("{}ReturnType", self.name)
     }
 }
 
@@ -102,8 +94,8 @@ impl Proclaim<Vec<String>> for QueryMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        let param_declarations = self.collect_param_inline_types(keyword_list);
-        let return_declarations = self.create_return_type_declarations(keyword_list);
+        let param_declarations = self.collect_param_inline_types(keyword_list, &self.name);
+        let return_declarations = self.create_return_type_declarations(keyword_list, &self.name);
         act::combine_maps(param_declarations, return_declarations)
     }
 

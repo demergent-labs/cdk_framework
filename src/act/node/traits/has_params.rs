@@ -13,7 +13,10 @@ use crate::act::{
 
 pub trait HasParams {
     fn get_params(&self) -> Vec<Param>;
-    fn create_param_prefix(&self, param_index: usize) -> String;
+
+    fn create_param_prefix(&self, param_index: usize, parental_prefix: &String) -> String {
+        format!("{}ParamNum{}", parental_prefix, param_index)
+    }
 
     fn get_param_types(&self) -> Vec<DataType> {
         self.get_params()
@@ -22,13 +25,17 @@ pub trait HasParams {
             .collect()
     }
 
-    fn create_parameter_list_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
+    fn create_parameter_list_token_stream(
+        &self,
+        keyword_list: &Vec<String>,
+        name: &String,
+    ) -> TokenStream {
         let params: Vec<_> = self
             .get_params()
             .iter()
             .enumerate()
             .map(|(index, param)| {
-                param.to_token_stream(keyword_list, self.create_param_prefix(index))
+                param.to_token_stream(keyword_list, self.create_param_prefix(index, name))
             })
             .collect();
         quote!(#(#params),*)
@@ -38,11 +45,12 @@ pub trait HasParams {
         &self,
         param_index: usize,
         keyword_list: &Vec<String>,
+        name: &String,
     ) -> Option<TokenStream> {
         match self.get_param_types().get(param_index) {
             Some(param_data_type) => Some(
                 param_data_type
-                    .to_type_annotation(keyword_list, self.create_param_prefix(param_index)),
+                    .to_type_annotation(keyword_list, self.create_param_prefix(param_index, name)),
             ),
             None => None,
         }
@@ -51,12 +59,13 @@ pub trait HasParams {
     fn collect_param_inline_types(
         &self,
         keyword_list: &Vec<String>,
+        name: &String,
     ) -> HashMap<String, TokenStream> {
         self.get_param_types().iter().enumerate().fold(
             HashMap::new(),
             |acc, (index, param_type)| {
-                let proclamation =
-                    param_type.create_proclamation(keyword_list, self.create_param_prefix(index));
+                let proclamation = param_type
+                    .create_proclamation(keyword_list, self.create_param_prefix(index, name));
                 act::flatten_proclamation(proclamation, acc)
             },
         )

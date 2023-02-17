@@ -43,7 +43,7 @@ impl Proclaim<NodeContext> for ExternalCanister {
     fn collect_inline_declarations(
         &self,
         context: &NodeContext,
-        parental_prefix: String,
+        _: String,
     ) -> HashMap<String, TokenStream> {
         self.methods.collect_inline_declarations(
             &EcmContext {
@@ -51,7 +51,7 @@ impl Proclaim<NodeContext> for ExternalCanister {
                 keyword_list: context.keyword_list.clone(),
                 cdk_name: context.cdk_name.clone(),
             },
-            parental_prefix,
+            self.name.clone(),
         )
     }
 }

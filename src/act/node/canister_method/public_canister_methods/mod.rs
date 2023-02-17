@@ -18,11 +18,11 @@ pub trait PublicCanisterMethod: HasParams + HasReturnValue {
 
     fn generate_function_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_name = self.get_name().to_identifier();
-        let params = self.create_parameter_list_token_stream(keyword_list);
+        let params = self.create_parameter_list_token_stream(keyword_list, &self.get_name());
 
         let function_body = self.get_body();
 
-        let return_type_token = self.create_return_type_annotation(keyword_list);
+        let return_type_token = self.create_return_type_annotation(keyword_list, &self.get_name());
         let wrapped_return_type =
             if self.is_manual() || (self.is_async() && self.get_cdk_name() != "kybra") {
                 quote! {

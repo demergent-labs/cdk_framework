@@ -17,9 +17,11 @@ impl HasParams for PostUpgradeMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
+}
 
-    fn create_param_prefix(&self, param_index: usize) -> String {
-        format!("PostUpgradeParamNum{}", param_index)
+impl PostUpgradeMethod {
+    fn get_name(&self) -> String {
+        return "PostUpgrade".to_string();
     }
 }
 
@@ -27,7 +29,8 @@ impl Proclaim<NodeContext> for PostUpgradeMethod {
     fn create_declaration(&self, context: &NodeContext, _: String) -> Option<TokenStream> {
         let function_name = format_ident!("_{}_post_upgrade", context.cdk_name.to_lowercase());
         let body = &self.body;
-        let params = self.create_parameter_list_token_stream(&context.keyword_list);
+        let params =
+            self.create_parameter_list_token_stream(&context.keyword_list, &self.get_name());
         Some(quote! {
             #[ic_cdk_macros::post_upgrade]
             fn #function_name(#params) {
@@ -37,7 +40,7 @@ impl Proclaim<NodeContext> for PostUpgradeMethod {
     }
 
     fn create_identifier(&self, _: String) -> Option<String> {
-        Some("PostUpgrade".to_string())
+        Some(self.get_name())
     }
 
     fn collect_inline_declarations(
@@ -45,6 +48,6 @@ impl Proclaim<NodeContext> for PostUpgradeMethod {
         context: &NodeContext,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        self.collect_param_inline_types(&context.keyword_list)
+        self.collect_param_inline_types(&context.keyword_list, &self.get_name())
     }
 }

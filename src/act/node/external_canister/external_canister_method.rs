@@ -26,6 +26,12 @@ pub struct EcmContext {
     pub cdk_name: String,
 }
 
+impl ExternalCanisterMethod {
+    fn create_qualified_name(&self, canister_name: &String) -> String {
+        format!("{}{}", canister_name, self.name.clone())
+    }
+}
+
 impl Proclaim<EcmContext> for ExternalCanisterMethod {
     fn create_declaration(&self, context: &EcmContext, _: String) -> Option<TokenStream> {
         let call_function = self.generate_function("call", &context);
@@ -45,17 +51,23 @@ impl Proclaim<EcmContext> for ExternalCanisterMethod {
         })
     }
 
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.name.clone())
+    fn create_identifier(&self, canister_name: String) -> Option<String> {
+        Some(self.create_qualified_name(&canister_name))
     }
 
     fn collect_inline_declarations(
         &self,
         context: &EcmContext,
-        _: String,
+        canister_name: String,
     ) -> HashMap<String, TokenStream> {
-        let param_declarations = self.collect_param_inline_types(&context.keyword_list);
-        let result_declarations = self.create_return_type_declarations(&context.keyword_list);
+        let param_declarations = self.collect_param_inline_types(
+            &context.keyword_list,
+            &self.create_qualified_name(&canister_name),
+        );
+        let result_declarations = self.create_return_type_declarations(
+            &context.keyword_list,
+            &self.create_qualified_name(&canister_name),
+        );
         act::combine_maps(param_declarations, result_declarations)
     }
 }
@@ -64,19 +76,11 @@ impl HasReturnValue for ExternalCanisterMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
     }
-
-    fn create_return_type_prefix(&self) -> String {
-        format!("ExternalCanisterMethod{}", self.name)
-    }
 }
 
 impl HasParams for ExternalCanisterMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
-    }
-
-    fn create_param_prefix(&self, param_index: usize) -> String {
-        format!("ExternalCanisterMethod{}ParamNum{}", self.name, param_index)
     }
 }
 
@@ -98,7 +102,7 @@ impl ExternalCanisterMethod {
             &self.name
         );
 
-        let param_types = self.param_types_as_tuple(&context.keyword_list);
+        let param_types = self.param_types_as_tuple(&context.keyword_list, &context.canister_name);
 
         let cycles_param = if function_type.contains("with_payment128") {
             quote! { , cycles: u128 }
@@ -108,7 +112,10 @@ impl ExternalCanisterMethod {
             quote! {}
         };
 
-        let function_return_type = self.create_return_type_annotation(&context.keyword_list);
+        let function_return_type = self.create_return_type_annotation(
+            &context.keyword_list,
+            &self.create_qualified_name(&context.canister_name),
+        );
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
@@ -149,12 +156,18 @@ impl ExternalCanisterMethod {
         }
     }
 
-    fn param_types_as_tuple(&self, keywords: &Vec<String>) -> TokenStream {
+    fn param_types_as_tuple(&self, keywords: &Vec<String>, canister_name: &String) -> TokenStream {
         let param_types: Vec<TokenStream> = self
             .params
             .iter()
             .enumerate()
-            .filter_map(|(index, _)| self.create_param_type_annotation(index, keywords))
+            .filter_map(|(index, _)| {
+                self.create_param_type_annotation(
+                    index,
+                    keywords,
+                    &self.create_qualified_name(canister_name),
+                )
+            })
             .collect();
 
         let comma = if param_types.len() == 1 {

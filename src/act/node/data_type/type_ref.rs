@@ -11,7 +11,8 @@ pub struct TypeRef {
 }
 
 impl ToTypeAnnotation<Vec<String>> for TypeRef {
-    fn to_type_annotation(&self, keyword_list: &Vec<String>, _: String) -> TokenStream {
+    fn to_type_annotation(&self, _keyword_list: &Vec<String>, _: String) -> TokenStream {
+        // TODO use the keyword list to make the identifier rust safe
         let ident = self.name.to_identifier().to_token_stream();
         quote!(#ident)
     }

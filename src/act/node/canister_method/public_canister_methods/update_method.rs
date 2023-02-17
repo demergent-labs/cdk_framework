@@ -86,8 +86,8 @@ impl Proclaim<Vec<String>> for UpdateMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> HashMap<String, TokenStream> {
-        let param_declarations = self.collect_param_inline_types(keyword_list);
-        let result_declarations = self.create_return_type_declarations(keyword_list);
+        let param_declarations = self.collect_param_inline_types(keyword_list, &self.name);
+        let result_declarations = self.create_return_type_declarations(keyword_list, &self.name);
         act::combine_maps(param_declarations, result_declarations)
     }
 }
@@ -96,18 +96,10 @@ impl HasParams for UpdateMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
-
-    fn create_param_prefix(&self, param_index: usize) -> String {
-        format!("{}ParamNum{}", self.name, param_index)
-    }
 }
 
 impl HasReturnValue for UpdateMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
-    }
-
-    fn create_return_type_prefix(&self) -> String {
-        format!("{}ReturnType", self.name)
     }
 }

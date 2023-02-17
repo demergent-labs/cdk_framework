@@ -46,10 +46,6 @@ impl HasMembers for Record {
             .map(|member| member.type_.clone())
             .collect()
     }
-
-    fn create_member_prefix(&self, index: usize, parental_prefix: String) -> String {
-        format!("{}Member{}", self.get_name(parental_prefix), index)
-    }
 }
 
 impl Proclaim<Vec<String>> for Record {
@@ -66,7 +62,7 @@ impl Proclaim<Vec<String>> for Record {
             .map(|(index, member)| {
                 member.to_token_stream(
                     keyword_list,
-                    self.create_member_prefix(index, parental_prefix.clone()),
+                    self.create_member_prefix(index, self.get_name(parental_prefix.clone())),
                 )
             })
             .collect();
@@ -87,7 +83,7 @@ impl Proclaim<Vec<String>> for Record {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
-        self.create_member_declarations(keyword_list, parental_prefix)
+        self.create_member_declarations(keyword_list, self.get_name(parental_prefix))
     }
 }
 

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{node::traits::HasMembers, proclamation::Proclaim},
+    act::{node::traits::HasEnclosedType, proclamation::Proclaim},
     traits::ToIdent,
 };
 
@@ -14,13 +14,9 @@ pub struct TypeAlias {
     pub aliased_type: Box<DataType>,
 }
 
-impl HasMembers for TypeAlias {
-    fn get_members(&self) -> Vec<DataType> {
-        vec![*self.aliased_type.clone()]
-    }
-
-    fn create_member_prefix(&self, _: usize, _: String) -> String {
-        format!("{}AliasedType", self.name)
+impl HasEnclosedType for TypeAlias {
+    fn get_enclosed_type(&self) -> DataType {
+        *self.aliased_type.clone()
     }
 }
 
@@ -37,9 +33,10 @@ impl Proclaim<Vec<String>> for TypeAlias {
         parental_prefix: String,
     ) -> Option<TokenStream> {
         let name = self.name.to_identifier();
-        let alias = self
-            .aliased_type
-            .to_type_annotation(keyword_list, self.create_member_prefix(0, parental_prefix));
+        let alias = self.aliased_type.to_type_annotation(
+            keyword_list,
+            self.create_enclosed_type_prefix(parental_prefix, "TypeAlias".to_string()),
+        );
         Some(quote!(type #name = #alias;))
     }
 
@@ -52,6 +49,10 @@ impl Proclaim<Vec<String>> for TypeAlias {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> HashMap<String, TokenStream> {
-        self.create_member_declarations(keyword_list, parental_prefix)
+        self.create_enclosed_type_declaration(
+            keyword_list,
+            parental_prefix,
+            "TypeAlias".to_string(),
+        )
     }
 }
