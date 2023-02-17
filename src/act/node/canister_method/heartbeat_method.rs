@@ -1,8 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use std::collections::HashMap;
 
-use crate::act::proclamation::Proclaim;
+use crate::act::{proclamation::Proclaim, Declaration};
 
 #[derive(Clone)]
 pub struct HeartbeatMethod {
@@ -10,7 +9,7 @@ pub struct HeartbeatMethod {
 }
 
 impl Proclaim<String> for HeartbeatMethod {
-    fn create_declaration(&self, cdk_name: &String, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, cdk_name: &String, _: String) -> Option<Declaration> {
         let function_name = format_ident!("_{}_heartbeat", cdk_name.to_lowercase());
         let body = &self.body;
         Some(quote! {
@@ -25,7 +24,7 @@ impl Proclaim<String> for HeartbeatMethod {
         Some("HeartbeatMethod".to_string())
     }
 
-    fn collect_inline_declarations(&self, _: &String, _: String) -> HashMap<String, TokenStream> {
-        HashMap::new()
+    fn collect_inline_declarations(&self, _: &String, _: String) -> Vec<Declaration> {
+        vec![]
     }
 }

@@ -1,8 +1,5 @@
-use proc_macro2::TokenStream;
-use std::collections::HashMap;
-
 use self::traits::ToTypeAnnotation;
-use crate::act::proclamation::Proclaim;
+use crate::act::{proclamation::Proclaim, Declaration, TypeAnnotation};
 
 pub mod array;
 pub mod boxed;
@@ -167,7 +164,7 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> TokenStream {
+    ) -> TypeAnnotation {
         match self {
             DataType::Array(array) => array.to_type_annotation(keyword_list, parental_prefix),
             DataType::Boxed(boxed) => boxed.to_type_annotation(keyword_list, parental_prefix),
@@ -194,7 +191,7 @@ impl Proclaim<Vec<String>> for DataType {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         match self {
             DataType::Array(array) => {
                 array.collect_inline_declarations(keyword_list, parental_prefix)
@@ -229,7 +226,7 @@ impl Proclaim<Vec<String>> for DataType {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> std::option::Option<TokenStream> {
+    ) -> Option<Declaration> {
         let prefix = format!("DataType{}", parental_prefix);
         match self {
             DataType::Array(array) => array.create_declaration(keyword_list, parental_prefix),

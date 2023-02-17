@@ -2,11 +2,12 @@ pub mod member;
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{node::traits::has_members::HasMembers, proclamation::Proclaim},
+    act::{
+        node::traits::has_members::HasMembers, proclamation::Proclaim, Declaration, TypeAnnotation,
+    },
     traits::ToIdent,
 };
 
@@ -34,7 +35,7 @@ impl HasMembers for Tuple {
 }
 
 impl<C> ToTypeAnnotation<C> for Tuple {
-    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
+    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
         self.get_name(parental_prefix)
             .to_identifier()
             .to_token_stream()
@@ -46,7 +47,7 @@ impl Proclaim<Vec<String>> for Tuple {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> Option<TokenStream> {
+    ) -> Option<Declaration> {
         let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let member_idents: Vec<TokenStream> = self
             .members
@@ -83,7 +84,7 @@ impl Proclaim<Vec<String>> for Tuple {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         self.create_member_declarations(keyword_list, self.get_name(parental_prefix))
     }
 }

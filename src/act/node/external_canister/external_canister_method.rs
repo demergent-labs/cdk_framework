@@ -1,15 +1,14 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use std::collections::HashMap;
 
 use crate::act::{
-    self,
     node::{
         param::Param,
         traits::{HasParams, HasReturnValue},
         DataType,
     },
     proclamation::Proclaim,
+    Declaration,
 };
 
 #[derive(Clone, Debug)]
@@ -33,7 +32,7 @@ impl ExternalCanisterMethod {
 }
 
 impl Proclaim<EcmContext> for ExternalCanisterMethod {
-    fn create_declaration(&self, context: &EcmContext, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, context: &EcmContext, _: String) -> Option<Declaration> {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -59,16 +58,16 @@ impl Proclaim<EcmContext> for ExternalCanisterMethod {
         &self,
         context: &EcmContext,
         canister_name: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         let param_declarations = self.collect_param_inline_types(
             &context.keyword_list,
             &self.create_qualified_name(&canister_name),
         );
-        let result_declarations = self.create_return_type_declarations(
+        let return_declarations = self.create_return_type_declarations(
             &context.keyword_list,
             &self.create_qualified_name(&canister_name),
         );
-        act::combine_maps(param_declarations, result_declarations)
+        vec![param_declarations, return_declarations].concat()
     }
 }
 

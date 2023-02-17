@@ -16,7 +16,7 @@ pub trait PublicCanisterMethod: HasParams + HasReturnValue {
     fn is_manual(&self) -> bool;
     fn is_async(&self) -> bool;
 
-    fn generate_function_declaration(&self, keyword_list: &Vec<String>) -> TokenStream {
+    fn generate_function_body(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_name = self.get_name().to_identifier();
         let params = self.create_parameter_list_token_stream(keyword_list, &self.get_name());
 

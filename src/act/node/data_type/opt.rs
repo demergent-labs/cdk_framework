@@ -1,9 +1,9 @@
-use proc_macro2::TokenStream;
 use quote::quote;
-use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{node::traits::HasEnclosedType, proclamation::Proclaim};
+use crate::act::{
+    node::traits::HasEnclosedType, proclamation::Proclaim, Declaration, TypeAnnotation,
+};
 
 #[derive(Clone, Debug)]
 pub struct Opt {
@@ -17,7 +17,7 @@ impl HasEnclosedType for Opt {
 }
 
 impl Proclaim<Vec<String>> for Opt {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
         None
     }
 
@@ -29,7 +29,7 @@ impl Proclaim<Vec<String>> for Opt {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         self.create_enclosed_type_declaration(keyword_list, parental_prefix, "Opt".to_string())
     }
 }
@@ -39,7 +39,7 @@ impl ToTypeAnnotation<Vec<String>> for Opt {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> TokenStream {
+    ) -> TypeAnnotation {
         let enclosed_type_annotation = self.enclosed_type.to_type_annotation(
             keyword_list,
             self.create_enclosed_type_prefix(parental_prefix, "Opt".to_string()),

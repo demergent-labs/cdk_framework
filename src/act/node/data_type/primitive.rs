@@ -1,9 +1,7 @@
-use proc_macro2::TokenStream;
 use quote::quote;
-use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::act::{proclamation::Proclaim, to_node::ToDataType};
+use crate::act::{proclamation::Proclaim, to_node::ToDataType, Declaration, TypeAnnotation};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
@@ -36,7 +34,7 @@ impl ToDataType for Primitive {
 }
 
 impl<C> ToTypeAnnotation<C> for Primitive {
-    fn to_type_annotation(&self, _: &C, _: String) -> TokenStream {
+    fn to_type_annotation(&self, _: &C, _: String) -> TypeAnnotation {
         match self {
             Primitive::Bool => quote!(bool),
             Primitive::Blob => quote!(Vec<u8>),
@@ -63,7 +61,7 @@ impl<C> ToTypeAnnotation<C> for Primitive {
 }
 
 impl Proclaim<Vec<String>> for Primitive {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
         None
     }
 
@@ -71,11 +69,7 @@ impl Proclaim<Vec<String>> for Primitive {
         None
     }
 
-    fn collect_inline_declarations(
-        &self,
-        _: &Vec<String>,
-        _: String,
-    ) -> HashMap<String, TokenStream> {
-        HashMap::new()
+    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
+        vec![]
     }
 }

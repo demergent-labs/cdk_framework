@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::collections::HashMap;
 
 use crate::{act::proclamation::Proclaim, traits::ToIdent};
 
@@ -27,11 +26,7 @@ impl Proclaim<Vec<String>> for GuardFunction {
         Some(self.name.clone())
     }
 
-    fn collect_inline_declarations(
-        &self,
-        _: &Vec<String>,
-        _: String,
-    ) -> HashMap<String, TokenStream> {
-        HashMap::new()
+    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<TokenStream> {
+        vec![]
     }
 }

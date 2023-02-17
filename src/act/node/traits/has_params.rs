@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::collections::HashMap;
 
 use crate::act::{
     self,
@@ -9,6 +8,7 @@ use crate::act::{
         param::Param,
     },
     proclamation::Proclaim,
+    Declaration, TypeAnnotation,
 };
 
 pub trait HasParams {
@@ -46,7 +46,7 @@ pub trait HasParams {
         param_index: usize,
         keyword_list: &Vec<String>,
         name: &String,
-    ) -> Option<TokenStream> {
+    ) -> Option<TypeAnnotation> {
         match self.get_param_types().get(param_index) {
             Some(param_data_type) => Some(
                 param_data_type
@@ -60,14 +60,14 @@ pub trait HasParams {
         &self,
         keyword_list: &Vec<String>,
         name: &String,
-    ) -> HashMap<String, TokenStream> {
-        self.get_param_types().iter().enumerate().fold(
-            HashMap::new(),
-            |acc, (index, param_type)| {
+    ) -> Vec<Declaration> {
+        self.get_param_types()
+            .iter()
+            .enumerate()
+            .fold(vec![], |acc, (index, param_type)| {
                 let proclamation = param_type
                     .create_proclamation(keyword_list, self.create_param_prefix(index, name));
-                act::flatten_proclamation(proclamation, acc)
-            },
-        )
+                vec![acc, act::flatten_proclamation(&proclamation)].concat()
+            })
     }
 }

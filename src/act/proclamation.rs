@@ -1,11 +1,12 @@
 use proc_macro2::TokenStream;
-use std::collections::HashMap;
+
+use super::Declaration;
 
 #[derive(Clone)]
 pub struct Proclamation {
     pub identifier: Option<String>,
-    pub declaration: Option<TokenStream>,
-    pub inline_declarations: HashMap<String, TokenStream>,
+    pub declaration: Option<Declaration>,
+    pub inline_declarations: Vec<Declaration>,
 }
 
 pub trait Proclaim<C> {
@@ -18,13 +19,10 @@ pub trait Proclaim<C> {
         }
     }
 
-    fn create_declaration(&self, context: &C, parental_prefix: String) -> Option<TokenStream>;
+    fn create_declaration(&self, context: &C, parental_prefix: String) -> Option<Declaration>;
     fn create_identifier(&self, parental_prefix: String) -> Option<String>;
-    fn collect_inline_declarations(
-        &self,
-        context: &C,
-        parental_prefix: String,
-    ) -> HashMap<String, TokenStream>;
+    fn collect_inline_declarations(&self, context: &C, parental_prefix: String)
+        -> Vec<Declaration>;
 }
 
 impl<C, T> Proclaim<C> for Vec<T>
@@ -36,10 +34,10 @@ where
         &self,
         context: &C,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
-        self.iter().fold(HashMap::new(), |acc, declaration| {
-            let decl = declaration.create_proclamation(context, parental_prefix.clone());
-            super::flatten_proclamation(decl, acc)
+    ) -> Vec<TokenStream> {
+        self.iter().fold(vec![], |acc, proclaimable| {
+            let proclamation = proclaimable.create_proclamation(context, parental_prefix.clone());
+            vec![acc, super::flatten_proclamation(&proclamation)].concat()
         })
     }
 
@@ -74,12 +72,12 @@ where
         &self,
         context: &C,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<TokenStream> {
         match self {
             Some(t) => {
                 t.collect_inline_declarations(context, format!("{}Optional", parental_prefix))
             }
-            None => HashMap::new(),
+            None => vec![],
         }
     }
 }

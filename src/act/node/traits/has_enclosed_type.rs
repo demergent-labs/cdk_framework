@@ -1,7 +1,6 @@
-use proc_macro2::TokenStream;
-use std::collections::HashMap;
-
-use crate::act::{flatten_proclamation, node::data_type::DataType, proclamation::Proclaim};
+use crate::act::{
+    flatten_proclamation, node::data_type::DataType, proclamation::Proclaim, Declaration,
+};
 
 pub trait HasEnclosedType {
     fn get_enclosed_type(&self) -> DataType;
@@ -19,11 +18,11 @@ pub trait HasEnclosedType {
         keyword_list: &Vec<String>,
         parental_prefix: String,
         enclosing_type: String,
-    ) -> HashMap<String, TokenStream> {
-        let decl = self.get_enclosed_type().create_proclamation(
+    ) -> Vec<Declaration> {
+        let proclamation = self.get_enclosed_type().create_proclamation(
             keyword_list,
             self.create_enclosed_type_prefix(parental_prefix, enclosing_type),
         );
-        flatten_proclamation(decl, HashMap::new())
+        flatten_proclamation(&proclamation)
     }
 }

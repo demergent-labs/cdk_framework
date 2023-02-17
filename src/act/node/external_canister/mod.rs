@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::collections::HashMap;
 
 use self::external_canister_method::EcmContext;
 use crate::act::proclamation::Proclaim;
@@ -40,11 +39,7 @@ impl Proclaim<NodeContext> for ExternalCanister {
         Some(self.name.clone())
     }
 
-    fn collect_inline_declarations(
-        &self,
-        context: &NodeContext,
-        _: String,
-    ) -> HashMap<String, TokenStream> {
+    fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<TokenStream> {
         self.methods.collect_inline_declarations(
             &EcmContext {
                 canister_name: self.name.clone(),

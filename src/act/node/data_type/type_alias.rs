@@ -1,10 +1,8 @@
-use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{node::traits::HasEnclosedType, proclamation::Proclaim},
+    act::{node::traits::HasEnclosedType, proclamation::Proclaim, Declaration, TypeAnnotation},
     traits::ToIdent,
 };
 
@@ -21,7 +19,7 @@ impl HasEnclosedType for TypeAlias {
 }
 
 impl ToTypeAnnotation<Vec<String>> for TypeAlias {
-    fn to_type_annotation(&self, _: &Vec<String>, _: String) -> TokenStream {
+    fn to_type_annotation(&self, _: &Vec<String>, _: String) -> TypeAnnotation {
         self.name.to_identifier().to_token_stream()
     }
 }
@@ -31,7 +29,7 @@ impl Proclaim<Vec<String>> for TypeAlias {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> Option<TokenStream> {
+    ) -> Option<Declaration> {
         let name = self.name.to_identifier();
         let alias = self.aliased_type.to_type_annotation(
             keyword_list,
@@ -48,7 +46,7 @@ impl Proclaim<Vec<String>> for TypeAlias {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         self.create_enclosed_type_declaration(
             keyword_list,
             parental_prefix,

@@ -2,11 +2,12 @@ pub mod member;
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
 use crate::{
-    act::{node::traits::has_members::HasMembers, proclamation::Proclaim},
+    act::{
+        node::traits::has_members::HasMembers, proclamation::Proclaim, Declaration, TypeAnnotation,
+    },
     traits::ToIdent,
 };
 
@@ -41,7 +42,7 @@ impl Proclaim<Vec<String>> for Record {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> Option<TokenStream> {
+    ) -> Option<Declaration> {
         let type_ident = self.get_name(parental_prefix.clone()).to_identifier();
         let member_token_streams: Vec<TokenStream> = self
             .members
@@ -70,13 +71,13 @@ impl Proclaim<Vec<String>> for Record {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         self.create_member_declarations(keyword_list, self.get_name(parental_prefix))
     }
 }
 
 impl ToTypeAnnotation<Vec<String>> for Record {
-    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TokenStream {
+    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TypeAnnotation {
         match &self.name {
             Some(name) => name.clone(),
             None => format!("{}Record", parental_prefix),

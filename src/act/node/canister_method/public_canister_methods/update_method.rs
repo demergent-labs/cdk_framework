@@ -1,15 +1,14 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::collections::HashMap;
 
 use crate::act::{
-    self,
     node::{
         param::Param,
         traits::{HasParams, HasReturnValue},
         DataType,
     },
     proclamation::Proclaim,
+    Declaration,
 };
 
 use super::PublicCanisterMethod;
@@ -65,8 +64,8 @@ impl PublicCanisterMethod for UpdateMethod {
 }
 
 impl Proclaim<Vec<String>> for UpdateMethod {
-    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<TokenStream> {
-        let function_declaration = self.generate_function_declaration(keyword_list);
+    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
+        let function_declaration = self.generate_function_body(keyword_list);
 
         let macro_args = self.generate_macro_args();
 
@@ -85,10 +84,10 @@ impl Proclaim<Vec<String>> for UpdateMethod {
         &self,
         keyword_list: &Vec<String>,
         _: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         let param_declarations = self.collect_param_inline_types(keyword_list, &self.name);
-        let result_declarations = self.create_return_type_declarations(keyword_list, &self.name);
-        act::combine_maps(param_declarations, result_declarations)
+        let return_declarations = self.create_return_type_declarations(keyword_list, &self.name);
+        vec![param_declarations, return_declarations].concat()
     }
 }
 

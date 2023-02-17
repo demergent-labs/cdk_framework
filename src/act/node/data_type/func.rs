@@ -1,9 +1,11 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use std::collections::HashMap;
 
 use super::{traits::ToTypeAnnotation, DataType};
-use crate::{act::proclamation::Proclaim, traits::ToIdent};
+use crate::{
+    act::{proclamation::Proclaim, Declaration, TypeAnnotation},
+    traits::ToIdent,
+};
 
 #[derive(Clone, Debug)]
 pub struct Func {
@@ -34,7 +36,7 @@ impl Func {
 }
 
 impl<C> ToTypeAnnotation<C> for Func {
-    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TokenStream {
+    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
         self.get_name(parental_prefix)
             .to_identifier()
             .to_token_stream()
@@ -46,7 +48,7 @@ impl Proclaim<Vec<String>> for Func {
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
-    ) -> Option<TokenStream> {
+    ) -> Option<Declaration> {
         Some(self.generate_func_struct_and_impls(
             keyword_list,
             self.create_identifier(parental_prefix).unwrap(),
@@ -57,15 +59,11 @@ impl Proclaim<Vec<String>> for Func {
         Some(self.get_name(parental_prefix))
     }
 
-    fn collect_inline_declarations(
-        &self,
-        _: &Vec<String>,
-        _: String,
-    ) -> HashMap<String, TokenStream> {
+    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
         // My assumption here is that when we get to rust none of the children
         // that were in the func will need to be defined unless they are used
         // somewhere else, and if that's the case then we will pick it up there.
-        HashMap::new()
+        vec![]
     }
 }
 

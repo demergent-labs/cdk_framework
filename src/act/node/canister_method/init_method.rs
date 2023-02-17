@@ -1,10 +1,10 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use std::collections::HashMap;
 
 use crate::act::{
     node::{param::Param, traits::HasParams, NodeContext},
     proclamation::Proclaim,
+    Declaration,
 };
 
 #[derive(Clone)]
@@ -26,7 +26,7 @@ impl InitMethod {
 }
 
 impl Proclaim<NodeContext> for InitMethod {
-    fn create_declaration(&self, context: &NodeContext, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, context: &NodeContext, _: String) -> Option<Declaration> {
         let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
         let body = &self.body;
         let params =
@@ -44,11 +44,7 @@ impl Proclaim<NodeContext> for InitMethod {
         Some(self.get_name())
     }
 
-    fn collect_inline_declarations(
-        &self,
-        context: &NodeContext,
-        _: String,
-    ) -> HashMap<String, TokenStream> {
+    fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<Declaration> {
         self.collect_param_inline_types(&context.keyword_list, &self.get_name())
     }
 }

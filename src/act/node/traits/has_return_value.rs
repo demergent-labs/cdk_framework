@@ -1,10 +1,8 @@
-use proc_macro2::TokenStream;
-use std::collections::HashMap;
-
 use crate::act::{
     self,
     node::data_type::{traits::ToTypeAnnotation, DataType},
     proclamation::Proclaim,
+    Declaration, TypeAnnotation,
 };
 
 pub trait HasReturnValue {
@@ -18,19 +16,19 @@ pub trait HasReturnValue {
         &self,
         keyword_list: &Vec<String>,
         name: &String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         let declaration = self
             .get_return_type()
             .create_proclamation(&keyword_list, self.create_return_type_prefix(name));
 
-        act::flatten_proclamation(declaration, HashMap::new())
+        act::flatten_proclamation(&declaration)
     }
 
     fn create_return_type_annotation(
         &self,
         keyword_list: &Vec<String>,
         name: &String,
-    ) -> TokenStream {
+    ) -> TypeAnnotation {
         self.get_return_type()
             .to_type_annotation(keyword_list, self.create_return_type_prefix(name))
     }

@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use proc_macro2::TokenStream;
 
 use self::canister_method::CanisterMethod;
+use super::proclamation::Proclaim;
 
 pub mod canister_method;
 pub mod data_type;
@@ -13,9 +14,6 @@ pub use data_type::DataType;
 pub use external_canister::ExternalCanister;
 pub use external_canister::ExternalCanisterMethod;
 pub use guard_function::GuardFunction;
-use proc_macro2::TokenStream;
-
-use super::proclamation::Proclaim;
 
 #[derive(Clone)]
 pub enum Node {
@@ -72,7 +70,7 @@ impl Proclaim<NodeContext> for Node {
         &self,
         context: &NodeContext,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<TokenStream> {
         match self {
             Node::CanisterMethod(canister_method) => {
                 canister_method.collect_inline_declarations(context, parental_prefix)

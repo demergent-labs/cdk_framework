@@ -1,8 +1,7 @@
-use proc_macro2::TokenStream;
-use std::collections::HashMap;
 use std::fmt;
 
 use crate::act::proclamation::Proclaim;
+use crate::act::Declaration;
 
 mod public_canister_methods;
 
@@ -63,7 +62,7 @@ impl Proclaim<NodeContext> for CanisterMethod {
         &self,
         context: &NodeContext,
         parental_prefix: String,
-    ) -> Option<TokenStream> {
+    ) -> Option<Declaration> {
         match self {
             CanisterMethod::Update(update_method) => {
                 update_method.create_declaration(&context.keyword_list, parental_prefix)
@@ -115,7 +114,7 @@ impl Proclaim<NodeContext> for CanisterMethod {
         &self,
         context: &NodeContext,
         parental_prefix: String,
-    ) -> HashMap<String, TokenStream> {
+    ) -> Vec<Declaration> {
         match self {
             CanisterMethod::Update(update_method) => {
                 update_method.collect_inline_declarations(&context.keyword_list, parental_prefix)

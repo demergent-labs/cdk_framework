@@ -1,8 +1,6 @@
 use func::Func;
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::collections::HashMap;
-use std::hash::Hash;
 
 use self::{
     node::{
@@ -27,6 +25,9 @@ pub mod to_node;
 pub trait ToAct {
     fn to_act(&self) -> AbstractCanisterTree;
 }
+
+type Declaration = TokenStream;
+type TypeAnnotation = TokenStream;
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -81,13 +82,11 @@ impl AbstractCanisterTree {
             .filter_map(|child_proclamation| child_proclamation.declaration.clone())
             .collect();
 
-        let inline_declarations =
-            child_node_proclamations
-                .iter()
-                .fold(HashMap::new(), |acc, child_proclamation| {
-                    self::combine_maps(child_proclamation.inline_declarations.clone(), acc)
-                });
-        let inline_declarations: Vec<_> = inline_declarations.values().collect();
+        let inline_declarations = child_node_proclamations
+            .iter()
+            .fold(vec![], |acc, child_proclamation| {
+                vec![acc, flatten_proclamation(child_proclamation)].concat()
+            });
 
         quote! {
             #canister_declaration_code
@@ -250,29 +249,15 @@ impl AbstractCanisterTree {
     }
 }
 
-fn flatten_proclamation(
-    declaration: Proclamation,
-    map: HashMap<String, TokenStream>,
-) -> HashMap<String, TokenStream> {
-    let mut result = HashMap::new();
-    result.extend(map);
-    if let Some(identifier) = declaration.identifier {
-        if let Some(code) = declaration.declaration {
-            result.insert(identifier, code);
+fn flatten_proclamation(proclamation: &Proclamation) -> Vec<TokenStream> {
+    let declaration = if let Some(_) = proclamation.identifier {
+        if let Some(code) = proclamation.declaration.clone() {
+            vec![code]
+        } else {
+            vec![]
         }
-    }
-    result.extend(declaration.inline_declarations);
-    result
-}
-
-fn combine_maps<K, V>(map1: HashMap<K, V>, map2: HashMap<K, V>) -> HashMap<K, V>
-where
-    K: Eq + Hash,
-{
-    let mut result = HashMap::new();
-
-    result.extend(map1);
-    result.extend(map2);
-
-    result
+    } else {
+        vec![]
+    };
+    vec![declaration, proclamation.inline_declarations.clone()].concat()
 }

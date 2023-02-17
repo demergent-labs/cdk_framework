@@ -1,9 +1,11 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use std::collections::HashMap;
 
 use super::traits::ToTypeAnnotation;
-use crate::{act::proclamation::Proclaim, traits::ToIdent};
+use crate::{
+    act::{proclamation::Proclaim, Declaration},
+    traits::ToIdent,
+};
 
 #[derive(Clone, Debug)]
 pub struct TypeRef {
@@ -19,7 +21,7 @@ impl ToTypeAnnotation<Vec<String>> for TypeRef {
 }
 
 impl Proclaim<Vec<String>> for TypeRef {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<TokenStream> {
+    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
         None
     }
 
@@ -27,11 +29,7 @@ impl Proclaim<Vec<String>> for TypeRef {
         None
     }
 
-    fn collect_inline_declarations(
-        &self,
-        _: &Vec<String>,
-        _: String,
-    ) -> HashMap<String, TokenStream> {
-        HashMap::new()
+    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
+        vec![]
     }
 }
