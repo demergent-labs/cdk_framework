@@ -41,28 +41,6 @@ impl UpdateMethod {
     }
 }
 
-impl PublicCanisterMethod for UpdateMethod {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-
-    fn get_body(&self) -> TokenStream {
-        self.body.clone()
-    }
-
-    fn get_cdk_name(&self) -> String {
-        self.cdk_name.clone()
-    }
-
-    fn is_manual(&self) -> bool {
-        self.is_manual
-    }
-
-    fn is_async(&self) -> bool {
-        self.is_async
-    }
-}
-
 impl Proclaim<Vec<String>> for UpdateMethod {
     fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         let function_declaration = self.generate_function_body(keyword_list);
@@ -100,5 +78,27 @@ impl HasParams for UpdateMethod {
 impl HasReturnValue for UpdateMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
+    }
+}
+
+impl PublicCanisterMethod for UpdateMethod {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    fn get_body(&self) -> TokenStream {
+        self.body.clone()
+    }
+
+    fn get_cdk_name(&self) -> String {
+        self.cdk_name.clone()
+    }
+
+    fn is_manual(&self) -> bool {
+        self.is_manual
+    }
+
+    fn is_async(&self) -> bool {
+        self.is_async
     }
 }

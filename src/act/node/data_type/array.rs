@@ -10,12 +10,6 @@ pub struct Array {
     pub enclosed_type: Box<DataType>,
 }
 
-impl HasEnclosedType for Array {
-    fn get_enclosed_type(&self) -> DataType {
-        *self.enclosed_type.clone()
-    }
-}
-
 impl ToTypeAnnotation<Vec<String>> for Array {
     fn to_type_annotation(
         &self,
@@ -45,5 +39,11 @@ impl Proclaim<Vec<String>> for Array {
         parental_prefix: String,
     ) -> Vec<Declaration> {
         self.create_enclosed_type_declaration(keyword_list, parental_prefix, "Array".to_string())
+    }
+}
+
+impl HasEnclosedType for Array {
+    fn get_enclosed_type(&self) -> DataType {
+        *self.enclosed_type.clone()
     }
 }

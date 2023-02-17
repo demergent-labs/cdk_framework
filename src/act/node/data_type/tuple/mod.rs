@@ -28,12 +28,6 @@ impl Tuple {
     }
 }
 
-impl HasMembers for Tuple {
-    fn get_members(&self) -> Vec<DataType> {
-        self.members.iter().map(|elem| elem.type_.clone()).collect()
-    }
-}
-
 impl<C> ToTypeAnnotation<C> for Tuple {
     fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
         self.get_name(parental_prefix)
@@ -86,5 +80,11 @@ impl Proclaim<Vec<String>> for Tuple {
         parental_prefix: String,
     ) -> Vec<Declaration> {
         self.create_member_declarations(keyword_list, self.get_name(parental_prefix))
+    }
+}
+
+impl HasMembers for Tuple {
+    fn get_members(&self) -> Vec<DataType> {
+        self.members.iter().map(|elem| elem.type_.clone()).collect()
     }
 }

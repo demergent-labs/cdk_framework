@@ -29,61 +29,7 @@ impl ExternalCanisterMethod {
     fn create_qualified_name(&self, canister_name: &String) -> String {
         format!("{}{}", canister_name, self.name.clone())
     }
-}
 
-impl Proclaim<EcmContext> for ExternalCanisterMethod {
-    fn create_declaration(&self, context: &EcmContext, _: String) -> Option<Declaration> {
-        let call_function = self.generate_function("call", &context);
-        let call_with_payment_function = self.generate_function("call_with_payment", &context);
-        let call_with_payment128_function =
-            self.generate_function("call_with_payment128", &context);
-        let notify_function = self.generate_function("notify", &context);
-        let notify_with_payment128_function =
-            self.generate_function("notify_with_payment128", &context);
-
-        Some(quote! {
-            #call_function
-            #call_with_payment_function
-            #call_with_payment128_function
-            #notify_function
-            #notify_with_payment128_function
-        })
-    }
-
-    fn create_identifier(&self, canister_name: String) -> Option<String> {
-        Some(self.create_qualified_name(&canister_name))
-    }
-
-    fn collect_inline_declarations(
-        &self,
-        context: &EcmContext,
-        canister_name: String,
-    ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_types(
-            &context.keyword_list,
-            &self.create_qualified_name(&canister_name),
-        );
-        let return_declarations = self.create_return_type_declarations(
-            &context.keyword_list,
-            &self.create_qualified_name(&canister_name),
-        );
-        vec![param_declarations, return_declarations].concat()
-    }
-}
-
-impl HasReturnValue for ExternalCanisterMethod {
-    fn get_return_type(&self) -> DataType {
-        self.return_type.clone()
-    }
-}
-
-impl HasParams for ExternalCanisterMethod {
-    fn get_params(&self) -> Vec<Param> {
-        self.params.clone()
-    }
-}
-
-impl ExternalCanisterMethod {
     fn generate_function(&self, function_type: &str, context: &EcmContext) -> TokenStream {
         let is_oneway = function_type.contains("notify");
 
@@ -175,5 +121,57 @@ impl ExternalCanisterMethod {
             quote! {}
         };
         return quote! { (#(#param_types),*#comma) };
+    }
+}
+
+impl Proclaim<EcmContext> for ExternalCanisterMethod {
+    fn create_declaration(&self, context: &EcmContext, _: String) -> Option<Declaration> {
+        let call_function = self.generate_function("call", &context);
+        let call_with_payment_function = self.generate_function("call_with_payment", &context);
+        let call_with_payment128_function =
+            self.generate_function("call_with_payment128", &context);
+        let notify_function = self.generate_function("notify", &context);
+        let notify_with_payment128_function =
+            self.generate_function("notify_with_payment128", &context);
+
+        Some(quote! {
+            #call_function
+            #call_with_payment_function
+            #call_with_payment128_function
+            #notify_function
+            #notify_with_payment128_function
+        })
+    }
+
+    fn create_identifier(&self, canister_name: String) -> Option<String> {
+        Some(self.create_qualified_name(&canister_name))
+    }
+
+    fn collect_inline_declarations(
+        &self,
+        context: &EcmContext,
+        canister_name: String,
+    ) -> Vec<Declaration> {
+        let param_declarations = self.collect_param_inline_types(
+            &context.keyword_list,
+            &self.create_qualified_name(&canister_name),
+        );
+        let return_declarations = self.create_return_type_declarations(
+            &context.keyword_list,
+            &self.create_qualified_name(&canister_name),
+        );
+        vec![param_declarations, return_declarations].concat()
+    }
+}
+
+impl HasParams for ExternalCanisterMethod {
+    fn get_params(&self) -> Vec<Param> {
+        self.params.clone()
+    }
+}
+
+impl HasReturnValue for ExternalCanisterMethod {
+    fn get_return_type(&self) -> DataType {
+        self.return_type.clone()
     }
 }

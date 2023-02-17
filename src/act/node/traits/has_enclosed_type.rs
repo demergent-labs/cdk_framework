@@ -5,14 +5,6 @@ use crate::act::{
 pub trait HasEnclosedType {
     fn get_enclosed_type(&self) -> DataType;
 
-    fn create_enclosed_type_prefix(
-        &self,
-        parental_prefix: String,
-        enclosing_type: String,
-    ) -> String {
-        format!("{}{}EnclosedType", parental_prefix, enclosing_type)
-    }
-
     fn create_enclosed_type_declaration(
         &self,
         keyword_list: &Vec<String>,
@@ -24,5 +16,13 @@ pub trait HasEnclosedType {
             self.create_enclosed_type_prefix(parental_prefix, enclosing_type),
         );
         flatten_proclamation(&proclamation)
+    }
+
+    fn create_enclosed_type_prefix(
+        &self,
+        parental_prefix: String,
+        enclosing_type: String,
+    ) -> String {
+        format!("{}{}EnclosedType", parental_prefix, enclosing_type)
     }
 }

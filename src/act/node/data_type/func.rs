@@ -33,63 +33,8 @@ impl Func {
             None => format!("{}Func", parental_prefix),
         }
     }
-}
 
-impl<C> ToTypeAnnotation<C> for Func {
-    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
-        self.get_name(parental_prefix)
-            .to_identifier()
-            .to_token_stream()
-    }
-}
-
-impl Proclaim<Vec<String>> for Func {
-    fn create_declaration(
-        &self,
-        keyword_list: &Vec<String>,
-        parental_prefix: String,
-    ) -> Option<Declaration> {
-        Some(self.generate_func_struct_and_impls(
-            keyword_list,
-            self.create_identifier(parental_prefix).unwrap(),
-        ))
-    }
-
-    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
-        Some(self.get_name(parental_prefix))
-    }
-
-    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
-        // My assumption here is that when we get to rust none of the children
-        // that were in the func will need to be defined unless they are used
-        // somewhere else, and if that's the case then we will pick it up there.
-        vec![]
-    }
-}
-
-pub fn generate_func_arg_token() -> TokenStream {
-    quote! {
-        // TODO I think it's debatable whether or not we even need ArgToken
-        /// A marker type to match unconstrained callback arguments
-        #[derive(Debug, Clone, Copy, PartialEq, candid::Deserialize)]
-        pub struct ArgToken;
-
-        impl candid::CandidType for ArgToken {
-            fn _ty() -> candid::types::Type {
-                candid::types::Type::Empty
-            }
-
-            fn idl_serialize<S: candid::types::Serializer>(&self, _serializer: S) -> Result<(), S::Error> {
-                // We cannot implement serialize, since our type must be \`Empty\` in order to accept anything.
-                // Attempting to serialize this type is always an error and should be regarded as a compile time error.
-                unimplemented!("Token is not serializable")
-            }
-        }
-    }
-}
-
-impl Func {
-    pub fn generate_func_struct_and_impls(
+    fn generate_func_struct_and_impls(
         &self,
         keyword_list: &Vec<String>,
         name: String,
@@ -224,6 +169,59 @@ impl Func {
                 fn deref_mut(&mut self) -> &mut candid::Func {
                     &mut self.0
                 }
+            }
+        }
+    }
+}
+
+impl<C> ToTypeAnnotation<C> for Func {
+    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
+        self.get_name(parental_prefix)
+            .to_identifier()
+            .to_token_stream()
+    }
+}
+
+impl Proclaim<Vec<String>> for Func {
+    fn create_declaration(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> Option<Declaration> {
+        Some(self.generate_func_struct_and_impls(
+            keyword_list,
+            self.create_identifier(parental_prefix).unwrap(),
+        ))
+    }
+
+    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
+        Some(self.get_name(parental_prefix))
+    }
+
+    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
+        // My assumption here is that when we get to rust none of the children
+        // that were in the func will need to be defined unless they are used
+        // somewhere else, and if that's the case then we will pick it up there.
+        vec![]
+    }
+}
+
+pub fn generate_func_arg_token() -> TokenStream {
+    quote! {
+        // TODO I think it's debatable whether or not we even need ArgToken
+        /// A marker type to match unconstrained callback arguments
+        #[derive(Debug, Clone, Copy, PartialEq, candid::Deserialize)]
+        pub struct ArgToken;
+
+        impl candid::CandidType for ArgToken {
+            fn _ty() -> candid::types::Type {
+                candid::types::Type::Empty
+            }
+
+            fn idl_serialize<S: candid::types::Serializer>(&self, _serializer: S) -> Result<(), S::Error> {
+                // We cannot implement serialize, since our type must be \`Empty\` in order to accept anything.
+                // Attempting to serialize this type is always an error and should be regarded as a compile time error.
+                unimplemented!("Token is not serializable")
             }
         }
     }

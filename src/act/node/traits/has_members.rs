@@ -3,10 +3,6 @@ use crate::act::{self, node::data_type::DataType, proclamation::Proclaim, Declar
 pub trait HasMembers {
     fn get_members(&self) -> Vec<DataType>;
 
-    fn create_member_prefix(&self, index: usize, name: String) -> String {
-        format!("{}MemberNum{}", name, index)
-    }
-
     fn create_member_declarations(
         &self,
         keyword_list: &Vec<String>,
@@ -22,5 +18,9 @@ pub trait HasMembers {
                 );
                 vec![acc, act::flatten_proclamation(&declaration)].concat()
             })
+    }
+
+    fn create_member_prefix(&self, index: usize, name: String) -> String {
+        format!("{}MemberNum{}", name, index)
     }
 }

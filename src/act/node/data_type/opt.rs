@@ -10,9 +10,17 @@ pub struct Opt {
     pub enclosed_type: Box<DataType>,
 }
 
-impl HasEnclosedType for Opt {
-    fn get_enclosed_type(&self) -> DataType {
-        *self.enclosed_type.clone()
+impl ToTypeAnnotation<Vec<String>> for Opt {
+    fn to_type_annotation(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> TypeAnnotation {
+        let enclosed_type_annotation = self.enclosed_type.to_type_annotation(
+            keyword_list,
+            self.create_enclosed_type_prefix(parental_prefix, "Opt".to_string()),
+        );
+        quote!(Option<#enclosed_type_annotation>)
     }
 }
 
@@ -34,16 +42,8 @@ impl Proclaim<Vec<String>> for Opt {
     }
 }
 
-impl ToTypeAnnotation<Vec<String>> for Opt {
-    fn to_type_annotation(
-        &self,
-        keyword_list: &Vec<String>,
-        parental_prefix: String,
-    ) -> TypeAnnotation {
-        let enclosed_type_annotation = self.enclosed_type.to_type_annotation(
-            keyword_list,
-            self.create_enclosed_type_prefix(parental_prefix, "Opt".to_string()),
-        );
-        quote!(Option<#enclosed_type_annotation>)
+impl HasEnclosedType for Opt {
+    fn get_enclosed_type(&self) -> DataType {
+        *self.enclosed_type.clone()
     }
 }

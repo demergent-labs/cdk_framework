@@ -14,10 +14,6 @@ use crate::act::{
 pub trait HasParams {
     fn get_params(&self) -> Vec<Param>;
 
-    fn create_param_prefix(&self, param_index: usize, parental_prefix: &String) -> String {
-        format!("{}ParamNum{}", parental_prefix, param_index)
-    }
-
     fn get_param_types(&self) -> Vec<DataType> {
         self.get_params()
             .iter()
@@ -54,6 +50,10 @@ pub trait HasParams {
             ),
             None => None,
         }
+    }
+
+    fn create_param_prefix(&self, param_index: usize, parental_prefix: &String) -> String {
+        format!("{}ParamNum{}", parental_prefix, param_index)
     }
 
     fn collect_param_inline_types(

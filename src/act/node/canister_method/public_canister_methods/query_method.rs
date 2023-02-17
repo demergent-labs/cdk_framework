@@ -53,6 +53,36 @@ impl QueryMethod {
     }
 }
 
+impl Proclaim<Vec<String>> for QueryMethod {
+    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
+        let function_declaration = self.generate_function_body(keyword_list);
+        let macro_args = if self.cdk_name == "kybra" {
+            self.generate_kybra_macro_args()
+        } else {
+            self.generate_not_kybra_macro_args()
+        };
+        Some(quote! {
+            #[ic_cdk_macros::query(#macro_args)]
+            #[candid::candid_method(query)]
+            #function_declaration
+        })
+    }
+
+    fn create_identifier(&self, _: String) -> Option<String> {
+        Some(self.name.clone())
+    }
+
+    fn collect_inline_declarations(
+        &self,
+        keyword_list: &Vec<String>,
+        _: String,
+    ) -> Vec<Declaration> {
+        let param_declarations = self.collect_param_inline_types(keyword_list, &self.name);
+        let return_declarations = self.create_return_type_declarations(keyword_list, &self.name);
+        vec![param_declarations, return_declarations].concat()
+    }
+}
+
 impl HasParams for QueryMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
@@ -84,35 +114,5 @@ impl PublicCanisterMethod for QueryMethod {
 
     fn is_async(&self) -> bool {
         self.is_async
-    }
-}
-
-impl Proclaim<Vec<String>> for QueryMethod {
-    fn collect_inline_declarations(
-        &self,
-        keyword_list: &Vec<String>,
-        _: String,
-    ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_types(keyword_list, &self.name);
-        let return_declarations = self.create_return_type_declarations(keyword_list, &self.name);
-        vec![param_declarations, return_declarations].concat()
-    }
-
-    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
-        let function_declaration = self.generate_function_body(keyword_list);
-        let macro_args = if self.cdk_name == "kybra" {
-            self.generate_kybra_macro_args()
-        } else {
-            self.generate_not_kybra_macro_args()
-        };
-        Some(quote! {
-            #[ic_cdk_macros::query(#macro_args)]
-            #[candid::candid_method(query)]
-            #function_declaration
-        })
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.name.clone())
     }
 }

@@ -13,12 +13,6 @@ pub struct PostUpgradeMethod {
     pub body: TokenStream,
 }
 
-impl HasParams for PostUpgradeMethod {
-    fn get_params(&self) -> Vec<Param> {
-        self.params.clone()
-    }
-}
-
 impl PostUpgradeMethod {
     fn get_name(&self) -> String {
         return "PostUpgrade".to_string();
@@ -45,5 +39,11 @@ impl Proclaim<NodeContext> for PostUpgradeMethod {
 
     fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<Declaration> {
         self.collect_param_inline_types(&context.keyword_list, &self.get_name())
+    }
+}
+
+impl HasParams for PostUpgradeMethod {
+    fn get_params(&self) -> Vec<Param> {
+        self.params.clone()
     }
 }

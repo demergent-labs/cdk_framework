@@ -26,15 +26,6 @@ impl Variant {
     }
 }
 
-impl HasMembers for Variant {
-    fn get_members(&self) -> Vec<DataType> {
-        self.members
-            .iter()
-            .map(|member| member.type_.clone())
-            .collect()
-    }
-}
-
 impl<C> ToTypeAnnotation<C> for Variant {
     fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
         self.get_name(parental_prefix)
@@ -79,5 +70,14 @@ impl Proclaim<Vec<String>> for Variant {
         parental_prefix: String,
     ) -> Vec<Declaration> {
         self.create_member_declarations(keyword_list, self.get_name(parental_prefix.clone()))
+    }
+}
+
+impl HasMembers for Variant {
+    fn get_members(&self) -> Vec<DataType> {
+        self.members
+            .iter()
+            .map(|member| member.type_.clone())
+            .collect()
     }
 }

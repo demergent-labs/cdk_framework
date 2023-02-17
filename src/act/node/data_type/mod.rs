@@ -187,41 +187,6 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
 }
 
 impl Proclaim<Vec<String>> for DataType {
-    fn collect_inline_declarations(
-        &self,
-        keyword_list: &Vec<String>,
-        parental_prefix: String,
-    ) -> Vec<Declaration> {
-        match self {
-            DataType::Array(array) => {
-                array.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::Boxed(boxed) => {
-                boxed.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::Func(func) => func.collect_inline_declarations(keyword_list, parental_prefix),
-            DataType::Opt(opt) => opt.collect_inline_declarations(keyword_list, parental_prefix),
-            DataType::Primitive(primitive) => {
-                primitive.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::Record(record) => {
-                record.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::Tuple(tuple) => {
-                tuple.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::TypeAlias(type_alias) => {
-                type_alias.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::TypeRef(type_ref) => {
-                type_ref.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-            DataType::Variant(variant) => {
-                variant.collect_inline_declarations(keyword_list, parental_prefix)
-            }
-        }
-    }
-
     fn create_declaration(
         &self,
         keyword_list: &Vec<String>,
@@ -258,6 +223,41 @@ impl Proclaim<Vec<String>> for DataType {
             DataType::TypeAlias(type_alias) => type_alias.create_identifier(parental_prefix),
             DataType::TypeRef(type_ref) => type_ref.create_identifier(parental_prefix),
             DataType::Variant(variant) => variant.create_identifier(parental_prefix),
+        }
+    }
+
+    fn collect_inline_declarations(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> Vec<Declaration> {
+        match self {
+            DataType::Array(array) => {
+                array.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Boxed(boxed) => {
+                boxed.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Func(func) => func.collect_inline_declarations(keyword_list, parental_prefix),
+            DataType::Opt(opt) => opt.collect_inline_declarations(keyword_list, parental_prefix),
+            DataType::Primitive(primitive) => {
+                primitive.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Record(record) => {
+                record.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Tuple(tuple) => {
+                tuple.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::TypeAlias(type_alias) => {
+                type_alias.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::TypeRef(type_ref) => {
+                type_ref.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            DataType::Variant(variant) => {
+                variant.collect_inline_declarations(keyword_list, parental_prefix)
+            }
         }
     }
 }

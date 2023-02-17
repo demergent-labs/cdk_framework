@@ -12,12 +12,6 @@ pub struct TypeAlias {
     pub aliased_type: Box<DataType>,
 }
 
-impl HasEnclosedType for TypeAlias {
-    fn get_enclosed_type(&self) -> DataType {
-        *self.aliased_type.clone()
-    }
-}
-
 impl ToTypeAnnotation<Vec<String>> for TypeAlias {
     fn to_type_annotation(&self, _: &Vec<String>, _: String) -> TypeAnnotation {
         self.name.to_identifier().to_token_stream()
@@ -52,5 +46,11 @@ impl Proclaim<Vec<String>> for TypeAlias {
             parental_prefix,
             "TypeAlias".to_string(),
         )
+    }
+}
+
+impl HasEnclosedType for TypeAlias {
+    fn get_enclosed_type(&self) -> DataType {
+        *self.aliased_type.clone()
     }
 }

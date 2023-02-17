@@ -28,12 +28,14 @@ impl Record {
     }
 }
 
-impl HasMembers for Record {
-    fn get_members(&self) -> Vec<DataType> {
-        self.members
-            .iter()
-            .map(|member| member.type_.clone())
-            .collect()
+impl ToTypeAnnotation<Vec<String>> for Record {
+    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TypeAnnotation {
+        match &self.name {
+            Some(name) => name.clone(),
+            None => format!("{}Record", parental_prefix),
+        }
+        .to_identifier()
+        .to_token_stream()
     }
 }
 
@@ -76,13 +78,11 @@ impl Proclaim<Vec<String>> for Record {
     }
 }
 
-impl ToTypeAnnotation<Vec<String>> for Record {
-    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TypeAnnotation {
-        match &self.name {
-            Some(name) => name.clone(),
-            None => format!("{}Record", parental_prefix),
-        }
-        .to_identifier()
-        .to_token_stream()
+impl HasMembers for Record {
+    fn get_members(&self) -> Vec<DataType> {
+        self.members
+            .iter()
+            .map(|member| member.type_.clone())
+            .collect()
     }
 }
