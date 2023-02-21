@@ -59,25 +59,18 @@ impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
         let canister_declaration_code = self.create_act_not_function_code();
 
-        let child_nodes = self.collect_children();
-
-        let node_context = NodeContext {
-            cdk_name: self.cdk_name.clone(),
-            keyword_list: self.keywords.clone(),
-        };
-
-        let child_node_proclamations: Vec<_> = child_nodes
+        let child_declarations: Vec<_> = self
+            .collect_children()
             .iter()
-            .map(|child_node| child_node.create_proclamation(&node_context, "Canister".to_string()))
-            .collect();
-
-        let child_declarations: Vec<_> = child_node_proclamations
-            .iter()
-            .filter_map(|child_proclamation| child_proclamation.declaration.clone())
-            .collect();
-
-        let inline_declarations = child_node_proclamations
-            .iter()
+            .map(|child_node| {
+                child_node.create_proclamation(
+                    &NodeContext {
+                        cdk_name: self.cdk_name.clone(),
+                        keyword_list: self.keywords.clone(),
+                    },
+                    "Canister".to_string(),
+                )
+            })
             .fold(vec![], |acc, child_proclamation| {
                 vec![acc, child_proclamation.flatten()].concat()
             });
@@ -85,7 +78,6 @@ impl AbstractCanisterTree {
         quote! {
             #canister_declaration_code
             #(#child_declarations)*
-            #(#inline_declarations)*
         }
     }
 
