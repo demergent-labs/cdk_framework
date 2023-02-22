@@ -32,7 +32,7 @@ pub struct NodeContext {
     pub cdk_name: String,
 }
 
-type Declaration = TokenStream;
+pub type Declaration = TokenStream;
 
 impl Proclaim<NodeContext> for Node {
     fn create_declaration(
