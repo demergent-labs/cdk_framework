@@ -1,41 +1,37 @@
-use proc_macro2::Ident;
-use quote::format_ident;
+use proc_macro2::{Ident, TokenStream};
+use quote::{format_ident, quote};
 
-use crate::act::node::{
-    canister_method::{
-        HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
-        QueryMethod, UpdateMethod,
-    },
-    param::Param,
-    DataType,
-};
+use crate::act::node::traits::{HasParams, HasReturnValue};
 
-pub trait SystemCanisterMethodBuilder {
-    fn build_heartbeat_method(&self) -> Option<HeartbeatMethod>;
-    fn build_init_method(&self) -> InitMethod;
-    fn build_inspect_method(&self) -> Option<InspectMessageMethod>;
-    fn build_pre_upgrade_method(&self) -> PreUpgradeMethod;
-    fn build_post_upgrade_method(&self) -> PostUpgradeMethod;
-}
+pub trait QueryOrUpdateMethod: HasParams + HasReturnValue {
+    fn get_name(&self) -> String;
+    fn get_body(&self) -> TokenStream;
+    fn get_cdk_name(&self) -> String;
+    fn is_manual(&self) -> bool;
+    fn is_async(&self) -> bool;
 
-// TODO this got a little weird after we split Query and Update.
-pub trait CanisterMethodBuilder {
-    fn build_request_method_node(&self, request_type: &RequestType) -> RequestNode;
-    fn build_params(&self) -> Vec<Param>;
-    fn build_return_type(&self) -> DataType;
-}
+    fn generate_function_body(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let function_name = self.get_name().to_identifier();
+        let params = self.create_parameter_list_token_stream(keyword_list, &self.get_name());
 
-// TODO I made this as a hack to make CanisterMethodBuilder to still work. If we
-// decide we want to continue down this path then i would move this to live with
-// update and query inside of canister_method mod
-pub enum RequestNode {
-    Query(QueryMethod),
-    Update(UpdateMethod),
-}
+        let function_body = self.get_body();
 
-pub enum RequestType {
-    Query,
-    Update,
+        let return_type_token = self.create_return_type_annotation(keyword_list, &self.get_name());
+        let wrapped_return_type =
+            if self.is_manual() || (self.is_async() && self.get_cdk_name() != "kybra") {
+                quote! {
+                    ic_cdk::api::call::ManualReply<#return_type_token>
+                }
+            } else {
+                return_type_token
+            };
+
+        quote! {
+            async fn #function_name(#params) -> #wrapped_return_type {
+                #function_body
+            }
+        }
+    }
 }
 
 pub trait ToIdent {

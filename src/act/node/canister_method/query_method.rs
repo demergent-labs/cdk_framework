@@ -1,14 +1,15 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::node::{
-    param::Param,
-    proclamation::Proclaim,
-    traits::{HasParams, HasReturnValue},
-    DataType, Declaration,
+use crate::{
+    act::node::{
+        param::Param,
+        proclamation::Proclaim,
+        traits::{HasParams, HasReturnValue},
+        DataType, Declaration,
+    },
+    traits::QueryOrUpdateMethod,
 };
-
-use super::PublicCanisterMethod;
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
@@ -92,7 +93,7 @@ impl HasReturnValue for QueryMethod {
     }
 }
 
-impl PublicCanisterMethod for QueryMethod {
+impl QueryOrUpdateMethod for QueryMethod {
     fn get_name(&self) -> String {
         self.name.clone()
     }

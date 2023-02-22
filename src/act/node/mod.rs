@@ -1,4 +1,5 @@
-use self::canister_method::CanisterMethod;
+use proc_macro2::TokenStream;
+
 use self::proclamation::Proclaim;
 
 pub mod canister_method;
@@ -10,11 +11,12 @@ pub mod proclamation;
 pub mod to_node;
 pub mod traits;
 
+pub use canister_method::CanisterMethod;
 pub use data_type::DataType;
 pub use external_canister::ExternalCanister;
 pub use external_canister::ExternalCanisterMethod;
 pub use guard_function::GuardFunction;
-use proc_macro2::TokenStream;
+pub use param::Param;
 
 #[derive(Clone)]
 pub enum Node {
