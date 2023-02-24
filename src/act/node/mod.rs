@@ -8,7 +8,6 @@ pub mod external_canister;
 pub mod guard_function;
 pub mod param;
 pub mod proclamation;
-pub mod to_node;
 pub mod traits;
 
 pub use canister_method::CanisterMethod;

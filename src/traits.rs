@@ -1,7 +1,10 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 
-use crate::act::node::traits::{HasParams, HasReturnValue};
+use crate::act::node::{
+    traits::{HasParams, HasReturnValue},
+    DataType,
+};
 
 pub trait QueryOrUpdateMethod: HasParams + HasReturnValue {
     fn get_name(&self) -> String;
@@ -32,6 +35,10 @@ pub trait QueryOrUpdateMethod: HasParams + HasReturnValue {
             }
         }
     }
+}
+
+pub trait ToDataType {
+    fn to_data_type(&self) -> DataType;
 }
 
 pub trait ToIdent {

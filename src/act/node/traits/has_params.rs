@@ -2,10 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::act::node::{
-    data_type::{
-        type_annotation::{ToTypeAnnotation, TypeAnnotation},
-        DataType,
-    },
+    data_type::type_annotation::{ToTypeAnnotation, TypeAnnotation},
     param::Param,
     proclamation::Proclaim,
     Declaration,
@@ -13,13 +10,6 @@ use crate::act::node::{
 
 pub trait HasParams {
     fn get_params(&self) -> Vec<Param>;
-
-    fn get_param_types(&self) -> Vec<DataType> {
-        self.get_params()
-            .iter()
-            .map(|param| param.type_.clone())
-            .collect()
-    }
 
     fn create_parameter_list_token_stream(
         &self,
@@ -43,7 +33,7 @@ pub trait HasParams {
         keyword_list: &Vec<String>,
         name: &String,
     ) -> Option<TypeAnnotation> {
-        match self.get_param_types().get(param_index) {
+        match self.get_params().get(param_index) {
             Some(param_data_type) => Some(
                 param_data_type
                     .to_type_annotation(keyword_list, self.create_param_prefix(param_index, name)),
@@ -61,7 +51,7 @@ pub trait HasParams {
         keyword_list: &Vec<String>,
         name: &String,
     ) -> Vec<Declaration> {
-        self.get_param_types()
+        self.get_params()
             .iter()
             .enumerate()
             .fold(vec![], |acc, (index, param_type)| {
