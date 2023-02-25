@@ -18,6 +18,6 @@ impl Member {
         let member_type_annotation = self.type_.to_type_annotation(keyword_list, prefix);
         let member_name = keyword::make_rust_safe(&self.name, keyword_list).to_identifier();
         let rename_attr = keyword::generate_rename_attribute(&member_name, keyword_list);
-        quote!(#rename_attr #member_name: #member_type_annotation)
+        quote!(#rename_attr #member_name: Box<#member_type_annotation>)
     }
 }

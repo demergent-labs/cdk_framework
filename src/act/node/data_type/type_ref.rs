@@ -15,7 +15,7 @@ impl ToTypeAnnotation<Vec<String>> for TypeRef {
     fn to_type_annotation(&self, _keyword_list: &Vec<String>, _: String) -> TypeAnnotation {
         // TODO use the keyword list to make the identifier rust safe
         let ident = self.name.to_identifier().to_token_stream();
-        quote!(Box<#ident>)
+        quote!(#ident)
     }
 }
 
