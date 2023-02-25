@@ -71,9 +71,13 @@ impl AbstractCanisterTree {
                 vec![acc, child_proclamation.flatten()].concat()
             });
 
+        let candid_file_generation_code =
+            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
+
         quote! {
             #canister_declaration_code
             #(#child_declarations)*
+            #candid_file_generation_code
         }
     }
 
@@ -90,9 +94,6 @@ impl AbstractCanisterTree {
 
         let func_arg_token = func::generate_func_arg_token();
 
-        let candid_file_generation_code =
-            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
-
         quote! {
             #header
 
@@ -106,8 +107,6 @@ impl AbstractCanisterTree {
             #func_arg_token
 
             #body
-
-            #candid_file_generation_code
         }
     }
 
