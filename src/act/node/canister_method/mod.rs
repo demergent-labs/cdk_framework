@@ -29,7 +29,7 @@ pub enum CanisterMethod {
     Heartbeat(HeartbeatMethod),
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum CanisterMethodType {
     Heartbeat,
     Init,
