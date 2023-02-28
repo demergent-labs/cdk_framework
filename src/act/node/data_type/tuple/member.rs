@@ -1,4 +1,5 @@
 use proc_macro2::TokenStream;
+use quote::quote;
 
 use crate::act::node::{data_type::type_annotation::ToTypeAnnotation, DataType};
 
@@ -13,6 +14,7 @@ impl Member {
         keyword_list: &Vec<String>,
         member_prefix: String,
     ) -> TokenStream {
-        self.type_.to_type_annotation(keyword_list, member_prefix)
+        let type_annotation = self.type_.to_type_annotation(keyword_list, member_prefix);
+        quote!(Box<#type_annotation>)
     }
 }
