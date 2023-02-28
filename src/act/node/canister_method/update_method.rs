@@ -1,14 +1,14 @@
 use proc_macro2::TokenStream;
 use quote::quote;
+use std::ops::Deref;
 
 use crate::act::node::{
+    canister_method::QueryOrUpdateDefinition,
     param::Param,
     proclamation::Proclaim,
     traits::{HasParams, HasReturnValue},
     DataType, Declaration,
 };
-
-use super::QueryOrUpdateDefinition;
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
@@ -16,13 +16,6 @@ pub struct UpdateMethod {
     pub definition: QueryOrUpdateDefinition,
 }
 
-impl std::ops::Deref for UpdateMethod {
-    type Target = QueryOrUpdateDefinition;
-
-    fn deref(&self) -> &Self::Target {
-        &self.definition
-    }
-}
 impl UpdateMethod {
     fn generate_macro_args(&self) -> TokenStream {
         let mut args: Vec<TokenStream> = vec![];
@@ -35,6 +28,26 @@ impl UpdateMethod {
         };
 
         quote!(#(#args),*)
+    }
+}
+
+impl Deref for UpdateMethod {
+    type Target = QueryOrUpdateDefinition;
+
+    fn deref(&self) -> &Self::Target {
+        &self.definition
+    }
+}
+
+impl HasParams for UpdateMethod {
+    fn get_params(&self) -> Vec<Param> {
+        self.params.clone()
+    }
+}
+
+impl HasReturnValue for UpdateMethod {
+    fn get_return_type(&self) -> DataType {
+        self.return_type.clone()
     }
 }
 
@@ -63,17 +76,5 @@ impl Proclaim<Vec<String>> for UpdateMethod {
         let param_declarations = self.collect_param_inline_declarations(keyword_list, &self.name);
         let return_declarations = self.collect_return_inline_declarations(keyword_list, &self.name);
         vec![param_declarations, return_declarations].concat()
-    }
-}
-
-impl HasParams for UpdateMethod {
-    fn get_params(&self) -> Vec<Param> {
-        self.params.clone()
-    }
-}
-
-impl HasReturnValue for UpdateMethod {
-    fn get_return_type(&self) -> DataType {
-        self.return_type.clone()
     }
 }

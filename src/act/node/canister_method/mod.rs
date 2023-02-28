@@ -6,6 +6,8 @@ pub mod inspect_message_method;
 pub mod post_upgrade_method;
 pub mod pre_upgrade_method;
 pub mod query_method;
+pub mod query_or_update_definition;
+pub mod query_or_update_method;
 pub mod update_method;
 
 pub use canister_method::CanisterMethod;
@@ -16,4 +18,6 @@ pub use inspect_message_method::InspectMessageMethod;
 pub use post_upgrade_method::PostUpgradeMethod;
 pub use pre_upgrade_method::PreUpgradeMethod;
 pub use query_method::QueryMethod;
+pub use query_or_update_definition::QueryOrUpdateDefinition;
+pub use query_or_update_method::QueryOrUpdateMethod;
 pub use update_method::UpdateMethod;
