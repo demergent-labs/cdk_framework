@@ -1,29 +1,28 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{
-    act::node::{
-        param::Param,
-        proclamation::Proclaim,
-        traits::{HasParams, HasReturnValue},
-        DataType, Declaration,
-    },
-    traits::QueryOrUpdateMethod,
+use crate::act::node::{
+    param::Param,
+    proclamation::Proclaim,
+    traits::{HasParams, HasReturnValue},
+    DataType, Declaration,
 };
+
+use super::QueryOrUpdateDefinition;
 
 /// Describes a Rust canister method function body
 #[derive(Debug, Clone)]
 pub struct UpdateMethod {
-    pub body: TokenStream,
-    pub params: Vec<Param>,
-    pub is_manual: bool,
-    pub is_async: bool,
-    pub name: String,
-    pub return_type: DataType,
-    pub cdk_name: String,
-    pub guard_function_name: Option<String>,
+    pub definition: QueryOrUpdateDefinition,
 }
 
+impl std::ops::Deref for UpdateMethod {
+    type Target = QueryOrUpdateDefinition;
+
+    fn deref(&self) -> &Self::Target {
+        &self.definition
+    }
+}
 impl UpdateMethod {
     fn generate_macro_args(&self) -> TokenStream {
         let mut args: Vec<TokenStream> = vec![];
@@ -76,27 +75,5 @@ impl HasParams for UpdateMethod {
 impl HasReturnValue for UpdateMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
-    }
-}
-
-impl QueryOrUpdateMethod for UpdateMethod {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-
-    fn get_body(&self) -> TokenStream {
-        self.body.clone()
-    }
-
-    fn get_cdk_name(&self) -> String {
-        self.cdk_name.clone()
-    }
-
-    fn is_manual(&self) -> bool {
-        self.is_manual
-    }
-
-    fn is_async(&self) -> bool {
-        self.is_async
     }
 }

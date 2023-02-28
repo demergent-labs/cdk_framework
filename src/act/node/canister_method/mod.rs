@@ -1,3 +1,5 @@
+use proc_macro2::TokenStream;
+use quote::quote;
 use std::fmt;
 
 pub mod heartbeat_method;
@@ -16,7 +18,9 @@ pub use pre_upgrade_method::PreUpgradeMethod;
 pub use query_method::QueryMethod;
 pub use update_method::UpdateMethod;
 
-use super::{proclamation::Proclaim, Declaration, NodeContext};
+use crate::{act::node::traits::HasReturnValue, traits::ToIdent};
+
+use super::{proclamation::Proclaim, traits::HasParams, DataType, Declaration, NodeContext, Param};
 
 #[derive(Clone)]
 pub enum CanisterMethod {
@@ -38,6 +42,71 @@ pub enum CanisterMethodType {
     PreUpgrade,
     Query,
     Update,
+}
+
+#[derive(Clone, Debug)]
+pub struct QueryOrUpdateDefinition {
+    pub body: TokenStream,
+    pub params: Vec<Param>,
+    pub is_manual: bool,
+    pub is_async: bool,
+    pub name: String,
+    pub return_type: DataType,
+    pub cdk_name: String,
+    pub guard_function_name: Option<String>,
+}
+
+impl HasParams for QueryOrUpdateDefinition {
+    fn get_params(&self) -> Vec<Param> {
+        self.params.clone()
+    }
+}
+
+impl HasReturnValue for QueryOrUpdateDefinition {
+    fn get_return_type(&self) -> DataType {
+        self.return_type.clone()
+    }
+}
+
+impl QueryOrUpdateDefinition {
+    fn generate_function_body(&self, keyword_list: &Vec<String>) -> TokenStream {
+        let function_name = self.name.to_identifier();
+        let params = self.create_parameter_list_token_stream(keyword_list, &self.name);
+
+        let function_body = &self.body;
+
+        let return_type_token = self.create_return_type_annotation(keyword_list, &self.name);
+        let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
+            quote! {
+                ic_cdk::api::call::ManualReply<#return_type_token>
+            }
+        } else {
+            return_type_token
+        };
+
+        quote! {
+            async fn #function_name(#params) -> #wrapped_return_type {
+                #function_body
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum QueryOrUpdateMethod {
+    Query(QueryMethod),
+    Update(UpdateMethod),
+}
+
+impl std::ops::Deref for QueryOrUpdateMethod {
+    type Target = QueryOrUpdateDefinition;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            QueryOrUpdateMethod::Query(query) => &query.definition,
+            QueryOrUpdateMethod::Update(update) => &update.definition,
+        }
+    }
 }
 
 impl fmt::Display for CanisterMethodType {
