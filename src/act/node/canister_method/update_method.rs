@@ -39,18 +39,6 @@ impl Deref for UpdateMethod {
     }
 }
 
-impl HasParams for UpdateMethod {
-    fn get_params(&self) -> Vec<Param> {
-        self.params.clone()
-    }
-}
-
-impl HasReturnValue for UpdateMethod {
-    fn get_return_type(&self) -> DataType {
-        self.return_type.clone()
-    }
-}
-
 impl Proclaim<Vec<String>> for UpdateMethod {
     fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         let function_declaration = self.generate_function_body(keyword_list);
@@ -76,5 +64,17 @@ impl Proclaim<Vec<String>> for UpdateMethod {
         let param_declarations = self.collect_param_inline_declarations(keyword_list, &self.name);
         let return_declarations = self.collect_return_inline_declarations(keyword_list, &self.name);
         vec![param_declarations, return_declarations].concat()
+    }
+}
+
+impl HasParams for UpdateMethod {
+    fn get_params(&self) -> Vec<Param> {
+        self.params.clone()
+    }
+}
+
+impl HasReturnValue for UpdateMethod {
+    fn get_return_type(&self) -> DataType {
+        self.return_type.clone()
     }
 }
