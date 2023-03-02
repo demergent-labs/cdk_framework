@@ -1,13 +1,7 @@
 use quote::quote;
 
-use super::{
-    type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    DataType,
-};
-use crate::{
-    act::node::{proclamation::Proclaim, Declaration},
-    ToDataType,
-};
+use super::type_annotation::{ToTypeAnnotation, TypeAnnotation};
+use crate::act::node::{proclamation::Proclaim, Declaration};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
@@ -31,12 +25,6 @@ pub enum Primitive {
     Reserved,
     String,
     Void,
-}
-
-impl ToDataType for Primitive {
-    fn to_data_type(&self) -> DataType {
-        DataType::Primitive(self.clone())
-    }
 }
 
 impl<C> ToTypeAnnotation<C> for Primitive {
