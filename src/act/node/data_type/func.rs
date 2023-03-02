@@ -191,10 +191,7 @@ impl Proclaim<Vec<String>> for Func {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        Some(self.generate_func_struct_and_impls(
-            keyword_list,
-            self.create_identifier(parental_prefix).unwrap(),
-        ))
+        Some(self.generate_func_struct_and_impls(keyword_list, self.get_name(parental_prefix)))
     }
 
     fn create_identifier(&self, parental_prefix: String) -> Option<String> {
