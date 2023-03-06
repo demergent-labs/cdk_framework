@@ -21,8 +21,7 @@ impl Proclaim<NodeContext> for InitMethod {
     fn create_declaration(&self, context: &NodeContext, _: String) -> Option<Declaration> {
         let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
         let body = &self.body;
-        let params =
-            self.create_parameter_list_token_stream(&context.keyword_list, &self.get_name());
+        let params = self.create_parameter_list_token_stream(&context.keyword_list);
         Some(quote! {
             #[ic_cdk_macros::init]
             #[candid::candid_method(init)]
@@ -37,12 +36,16 @@ impl Proclaim<NodeContext> for InitMethod {
     }
 
     fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<Declaration> {
-        self.collect_param_inline_declarations(&context.keyword_list, &self.get_name())
+        self.collect_param_inline_declarations(&context.keyword_list)
     }
 }
 
 impl HasParams for InitMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
+    }
+
+    fn get_name(&self) -> String {
+        self.get_name()
     }
 }

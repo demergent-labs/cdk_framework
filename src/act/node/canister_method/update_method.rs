@@ -61,8 +61,8 @@ impl Proclaim<Vec<String>> for UpdateMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_declarations(keyword_list, &self.name);
-        let return_declarations = self.collect_return_inline_declarations(keyword_list, &self.name);
+        let param_declarations = self.collect_param_inline_declarations(keyword_list);
+        let return_declarations = self.collect_return_inline_declarations(keyword_list);
         vec![param_declarations, return_declarations].concat()
     }
 }
@@ -71,10 +71,18 @@ impl HasParams for UpdateMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
+
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
 }
 
 impl HasReturnValue for UpdateMethod {
     fn get_return_type(&self) -> DataType {
         self.return_type.clone()
+    }
+
+    fn get_name(&self) -> String {
+        self.name.clone()
     }
 }
