@@ -1,17 +1,18 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{
-    act::{
-        node::{
-            candid::func, declaration::Declare, AsNode, CandidType, CanisterMethod, Context,
-            Declaration, ExternalCanister, GuardFunction,
-        },
-        CandidTypes, CanisterMethods, VmValueConversions,
+use crate::act::{
+    candid_file_generation,
+    node::{
+        candid::func, declaration::Declare, AsNode, CandidType, CanisterMethod, Context,
+        Declaration, ExternalCanister, GuardFunction,
     },
-    generators::{candid_file_generation, random, vm_value_conversion},
+    random, vm_value_conversion, CandidTypes, CanisterMethods, VmValueConversions,
 };
 
+// pub mod candid_file_generation;
+// pub mod random;
+// pub mod vm_value_conversion;
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
     pub cdk_name: String,
