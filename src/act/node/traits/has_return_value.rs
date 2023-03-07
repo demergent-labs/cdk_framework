@@ -1,14 +1,14 @@
 use crate::act::node::{
-    data_type::{
+    candid::{
         type_annotation::{ToTypeAnnotation, TypeAnnotation},
-        DataType,
+        CandidType,
     },
     declaration::Declare,
     Declaration,
 };
 
 pub trait HasReturnValue {
-    fn get_return_type(&self) -> DataType;
+    fn get_return_type(&self) -> CandidType;
 
     fn get_name(&self) -> String;
 

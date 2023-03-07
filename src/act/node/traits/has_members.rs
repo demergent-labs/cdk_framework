@@ -1,7 +1,7 @@
-use crate::act::node::{data_type::DataType, declaration::Declare, Declaration};
+use crate::act::node::{candid::CandidType, declaration::Declare, Declaration};
 
 pub trait HasMembers {
-    fn get_members(&self) -> Vec<DataType>;
+    fn get_members(&self) -> Vec<CandidType>;
 
     fn collect_member_inline_declarations(
         &self,

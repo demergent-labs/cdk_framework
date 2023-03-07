@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::node::{data_type::type_annotation::ToTypeAnnotation, DataType},
+    act::node::{candid::type_annotation::ToTypeAnnotation, CandidType},
     keyword,
     traits::ToIdent,
 };
@@ -10,7 +10,7 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct Member {
     pub name: String,
-    pub type_: DataType,
+    pub candid_type: CandidType,
 }
 
 impl Member {
@@ -19,24 +19,26 @@ impl Member {
         keyword_list: &Vec<String>,
         member_prefix: String,
     ) -> TokenStream {
-        let member_type_token_stream = match self.type_.clone() {
-            DataType::Primitive(_) => {
+        let member_type_token_stream = match self.candid_type.clone() {
+            CandidType::Primitive(_) => {
                 if self
-                    .type_
+                    .candid_type
                     .to_type_annotation(keyword_list, member_prefix.clone())
                     .to_string()
                     == quote!((())).to_string()
                 {
                     quote!()
                 } else {
-                    let member_type_token_stream =
-                        self.type_.to_type_annotation(keyword_list, member_prefix);
+                    let member_type_token_stream = self
+                        .candid_type
+                        .to_type_annotation(keyword_list, member_prefix);
                     quote!((#member_type_token_stream))
                 }
             }
             _ => {
-                let member_type_annotation =
-                    self.type_.to_type_annotation(keyword_list, member_prefix);
+                let member_type_annotation = self
+                    .candid_type
+                    .to_type_annotation(keyword_list, member_prefix);
                 quote!((#member_type_annotation))
             }
         };

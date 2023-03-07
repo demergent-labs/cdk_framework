@@ -2,13 +2,13 @@ use quote::quote;
 
 use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    DataType,
+    CandidType,
 };
 use crate::act::node::{declaration::Declare, traits::HasEnclosedType, Declaration};
 
 #[derive(Clone, Debug)]
 pub struct Array {
-    pub enclosed_type: Box<DataType>,
+    pub enclosed_type: Box<CandidType>,
 }
 
 impl ToTypeAnnotation<Vec<String>> for Array {
@@ -44,7 +44,7 @@ impl Declare<Vec<String>> for Array {
 }
 
 impl HasEnclosedType for Array {
-    fn get_enclosed_type(&self) -> DataType {
+    fn get_enclosed_type(&self) -> CandidType {
         *self.enclosed_type.clone()
     }
 }

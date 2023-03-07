@@ -7,7 +7,7 @@ use crate::act::node::{
     declaration::Declare,
     param::Param,
     traits::{HasParams, HasReturnValue},
-    DataType, Declaration,
+    CandidType, Declaration,
 };
 
 /// Describes a Rust canister method function body
@@ -74,7 +74,7 @@ impl HasParams for UpdateMethod {
 }
 
 impl HasReturnValue for UpdateMethod {
-    fn get_return_type(&self) -> DataType {
+    fn get_return_type(&self) -> CandidType {
         self.return_type.clone()
     }
 

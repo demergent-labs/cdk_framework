@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::act::node::{
-    data_type::type_annotation::{ToTypeAnnotation, TypeAnnotation},
+    candid::type_annotation::{ToTypeAnnotation, TypeAnnotation},
     declaration::Declare,
     param::Param,
     Declaration,
@@ -31,9 +31,8 @@ pub trait HasParams {
         keyword_list: &Vec<String>,
     ) -> Option<TypeAnnotation> {
         match self.get_params().get(param_index) {
-            Some(param_data_type) => Some(
-                param_data_type
-                    .to_type_annotation(keyword_list, self.create_param_prefix(param_index)),
+            Some(candid_type) => Some(
+                candid_type.to_type_annotation(keyword_list, self.create_param_prefix(param_index)),
             ),
             None => None,
         }

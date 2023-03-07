@@ -1,16 +1,16 @@
 use proc_macro2::TokenStream;
 
 use crate::{
-    act::node::{data_type::type_annotation::ToTypeAnnotation, DataType},
+    act::node::{candid::type_annotation::ToTypeAnnotation, CandidType},
     traits::ToIdent,
 };
 
-use super::{data_type::type_annotation::TypeAnnotation, declaration::Declare, Declaration};
+use super::{candid::type_annotation::TypeAnnotation, declaration::Declare, Declaration};
 
 #[derive(Debug, Clone)]
 pub struct Param {
     pub name: String,
-    pub type_: DataType,
+    pub candid_type: CandidType,
 }
 
 impl Param {
@@ -41,7 +41,7 @@ impl ToTypeAnnotation<Vec<String>> for Param {
         keyword_list: &Vec<String>,
         function_prefix: String,
     ) -> TypeAnnotation {
-        self.type_
+        self.candid_type
             .to_type_annotation(keyword_list, self.get_name(function_prefix))
     }
 }
@@ -56,6 +56,7 @@ impl Declare<Vec<String>> for Param {
         context: &Vec<String>,
         function_prefix: String,
     ) -> Vec<Declaration> {
-        self.type_.flatten(context, self.get_name(function_prefix))
+        self.candid_type
+            .flatten(context, self.get_name(function_prefix))
     }
 }

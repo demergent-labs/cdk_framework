@@ -2,7 +2,7 @@ use quote::{quote, ToTokens};
 
 use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    DataType,
+    CandidType,
 };
 use crate::{
     act::node::{declaration::Declare, traits::HasEnclosedType, Declaration},
@@ -12,7 +12,7 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct TypeAlias {
     pub name: String,
-    pub aliased_type: Box<DataType>,
+    pub aliased_type: Box<CandidType>,
 }
 
 impl ToTypeAnnotation<Vec<String>> for TypeAlias {
@@ -45,7 +45,7 @@ impl Declare<Vec<String>> for TypeAlias {
 }
 
 impl HasEnclosedType for TypeAlias {
-    fn get_enclosed_type(&self) -> DataType {
+    fn get_enclosed_type(&self) -> CandidType {
         *self.aliased_type.clone()
     }
 }

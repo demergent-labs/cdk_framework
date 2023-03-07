@@ -5,14 +5,14 @@ use crate::act::node::{
     declaration::Declare,
     param::Param,
     traits::{HasParams, HasReturnValue},
-    DataType, Declaration,
+    CandidType, Declaration,
 };
 
 #[derive(Clone, Debug)]
 pub struct ExternalCanisterMethod {
     pub name: String,
     pub params: Vec<Param>,
-    pub return_type: DataType,
+    pub return_type: CandidType,
     pub canister_name: String,
 }
 
@@ -150,7 +150,7 @@ impl HasParams for ExternalCanisterMethod {
 }
 
 impl HasReturnValue for ExternalCanisterMethod {
-    fn get_return_type(&self) -> DataType {
+    fn get_return_type(&self) -> CandidType {
         self.return_type.clone()
     }
 

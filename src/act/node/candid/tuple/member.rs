@@ -1,11 +1,11 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::node::{data_type::type_annotation::ToTypeAnnotation, DataType};
+use crate::act::node::{candid::type_annotation::ToTypeAnnotation, CandidType};
 
 #[derive(Clone, Debug)]
 pub struct Member {
-    pub type_: DataType,
+    pub candid_type: CandidType,
 }
 
 impl Member {
@@ -14,7 +14,9 @@ impl Member {
         keyword_list: &Vec<String>,
         member_prefix: String,
     ) -> TokenStream {
-        let type_annotation = self.type_.to_type_annotation(keyword_list, member_prefix);
+        let type_annotation = self
+            .candid_type
+            .to_type_annotation(keyword_list, member_prefix);
         quote!(Box<#type_annotation>)
     }
 }

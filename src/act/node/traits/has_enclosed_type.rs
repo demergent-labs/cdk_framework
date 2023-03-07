@@ -1,7 +1,7 @@
-use crate::act::node::{data_type::DataType, declaration::Declare, Declaration};
+use crate::act::node::{candid::CandidType, declaration::Declare, Declaration};
 
 pub trait HasEnclosedType {
-    fn get_enclosed_type(&self) -> DataType;
+    fn get_enclosed_type(&self) -> CandidType;
 
     fn collect_enclosed_type_inline_declaration(
         &self,

@@ -4,7 +4,7 @@ use quote::quote;
 use crate::{
     act::node::{
         traits::{HasParams, HasReturnValue},
-        DataType, Param,
+        CandidType, Param,
     },
     traits::ToIdent,
 };
@@ -16,7 +16,7 @@ pub struct QueryOrUpdateDefinition {
     pub is_manual: bool,
     pub is_async: bool,
     pub name: String,
-    pub return_type: DataType,
+    pub return_type: CandidType,
     pub cdk_name: String,
     pub guard_function_name: Option<String>,
 }
@@ -56,7 +56,7 @@ impl HasParams for QueryOrUpdateDefinition {
 }
 
 impl HasReturnValue for QueryOrUpdateDefinition {
-    fn get_return_type(&self) -> DataType {
+    fn get_return_type(&self) -> CandidType {
         self.return_type.clone()
     }
 

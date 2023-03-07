@@ -1,11 +1,12 @@
+use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
 use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    DataType,
+    CandidType,
 };
 use crate::{
-    act::node::{declaration::Declare, traits::has_members::HasMembers, Declaration},
+    act::node::{declaration::Declare, traits::HasMembers, Declaration},
     traits::ToIdent,
 };
 
@@ -14,39 +15,34 @@ pub mod member;
 pub use self::member::Member;
 
 #[derive(Clone, Debug)]
-pub struct Record {
+pub struct Variant {
     pub name: Option<String>,
     pub members: Vec<Member>,
 }
 
-impl Record {
+impl Variant {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Record", parental_prefix),
+            None => format!("{}Variant", parental_prefix),
         }
     }
 }
 
-impl ToTypeAnnotation<Vec<String>> for Record {
-    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TypeAnnotation {
-        match &self.name {
-            Some(name) => name.clone(),
-            None => format!("{}Record", parental_prefix),
-        }
-        .to_ident()
-        .to_token_stream()
+impl<C> ToTypeAnnotation<C> for Variant {
+    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
+        self.get_name(parental_prefix).to_ident().to_token_stream()
     }
 }
 
-impl Declare<Vec<String>> for Record {
+impl Declare<Vec<String>> for Variant {
     fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let record_ident = self.get_name(parental_prefix.clone()).to_ident();
-        let member_token_streams: Vec<_> = self
+        let variant_ident = self.get_name(parental_prefix.clone()).to_ident();
+        let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
             .enumerate()
@@ -59,7 +55,7 @@ impl Declare<Vec<String>> for Record {
             .collect();
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            struct #record_ident {
+            enum #variant_ident {
                 #(#member_token_streams),*
             }
         ))
@@ -70,15 +66,18 @@ impl Declare<Vec<String>> for Record {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(keyword_list, self.get_name(parental_prefix))
+        self.collect_member_inline_declarations(
+            keyword_list,
+            self.get_name(parental_prefix.clone()),
+        )
     }
 }
 
-impl HasMembers for Record {
-    fn get_members(&self) -> Vec<DataType> {
+impl HasMembers for Variant {
+    fn get_members(&self) -> Vec<CandidType> {
         self.members
             .iter()
-            .map(|member| member.type_.clone())
+            .map(|member| member.candid_type.clone())
             .collect()
     }
 }

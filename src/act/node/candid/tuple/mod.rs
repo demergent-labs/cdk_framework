@@ -3,10 +3,10 @@ use quote::{quote, ToTokens};
 
 use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    DataType,
+    CandidType,
 };
 use crate::{
-    act::node::{declaration::Declare, traits::HasMembers, Declaration},
+    act::node::{declaration::Declare, traits::has_members::HasMembers, Declaration},
     traits::ToIdent,
 };
 
@@ -15,34 +15,34 @@ pub mod member;
 pub use self::member::Member;
 
 #[derive(Clone, Debug)]
-pub struct Variant {
+pub struct Tuple {
     pub name: Option<String>,
     pub members: Vec<Member>,
 }
 
-impl Variant {
+impl Tuple {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Variant", parental_prefix),
+            None => format!("{}Tuple", parental_prefix),
         }
     }
 }
 
-impl<C> ToTypeAnnotation<C> for Variant {
+impl<C> ToTypeAnnotation<C> for Tuple {
     fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
         self.get_name(parental_prefix).to_ident().to_token_stream()
     }
 }
 
-impl Declare<Vec<String>> for Variant {
+impl Declare<Vec<String>> for Tuple {
     fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let variant_ident = self.get_name(parental_prefix.clone()).to_ident();
-        let member_token_streams: Vec<TokenStream> = self
+        let tuple_ident = self.get_name(parental_prefix.clone()).to_ident();
+        let member_idents: Vec<TokenStream> = self
             .members
             .iter()
             .enumerate()
@@ -53,11 +53,19 @@ impl Declare<Vec<String>> for Variant {
                 )
             })
             .collect();
+
+        let member_idents = if member_idents.len() == 1 {
+            let member_ident = &member_idents[0];
+            quote!((#member_ident,))
+        } else {
+            quote!(#(#member_idents),*)
+        };
+
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            enum #variant_ident {
-                #(#member_token_streams),*
-            }
+            struct #tuple_ident (
+                #member_idents
+            );
         ))
     }
 
@@ -66,18 +74,15 @@ impl Declare<Vec<String>> for Variant {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(
-            keyword_list,
-            self.get_name(parental_prefix.clone()),
-        )
+        self.collect_member_inline_declarations(keyword_list, self.get_name(parental_prefix))
     }
 }
 
-impl HasMembers for Variant {
-    fn get_members(&self) -> Vec<DataType> {
+impl HasMembers for Tuple {
+    fn get_members(&self) -> Vec<CandidType> {
         self.members
             .iter()
-            .map(|member| member.type_.clone())
+            .map(|elem| elem.candid_type.clone())
             .collect()
     }
 }

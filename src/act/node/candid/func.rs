@@ -3,7 +3,7 @@ use quote::{quote, ToTokens};
 
 use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    DataType,
+    CandidType,
 };
 use crate::{
     act::node::{declaration::Declare, Declaration},
@@ -13,8 +13,8 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct Func {
     pub name: Option<String>,
-    pub params: Vec<DataType>,
-    pub return_type: Box<DataType>,
+    pub params: Vec<CandidType>,
+    pub return_type: Box<CandidType>,
     pub mode: Mode,
     pub to_vm_value: TokenStream,
     pub list_to_vm_value: TokenStream,

@@ -3,10 +3,10 @@ use quote::quote;
 
 use crate::{
     act::{
+        candid_types::CandidTypes,
         canister_methods::CanisterMethods,
-        data_types::DataTypes,
         node::{
-            data_type::func, declaration::Declare, CanisterMethod, DataType, ExternalCanister,
+            candid::func, declaration::Declare, CandidType, CanisterMethod, ExternalCanister,
             GuardFunction, Node, NodeContext,
         },
     },
@@ -17,7 +17,7 @@ use crate::{
 pub struct AbstractCanisterTree {
     pub cdk_name: String,
     pub canister_methods: CanisterMethods,
-    pub data_types: DataTypes,
+    pub candid_types: CandidTypes,
     pub external_canisters: Vec<ExternalCanister>,
     pub guard_functions: Vec<GuardFunction>,
     pub header: TokenStream,
@@ -91,10 +91,10 @@ impl AbstractCanisterTree {
             .map(|canister_method| Node::CanisterMethod(canister_method.clone()))
             .collect();
 
-        let data_types = self
-            .collect_data_types()
+        let candid_types = self
+            .collect_candid_types()
             .iter()
-            .map(|data_type| Node::DataType(data_type.clone()))
+            .map(|candid_type| Node::CandidType(candid_type.clone()))
             .collect();
 
         let guard_functions = self
@@ -111,7 +111,7 @@ impl AbstractCanisterTree {
 
         vec![
             canister_methods,
-            data_types,
+            candid_types,
             guard_functions,
             external_canisters,
         ]
@@ -168,36 +168,36 @@ impl AbstractCanisterTree {
         vec![system_canister_methods, query_methods, update_methods].concat()
     }
 
-    fn collect_data_types(&self) -> Vec<DataType> {
+    fn collect_candid_types(&self) -> Vec<CandidType> {
         let funcs: Vec<_> = self
-            .data_types
+            .candid_types
             .funcs
             .iter()
-            .map(|func| DataType::Func(func.clone()))
+            .map(|func| CandidType::Func(func.clone()))
             .collect();
         let records = self
-            .data_types
+            .candid_types
             .records
             .iter()
-            .map(|record| DataType::Record(record.clone()))
+            .map(|record| CandidType::Record(record.clone()))
             .collect();
         let tuples = self
-            .data_types
+            .candid_types
             .tuples
             .iter()
-            .map(|tuple| DataType::Tuple(tuple.clone()))
+            .map(|tuple| CandidType::Tuple(tuple.clone()))
             .collect();
         let type_aliases = self
-            .data_types
+            .candid_types
             .type_aliases
             .iter()
-            .map(|type_alias| DataType::TypeAlias(type_alias.clone()))
+            .map(|type_alias| CandidType::TypeAlias(type_alias.clone()))
             .collect();
         let variants = self
-            .data_types
+            .candid_types
             .variants
             .iter()
-            .map(|variant| DataType::Variant(variant.clone()))
+            .map(|variant| CandidType::Variant(variant.clone()))
             .collect();
 
         vec![funcs, records, tuples, type_aliases, variants].concat()

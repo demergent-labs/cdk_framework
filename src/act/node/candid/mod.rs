@@ -23,7 +23,7 @@ pub use type_ref::TypeRef;
 pub use variant::Variant;
 
 #[derive(Clone, Debug)]
-pub enum DataType {
+pub enum CandidType {
     Array(Array),
     Func(Func),
     Opt(Opt),
@@ -35,165 +35,167 @@ pub enum DataType {
     Variant(Variant),
 }
 
-impl DataType {
+impl CandidType {
     pub fn as_array(&self) -> Option<&Array> {
         match self {
-            DataType::Array(array) => Some(&array),
+            CandidType::Array(array) => Some(&array),
             _ => None,
         }
     }
 
     pub fn as_func(&self) -> Option<&Func> {
         match self {
-            DataType::Func(func) => Some(&func),
+            CandidType::Func(func) => Some(&func),
             _ => None,
         }
     }
 
     pub fn as_opt(&self) -> Option<&Opt> {
         match self {
-            DataType::Opt(option) => Some(&option),
+            CandidType::Opt(option) => Some(&option),
             _ => None,
         }
     }
 
     pub fn as_primitive(&self) -> Option<&Primitive> {
         match self {
-            DataType::Primitive(primitive) => Some(&primitive),
+            CandidType::Primitive(primitive) => Some(&primitive),
             _ => None,
         }
     }
 
     pub fn as_record(&self) -> Option<&Record> {
         match self {
-            DataType::Record(record) => Some(&record),
+            CandidType::Record(record) => Some(&record),
             _ => None,
         }
     }
 
     pub fn as_tuple(&self) -> Option<&Tuple> {
         match self {
-            DataType::Tuple(tuple) => Some(&tuple),
+            CandidType::Tuple(tuple) => Some(&tuple),
             _ => None,
         }
     }
 
     pub fn as_type_alias(&self) -> Option<&TypeAlias> {
         match self {
-            DataType::TypeAlias(type_alias) => Some(&type_alias),
+            CandidType::TypeAlias(type_alias) => Some(&type_alias),
             _ => None,
         }
     }
 
     pub fn as_variant(&self) -> Option<&Variant> {
         match self {
-            DataType::Variant(variant) => Some(&variant),
+            CandidType::Variant(variant) => Some(&variant),
             _ => None,
         }
     }
 
     pub fn is_array(&self) -> bool {
         match self {
-            DataType::Array(_) => true,
+            CandidType::Array(_) => true,
             _ => false,
         }
     }
 
     pub fn is_boxed(&self) -> bool {
         match self {
-            DataType::Array(_) => true,
+            CandidType::Array(_) => true,
             _ => false,
         }
     }
 
     pub fn is_func(&self) -> bool {
         match self {
-            DataType::Func(_) => true,
+            CandidType::Func(_) => true,
             _ => false,
         }
     }
 
     pub fn is_opt(&self) -> bool {
         match self {
-            DataType::Opt(_) => true,
+            CandidType::Opt(_) => true,
             _ => false,
         }
     }
 
     pub fn is_primitive(&self) -> bool {
         match self {
-            DataType::Primitive(_) => true,
+            CandidType::Primitive(_) => true,
             _ => false,
         }
     }
 
     pub fn is_record(&self) -> bool {
         match self {
-            DataType::Record(_) => true,
+            CandidType::Record(_) => true,
             _ => false,
         }
     }
 
     pub fn is_tuple(&self) -> bool {
         match self {
-            DataType::Tuple(_) => true,
+            CandidType::Tuple(_) => true,
             _ => false,
         }
     }
 
     pub fn is_variant(&self) -> bool {
         match self {
-            DataType::Variant(_) => true,
+            CandidType::Variant(_) => true,
             _ => false,
         }
     }
 }
 
-impl ToTypeAnnotation<Vec<String>> for DataType {
+impl ToTypeAnnotation<Vec<String>> for CandidType {
     fn to_type_annotation(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> TypeAnnotation {
         match self {
-            DataType::Array(array) => array.to_type_annotation(keyword_list, parental_prefix),
-            DataType::Func(func) => func.to_type_annotation(keyword_list, parental_prefix),
-            DataType::Opt(opt) => opt.to_type_annotation(keyword_list, parental_prefix),
-            DataType::Primitive(primitive) => {
+            CandidType::Array(array) => array.to_type_annotation(keyword_list, parental_prefix),
+            CandidType::Func(func) => func.to_type_annotation(keyword_list, parental_prefix),
+            CandidType::Opt(opt) => opt.to_type_annotation(keyword_list, parental_prefix),
+            CandidType::Primitive(primitive) => {
                 primitive.to_type_annotation(keyword_list, parental_prefix)
             }
-            DataType::Record(record) => record.to_type_annotation(keyword_list, parental_prefix),
-            DataType::Tuple(tuple) => tuple.to_type_annotation(keyword_list, parental_prefix),
-            DataType::TypeAlias(type_alias) => {
+            CandidType::Record(record) => record.to_type_annotation(keyword_list, parental_prefix),
+            CandidType::Tuple(tuple) => tuple.to_type_annotation(keyword_list, parental_prefix),
+            CandidType::TypeAlias(type_alias) => {
                 type_alias.to_type_annotation(keyword_list, parental_prefix)
             }
-            DataType::TypeRef(type_ref) => {
+            CandidType::TypeRef(type_ref) => {
                 type_ref.to_type_annotation(keyword_list, parental_prefix)
             }
-            DataType::Variant(variant) => variant.to_type_annotation(keyword_list, parental_prefix),
+            CandidType::Variant(variant) => {
+                variant.to_type_annotation(keyword_list, parental_prefix)
+            }
         }
     }
 }
 
-impl Declare<Vec<String>> for DataType {
+impl Declare<Vec<String>> for CandidType {
     fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let prefix = format!("DataType{}", parental_prefix);
+        let prefix = format!("CandidType{}", parental_prefix);
         match self {
-            DataType::Array(array) => array.to_declaration(keyword_list, parental_prefix),
-            DataType::Func(func) => func.to_declaration(keyword_list, parental_prefix),
-            DataType::Opt(opt) => opt.to_declaration(keyword_list, parental_prefix),
-            DataType::Primitive(primitive) => {
+            CandidType::Array(array) => array.to_declaration(keyword_list, parental_prefix),
+            CandidType::Func(func) => func.to_declaration(keyword_list, parental_prefix),
+            CandidType::Opt(opt) => opt.to_declaration(keyword_list, parental_prefix),
+            CandidType::Primitive(primitive) => {
                 primitive.to_declaration(keyword_list, parental_prefix)
             }
-            DataType::Record(record) => record.to_declaration(keyword_list, prefix),
-            DataType::Tuple(tuple) => tuple.to_declaration(keyword_list, parental_prefix),
-            DataType::TypeAlias(type_alias) => type_alias.to_declaration(keyword_list, prefix),
-            DataType::TypeRef(type_ref) => type_ref.to_declaration(keyword_list, parental_prefix),
-            DataType::Variant(variant) => variant.to_declaration(keyword_list, parental_prefix),
+            CandidType::Record(record) => record.to_declaration(keyword_list, prefix),
+            CandidType::Tuple(tuple) => tuple.to_declaration(keyword_list, parental_prefix),
+            CandidType::TypeAlias(type_alias) => type_alias.to_declaration(keyword_list, prefix),
+            CandidType::TypeRef(type_ref) => type_ref.to_declaration(keyword_list, parental_prefix),
+            CandidType::Variant(variant) => variant.to_declaration(keyword_list, parental_prefix),
         }
     }
 
@@ -203,27 +205,29 @@ impl Declare<Vec<String>> for DataType {
         parental_prefix: String,
     ) -> Vec<Declaration> {
         match self {
-            DataType::Array(array) => {
+            CandidType::Array(array) => {
                 array.collect_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::Func(func) => func.collect_inline_declarations(keyword_list, parental_prefix),
-            DataType::Opt(opt) => opt.collect_inline_declarations(keyword_list, parental_prefix),
-            DataType::Primitive(primitive) => {
+            CandidType::Func(func) => {
+                func.collect_inline_declarations(keyword_list, parental_prefix)
+            }
+            CandidType::Opt(opt) => opt.collect_inline_declarations(keyword_list, parental_prefix),
+            CandidType::Primitive(primitive) => {
                 primitive.collect_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::Record(record) => {
+            CandidType::Record(record) => {
                 record.collect_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::Tuple(tuple) => {
+            CandidType::Tuple(tuple) => {
                 tuple.collect_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::TypeAlias(type_alias) => {
+            CandidType::TypeAlias(type_alias) => {
                 type_alias.collect_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::TypeRef(type_ref) => {
+            CandidType::TypeRef(type_ref) => {
                 type_ref.collect_inline_declarations(keyword_list, parental_prefix)
             }
-            DataType::Variant(variant) => {
+            CandidType::Variant(variant) => {
                 variant.collect_inline_declarations(keyword_list, parental_prefix)
             }
         }

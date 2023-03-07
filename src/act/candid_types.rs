@@ -1,6 +1,6 @@
-use super::node::data_type::{Func, Record, Tuple, TypeAlias, Variant};
+use super::node::candid::{Func, Record, Tuple, TypeAlias, Variant};
 
-pub struct DataTypes {
+pub struct CandidTypes {
     pub funcs: Vec<Func>,
     pub records: Vec<Record>,
     pub tuples: Vec<Tuple>,
