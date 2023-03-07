@@ -23,6 +23,9 @@ pub trait HasReturnValue {
     }
 
     fn create_return_type_prefix(&self) -> String {
-        format!("{}ReturnType", self.get_inline_prefix())
+        format!(
+            "{inline_prefix}ReturnType",
+            inline_prefix = self.get_inline_prefix()
+        )
     }
 }

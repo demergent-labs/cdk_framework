@@ -25,7 +25,11 @@ pub struct EcmContext {
 
 impl ExternalCanisterMethod {
     fn create_qualified_name(&self) -> String {
-        format!("{}{}", self.canister_name, self.name)
+        format!(
+            "{canister_name}{method_name}",
+            canister_name = self.canister_name,
+            method_name = self.name
+        )
     }
 
     fn generate_function(&self, function_type: &str, context: &EcmContext) -> TokenStream {

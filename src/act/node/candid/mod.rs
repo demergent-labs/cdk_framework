@@ -191,7 +191,6 @@ impl Declare<Vec<String>> for CandidType {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let prefix = format!("CandidType{}", parental_prefix);
         match self {
             CandidType::Array(array) => array.to_declaration(keyword_list, parental_prefix),
             CandidType::Func(func) => func.to_declaration(keyword_list, parental_prefix),
@@ -199,9 +198,11 @@ impl Declare<Vec<String>> for CandidType {
             CandidType::Primitive(primitive) => {
                 primitive.to_declaration(keyword_list, parental_prefix)
             }
-            CandidType::Record(record) => record.to_declaration(keyword_list, prefix),
+            CandidType::Record(record) => record.to_declaration(keyword_list, parental_prefix),
             CandidType::Tuple(tuple) => tuple.to_declaration(keyword_list, parental_prefix),
-            CandidType::TypeAlias(type_alias) => type_alias.to_declaration(keyword_list, prefix),
+            CandidType::TypeAlias(type_alias) => {
+                type_alias.to_declaration(keyword_list, parental_prefix)
+            }
             CandidType::TypeRef(type_ref) => type_ref.to_declaration(keyword_list, parental_prefix),
             CandidType::Variant(variant) => variant.to_declaration(keyword_list, parental_prefix),
         }

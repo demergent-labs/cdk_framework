@@ -23,7 +23,7 @@ impl Record {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Record", parental_prefix),
+            None => format!("{parental_prefix}Record"),
         }
     }
 }
@@ -32,7 +32,7 @@ impl ToTypeAnnotation<Vec<String>> for Record {
     fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TypeAnnotation {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Record", parental_prefix),
+            None => format!("{parental_prefix}Record"),
         }
         .to_ident()
         .to_token_stream()

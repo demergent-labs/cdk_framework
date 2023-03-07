@@ -15,7 +15,7 @@ pub struct Param {
 
 impl Param {
     pub fn get_prefixed_name(&self) -> String {
-        format!("_cdk_user_defined_{}", self.name)
+        format!("_cdk_user_defined_{name}", name = self.name)
     }
 
     pub fn to_token_stream(
@@ -31,7 +31,10 @@ impl Param {
     }
 
     fn create_param_type_prefix(&self, function_prefix: String) -> String {
-        format!("{}{}", function_prefix, self.get_prefixed_name())
+        format!(
+            "{function_prefix}{param_prefix}",
+            param_prefix = self.get_prefixed_name()
+        )
     }
 }
 

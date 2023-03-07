@@ -24,7 +24,7 @@ impl Variant {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Variant", parental_prefix),
+            None => format!("{parental_prefix}Variant"),
         }
     }
 }

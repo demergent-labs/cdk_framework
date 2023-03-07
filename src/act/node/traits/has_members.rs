@@ -19,6 +19,6 @@ pub trait HasMembers {
     }
 
     fn create_member_prefix(&self, index: usize, name: String) -> String {
-        format!("{}MemberNum{}", name, index)
+        format!("{name}MemberNum{index}")
     }
 }

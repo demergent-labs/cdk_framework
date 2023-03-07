@@ -20,6 +20,6 @@ pub trait HasEnclosedType {
         parental_prefix: String,
         enclosing_type: String,
     ) -> String {
-        format!("{}{}EnclosedType", parental_prefix, enclosing_type)
+        format!("{parental_prefix}{enclosing_type}EnclosedType")
     }
 }

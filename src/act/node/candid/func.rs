@@ -33,7 +33,7 @@ impl Func {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{}Func", parental_prefix),
+            None => format!("{parental_prefix}Func"),
         }
     }
 
@@ -81,8 +81,7 @@ impl Func {
                     // Note: This should be impossible to hit. Anything that isn't
                     // parsable should be caught when going from TS to JS.
                     .expect(&format!(
-                        "Unable to parse parameter type {} in Func {}",
-                        modified_rust_type, type_alias_name
+                        "Unable to parse parameter type {modified_rust_type} in Func {type_alias_name}"
                     ));
 
                 if rust_type == "(())" {
@@ -106,8 +105,7 @@ impl Func {
                 // Note: This should be impossible to hit. Anything that isn't
                 // parsable should be caught when going from TS to JS.
                 .expect(&format!(
-                    "Unable to parse return type {} in Func {}",
-                    return_type_string, type_alias_name
+                    "Unable to parse return type {return_type_string} in Func {type_alias_name}"
                 ));
             quote! { #return_type_token_stream::_ty()}
         };

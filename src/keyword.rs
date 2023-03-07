@@ -79,7 +79,7 @@ pub fn generate_rename_attribute(name: &Ident, keyword_list: &Vec<String>) -> To
 // another one.
 pub fn make_rust_safe(name: &String, keywords: &Vec<String>) -> String {
     if !is_language_safe_keyword(name, keywords) && is_rust_unsafe_keyword(name) {
-        format!("{}_", name)
+        format!("{name}_")
     } else {
         name.clone()
     }
@@ -128,7 +128,7 @@ fn is_language_safe_keyword(name: &String, keywords: &Vec<String>) -> bool {
 // Safe means that it is suffixed with at least one underscore
 fn to_safe_regex(name: &String) -> Regex {
     let name = regex::escape(name);
-    Regex::new(format!(r#"^{}_+$"#, name).as_str()).unwrap()
+    Regex::new(format!(r#"^{name}_+$"#).as_str()).unwrap()
 }
 
 // Convert name to a regex that checks if it is an unsafe keyword to use
@@ -136,5 +136,5 @@ fn to_safe_regex(name: &String) -> Regex {
 // unsafe: from and from_ safe versions of those from_ and from__
 fn to_unsafe_regex(name: &String) -> Regex {
     let name = regex::escape(name);
-    Regex::new(format!(r#"^{}_*$"#, name).as_str()).unwrap()
+    Regex::new(format!(r#"^{name}_*$"#).as_str()).unwrap()
 }
