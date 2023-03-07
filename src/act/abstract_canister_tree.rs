@@ -92,9 +92,10 @@ impl AbstractCanisterTree {
     }
 
     fn collect_canister_methods(&self) -> Vec<CanisterMethod> {
-        let init_method = Some(CanisterMethod::Init(
-            self.canister_methods.init_method.clone(),
-        ));
+        let init_method = match &self.canister_methods.init_method {
+            Some(init_method) => Some(CanisterMethod::Init(init_method.clone())),
+            None => None,
+        };
         let heartbeat_method = match &self.canister_methods.heartbeat_method {
             Some(heartbeat_method) => Some(CanisterMethod::Heartbeat(heartbeat_method.clone())),
             None => None,
@@ -111,9 +112,12 @@ impl AbstractCanisterTree {
             }
             None => None,
         };
-        let post_upgrade_method = Some(CanisterMethod::PostUpgrade(
-            self.canister_methods.post_upgrade_method.clone(),
-        ));
+        let post_upgrade_method = match &self.canister_methods.post_upgrade_method {
+            Some(post_upgrade_method) => {
+                Some(CanisterMethod::PostUpgrade(post_upgrade_method.clone()))
+            }
+            None => None,
+        };
         let system_canister_methods: Vec<_> = vec![
             init_method,
             heartbeat_method,
