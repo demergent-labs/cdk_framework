@@ -11,12 +11,6 @@ pub struct InitMethod {
     pub body: TokenStream,
 }
 
-impl InitMethod {
-    fn get_name(&self) -> String {
-        "InitMethod".to_string()
-    }
-}
-
 impl Declare<Context> for InitMethod {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
@@ -41,7 +35,7 @@ impl HasParams for InitMethod {
         self.params.clone()
     }
 
-    fn get_name(&self) -> String {
-        self.get_name()
+    fn get_inline_prefix(&self) -> String {
+        "InitMethod".to_string()
     }
 }

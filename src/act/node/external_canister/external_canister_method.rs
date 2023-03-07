@@ -144,7 +144,7 @@ impl HasParams for ExternalCanisterMethod {
         self.params.clone()
     }
 
-    fn get_name(&self) -> String {
+    fn get_inline_prefix(&self) -> String {
         self.create_qualified_name()
     }
 }
@@ -154,7 +154,7 @@ impl HasReturnValue for ExternalCanisterMethod {
         self.return_type.clone()
     }
 
-    fn get_name(&self) -> String {
+    fn get_inline_prefix(&self) -> String {
         self.create_qualified_name()
     }
 }

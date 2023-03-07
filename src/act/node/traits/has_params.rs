@@ -11,7 +11,7 @@ use crate::act::node::{
 pub trait HasParams {
     fn get_params(&self) -> Vec<Param>;
 
-    fn get_name(&self) -> String;
+    fn get_inline_prefix(&self) -> String;
 
     fn create_parameter_list_token_stream(&self, keyword_list: &Vec<String>) -> TokenStream {
         let params: Vec<_> = self
@@ -39,7 +39,10 @@ pub trait HasParams {
     }
 
     fn create_param_prefix(&self, param_index: usize) -> String {
-        format!("{name}ParamNum{param_index}", name = self.get_name())
+        format!(
+            "{name}ParamNum{param_index}",
+            name = self.get_inline_prefix()
+        )
     }
 
     fn collect_param_inline_declarations(&self, keyword_list: &Vec<String>) -> Vec<Declaration> {

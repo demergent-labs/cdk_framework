@@ -10,7 +10,7 @@ use crate::act::node::{
 pub trait HasReturnValue {
     fn get_return_type(&self) -> CandidType;
 
-    fn get_name(&self) -> String;
+    fn get_inline_prefix(&self) -> String;
 
     fn create_return_type_annotation(&self, keyword_list: &Vec<String>) -> TypeAnnotation {
         self.get_return_type()
@@ -23,6 +23,6 @@ pub trait HasReturnValue {
     }
 
     fn create_return_type_prefix(&self) -> String {
-        format!("{}ReturnType", self.get_name())
+        format!("{}ReturnType", self.get_inline_prefix())
     }
 }

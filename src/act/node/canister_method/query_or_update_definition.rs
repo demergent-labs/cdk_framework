@@ -50,7 +50,7 @@ impl HasParams for QueryOrUpdateDefinition {
         self.params.clone()
     }
 
-    fn get_name(&self) -> String {
+    fn get_inline_prefix(&self) -> String {
         self.name.clone()
     }
 }
@@ -60,7 +60,7 @@ impl HasReturnValue for QueryOrUpdateDefinition {
         self.return_type.clone()
     }
 
-    fn get_name(&self) -> String {
+    fn get_inline_prefix(&self) -> String {
         self.name.clone()
     }
 }

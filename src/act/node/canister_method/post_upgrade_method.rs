@@ -11,12 +11,6 @@ pub struct PostUpgradeMethod {
     pub body: TokenStream,
 }
 
-impl PostUpgradeMethod {
-    fn get_name(&self) -> String {
-        return "PostUpgrade".to_string();
-    }
-}
-
 impl Declare<Context> for PostUpgradeMethod {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let function_name = format_ident!("_{}_post_upgrade", context.cdk_name.to_lowercase());
@@ -40,7 +34,7 @@ impl HasParams for PostUpgradeMethod {
         self.params.clone()
     }
 
-    fn get_name(&self) -> String {
-        self.get_name()
+    fn get_inline_prefix(&self) -> String {
+        "PostUpgrade".to_string()
     }
 }

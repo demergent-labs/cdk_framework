@@ -68,7 +68,7 @@ impl HasParams for UpdateMethod {
         self.params.clone()
     }
 
-    fn get_name(&self) -> String {
+    fn get_inline_prefix(&self) -> String {
         self.name.clone()
     }
 }
@@ -78,7 +78,7 @@ impl HasReturnValue for UpdateMethod {
         self.return_type.clone()
     }
 
-    fn get_name(&self) -> String {
+    fn get_inline_prefix(&self) -> String {
         self.name.clone()
     }
 }
