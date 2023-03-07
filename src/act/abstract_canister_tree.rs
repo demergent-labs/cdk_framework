@@ -3,17 +3,14 @@ use quote::quote;
 
 use crate::{
     act::{
-        candid_types::CandidTypes,
-        canister_methods::CanisterMethods,
         node::{
-            candid::func, declaration::Declare, CandidType, CanisterMethod, ExternalCanister,
-            GuardFunction, NodeContext,
+            candid::func, declaration::Declare, AsNode, CandidType, CanisterMethod, Declaration,
+            ExternalCanister, GuardFunction, NodeContext,
         },
+        CandidTypes, CanisterMethods, VmValueConversions,
     },
     generators::{candid_file_generation, random, vm_value_conversion},
 };
-
-use super::node::{AsNode, Declaration};
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -24,8 +21,7 @@ pub struct AbstractCanisterTree {
     pub guard_functions: Vec<GuardFunction>,
     pub header: TokenStream,
     pub body: TokenStream,
-    pub try_from_vm_value_impls: TokenStream,
-    pub try_into_vm_value_impls: TokenStream,
+    pub vm_value_conversions: VmValueConversions,
     pub keywords: Vec<String>,
 }
 
@@ -36,9 +32,9 @@ impl AbstractCanisterTree {
         let randomness_implementation = random::generate_randomness_implementation(&self.cdk_name);
 
         let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
-        let try_into_vm_value_impls = &self.try_into_vm_value_impls;
+        let try_into_vm_value_impls = &self.vm_value_conversions.try_into_vm_value_impls;
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
-        let try_from_vm_value_impls = &self.try_from_vm_value_impls;
+        let try_from_vm_value_impls = &self.vm_value_conversions.try_from_vm_value_impls;
 
         let func_arg_token = func::generate_func_arg_token();
 
