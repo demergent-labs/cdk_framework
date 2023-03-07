@@ -40,7 +40,7 @@ pub trait HasParams {
     }
 
     fn create_param_prefix(&self, param_index: usize) -> String {
-        format!("{}ParamNum{}", self.get_name(), param_index)
+        format!("{name}ParamNum{param_index}", name = self.get_name())
     }
 
     fn collect_param_inline_declarations(&self, keyword_list: &Vec<String>) -> Vec<Declaration> {
