@@ -23,7 +23,7 @@ impl Param {
         keyword_list: &Vec<String>,
         function_prefix: String,
     ) -> TokenStream {
-        let name = self.prefixed_name().to_identifier();
+        let name = self.prefixed_name().to_ident();
         let type_annotation = self.to_type_annotation(keyword_list, function_prefix);
         quote::quote! {
             #name: #type_annotation

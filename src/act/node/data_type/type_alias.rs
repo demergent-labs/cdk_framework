@@ -17,13 +17,13 @@ pub struct TypeAlias {
 
 impl ToTypeAnnotation<Vec<String>> for TypeAlias {
     fn to_type_annotation(&self, _: &Vec<String>, _: String) -> TypeAnnotation {
-        self.name.to_identifier().to_token_stream()
+        self.name.to_ident().to_token_stream()
     }
 }
 
 impl Proclaim<Vec<String>> for TypeAlias {
     fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
-        let name = self.name.to_identifier();
+        let name = self.name.to_ident();
         let alias = self.aliased_type.to_type_annotation(
             keyword_list,
             self.create_enclosed_type_prefix(self.name.clone(), "TypeAlias".to_string()),

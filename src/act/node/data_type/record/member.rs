@@ -16,7 +16,7 @@ pub struct Member {
 impl Member {
     pub fn to_token_stream(&self, keyword_list: &Vec<String>, prefix: String) -> TokenStream {
         let type_annotation = self.type_.to_type_annotation(keyword_list, prefix);
-        let name = keyword::make_rust_safe(&self.name, keyword_list).to_identifier();
+        let name = keyword::make_rust_safe(&self.name, keyword_list).to_ident();
         let rename_attr = keyword::generate_rename_attribute(&name, keyword_list);
         quote!(#rename_attr #name: Box<#type_annotation>)
     }

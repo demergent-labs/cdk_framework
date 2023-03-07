@@ -34,7 +34,7 @@ impl ToTypeAnnotation<Vec<String>> for Record {
             Some(name) => name.clone(),
             None => format!("{}Record", parental_prefix),
         }
-        .to_identifier()
+        .to_ident()
         .to_token_stream()
     }
 }
@@ -45,7 +45,7 @@ impl Proclaim<Vec<String>> for Record {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let record_ident = self.get_name(parental_prefix.clone()).to_identifier();
+        let record_ident = self.get_name(parental_prefix.clone()).to_ident();
         let member_token_streams: Vec<_> = self
             .members
             .iter()

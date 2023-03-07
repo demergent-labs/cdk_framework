@@ -42,7 +42,7 @@ impl Func {
         keyword_list: &Vec<String>,
         name: String,
     ) -> TokenStream {
-        let type_alias_name = name.to_identifier();
+        let type_alias_name = name.to_ident();
         let func_mode = match self.mode {
             Mode::Query => quote! {candid::parser::types::FuncMode::Query },
             Mode::Oneway => quote! {candid::parser::types::FuncMode::Oneway },
@@ -179,9 +179,7 @@ impl Func {
 
 impl<C> ToTypeAnnotation<C> for Func {
     fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
-        self.get_name(parental_prefix)
-            .to_identifier()
-            .to_token_stream()
+        self.get_name(parental_prefix).to_ident().to_token_stream()
     }
 }
 

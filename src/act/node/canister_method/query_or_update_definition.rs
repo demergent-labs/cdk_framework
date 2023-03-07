@@ -23,7 +23,7 @@ pub struct QueryOrUpdateDefinition {
 
 impl QueryOrUpdateDefinition {
     pub fn generate_function_body(&self, keyword_list: &Vec<String>) -> TokenStream {
-        let function_name = self.name.to_identifier();
+        let function_name = self.name.to_ident();
         let params = self.create_parameter_list_token_stream(keyword_list);
 
         let function_body = &self.body;

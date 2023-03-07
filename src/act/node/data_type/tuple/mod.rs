@@ -31,9 +31,7 @@ impl Tuple {
 
 impl<C> ToTypeAnnotation<C> for Tuple {
     fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
-        self.get_name(parental_prefix)
-            .to_identifier()
-            .to_token_stream()
+        self.get_name(parental_prefix).to_ident().to_token_stream()
     }
 }
 
@@ -43,7 +41,7 @@ impl Proclaim<Vec<String>> for Tuple {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
-        let tuple_ident = self.get_name(parental_prefix.clone()).to_identifier();
+        let tuple_ident = self.get_name(parental_prefix.clone()).to_ident();
         let member_idents: Vec<TokenStream> = self
             .members
             .iter()
