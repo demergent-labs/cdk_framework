@@ -16,10 +16,10 @@ pub struct Func {
     pub params: Vec<CandidType>,
     pub return_type: Box<CandidType>,
     pub mode: Mode,
-    pub to_vm_value: TokenStream,
-    pub list_to_vm_value: TokenStream,
-    pub from_vm_value: TokenStream,
-    pub list_from_vm_value: TokenStream,
+    pub to_vm_value: fn(String) -> TokenStream,
+    pub list_to_vm_value: fn(String) -> TokenStream,
+    pub from_vm_value: fn(String) -> TokenStream,
+    pub list_from_vm_value: fn(String) -> TokenStream,
 }
 
 #[derive(Clone, Debug)]
@@ -94,7 +94,7 @@ impl Func {
             .collect();
         let return_type_string = self
             .return_type
-            .to_type_annotation(keyword_list, name)
+            .to_type_annotation(keyword_list, name.clone())
             .to_string();
         let func_return_type = if return_type_string == "()" || return_type_string == "" {
             quote! {}
@@ -112,10 +112,10 @@ impl Func {
             quote! { #return_type_token_stream::_ty()}
         };
 
-        let func_to_vm_value = &self.to_vm_value;
-        let func_list_to_vm_value = &self.list_to_vm_value;
-        let func_from_vm_value = &self.from_vm_value;
-        let func_list_from_vm_value = &self.list_from_vm_value;
+        let func_to_vm_value = (self.to_vm_value)(name.clone());
+        let func_list_to_vm_value = (self.list_to_vm_value)(name.clone());
+        let func_from_vm_value = (self.from_vm_value)(name.clone());
+        let func_list_from_vm_value = (self.list_from_vm_value)(name.clone());
 
         quote! {
             #[derive(Debug, Clone)]
