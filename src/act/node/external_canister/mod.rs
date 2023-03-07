@@ -6,7 +6,7 @@ pub mod external_canister_method;
 
 pub use external_canister_method::ExternalCanisterMethod;
 
-use super::{declaration::Declare, AsNode, Declaration, Node, NodeContext};
+use super::{declaration::Declare, AsNode, Context, Declaration, Node};
 
 #[derive(Clone, Debug)]
 pub struct ExternalCanister {
@@ -20,8 +20,8 @@ impl AsNode for ExternalCanister {
     }
 }
 
-impl Declare<NodeContext> for ExternalCanister {
-    fn to_declaration(&self, context: &NodeContext, _: String) -> Option<Declaration> {
+impl Declare<Context> for ExternalCanister {
+    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let cross_canister_call_functions: Vec<_> = self
             .methods
             .iter()
@@ -39,7 +39,7 @@ impl Declare<NodeContext> for ExternalCanister {
         Some(quote! { #(#cross_canister_call_functions)*})
     }
 
-    fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<Declaration> {
+    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
         self.methods.iter().fold(vec![], |acc, method| {
             vec![
                 acc,

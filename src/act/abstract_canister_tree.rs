@@ -4,8 +4,8 @@ use quote::quote;
 use crate::{
     act::{
         node::{
-            candid::func, declaration::Declare, AsNode, CandidType, CanisterMethod, Declaration,
-            ExternalCanister, GuardFunction, NodeContext,
+            candid::func, declaration::Declare, AsNode, CandidType, CanisterMethod, Context,
+            Declaration, ExternalCanister, GuardFunction,
         },
         CandidTypes, CanisterMethods, VmValueConversions,
     },
@@ -76,7 +76,7 @@ impl AbstractCanisterTree {
             vec![
                 acc,
                 node.as_node().flatten(
-                    &NodeContext {
+                    &Context {
                         keyword_list: self.keywords.clone(),
                         cdk_name: self.cdk_name.clone(),
                     },

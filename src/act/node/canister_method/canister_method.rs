@@ -2,7 +2,7 @@ use super::{
     HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
     QueryMethod, UpdateMethod,
 };
-use crate::act::node::{declaration::Declare, AsNode, Declaration, Node, NodeContext};
+use crate::act::node::{declaration::Declare, AsNode, Context, Declaration, Node};
 
 #[derive(Clone)]
 pub enum CanisterMethod {
@@ -21,12 +21,8 @@ impl AsNode for CanisterMethod {
     }
 }
 
-impl Declare<NodeContext> for CanisterMethod {
-    fn to_declaration(
-        &self,
-        context: &NodeContext,
-        parental_prefix: String,
-    ) -> Option<Declaration> {
+impl Declare<Context> for CanisterMethod {
+    fn to_declaration(&self, context: &Context, parental_prefix: String) -> Option<Declaration> {
         match self {
             CanisterMethod::Update(update_method) => {
                 update_method.to_declaration(&context.keyword_list, parental_prefix)
@@ -54,7 +50,7 @@ impl Declare<NodeContext> for CanisterMethod {
 
     fn collect_inline_declarations(
         &self,
-        context: &NodeContext,
+        context: &Context,
         parental_prefix: String,
     ) -> Vec<Declaration> {
         match self {
