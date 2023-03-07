@@ -14,7 +14,7 @@ pub use context::Context;
 pub use declaration::Declaration;
 pub use declaration::Declare;
 pub use external_canister::ExternalCanister;
-pub use external_canister::ExternalCanisterMethod;
+pub use external_canister::Method;
 pub use guard_function::GuardFunction;
 pub use node::AsNode;
 pub use node::Node;

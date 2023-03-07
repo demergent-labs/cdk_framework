@@ -5,25 +5,18 @@ use crate::act::node::{
     declaration::Declare,
     param::Param,
     traits::{HasParams, HasReturnValue},
-    CandidType, Declaration,
+    CandidType, Context, Declaration,
 };
 
 #[derive(Clone, Debug)]
-pub struct ExternalCanisterMethod {
+pub struct Method {
     pub name: String,
     pub params: Vec<Param>,
     pub return_type: CandidType,
     pub canister_name: String,
 }
 
-#[derive(Clone)]
-pub struct EcmContext {
-    pub canister_name: String,
-    pub keyword_list: Vec<String>,
-    pub cdk_name: String,
-}
-
-impl ExternalCanisterMethod {
+impl Method {
     fn create_qualified_name(&self) -> String {
         format!(
             "{canister_name}{method_name}",
@@ -32,7 +25,7 @@ impl ExternalCanisterMethod {
         )
     }
 
-    fn generate_function(&self, function_type: &str, context: &EcmContext) -> TokenStream {
+    fn generate_function(&self, function_type: &str, context: &Context) -> TokenStream {
         let is_oneway = function_type.contains("notify");
 
         let async_or_not = if is_oneway {
@@ -45,11 +38,11 @@ impl ExternalCanisterMethod {
             "_{}_{}_{}_{}",
             context.cdk_name,
             function_type,
-            context.canister_name,
+            self.canister_name,
             &self.name
         );
 
-        let param_types = self.param_types_as_tuple(&context.keyword_list, &context.canister_name);
+        let param_types = self.param_types_as_tuple(&context.keyword_list, &self.canister_name);
 
         let cycles_param = if function_type.contains("with_payment128") {
             quote! { , cycles: u128 }
@@ -117,8 +110,8 @@ impl ExternalCanisterMethod {
     }
 }
 
-impl Declare<EcmContext> for ExternalCanisterMethod {
-    fn to_declaration(&self, context: &EcmContext, _: String) -> Option<Declaration> {
+impl Declare<Context> for Method {
+    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -136,14 +129,14 @@ impl Declare<EcmContext> for ExternalCanisterMethod {
         })
     }
 
-    fn collect_inline_declarations(&self, context: &EcmContext, _: String) -> Vec<Declaration> {
+    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
         let param_declarations = self.collect_param_inline_declarations(&context.keyword_list);
         let return_declarations = self.collect_return_inline_declarations(&context.keyword_list);
         vec![param_declarations, return_declarations].concat()
     }
 }
 
-impl HasParams for ExternalCanisterMethod {
+impl HasParams for Method {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
@@ -153,7 +146,7 @@ impl HasParams for ExternalCanisterMethod {
     }
 }
 
-impl HasReturnValue for ExternalCanisterMethod {
+impl HasReturnValue for Method {
     fn get_return_type(&self) -> CandidType {
         self.return_type.clone()
     }
