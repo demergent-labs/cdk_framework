@@ -2,7 +2,7 @@ use super::{
     HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
     QueryMethod, UpdateMethod,
 };
-use crate::act::node::{declaration::Declare, Declaration, NodeContext};
+use crate::act::node::{declaration::Declare, AsNode, Declaration, Node, NodeContext};
 
 #[derive(Clone)]
 pub enum CanisterMethod {
@@ -13,6 +13,12 @@ pub enum CanisterMethod {
     PostUpgrade(PostUpgradeMethod),
     InspectMessage(InspectMessageMethod),
     Heartbeat(HeartbeatMethod),
+}
+
+impl AsNode for CanisterMethod {
+    fn as_node(self) -> Node {
+        Node::CanisterMethod(self)
+    }
 }
 
 impl Declare<NodeContext> for CanisterMethod {

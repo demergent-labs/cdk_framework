@@ -24,6 +24,10 @@ pub enum Node {
     GuardFunction(GuardFunction),
 }
 
+pub trait AsNode {
+    fn as_node(self) -> Node;
+}
+
 #[derive(Clone)]
 pub struct NodeContext {
     pub keyword_list: Vec<String>,

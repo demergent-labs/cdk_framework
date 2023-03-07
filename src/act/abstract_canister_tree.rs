@@ -7,11 +7,13 @@ use crate::{
         canister_methods::CanisterMethods,
         node::{
             candid::func, declaration::Declare, CandidType, CanisterMethod, ExternalCanister,
-            GuardFunction, Node, NodeContext,
+            GuardFunction, NodeContext,
         },
     },
     generators::{candid_file_generation, random, vm_value_conversion},
 };
+
+use super::node::{AsNode, Declaration};
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -29,34 +31,6 @@ pub struct AbstractCanisterTree {
 
 impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
-        let canister_declaration_code = self.create_act_not_function_code();
-
-        let child_declarations: Vec<_> =
-            self.collect_children()
-                .iter()
-                .fold(vec![], |acc, child_node| {
-                    let child_declarations = child_node.flatten(
-                        &NodeContext {
-                            cdk_name: self.cdk_name.clone(),
-                            keyword_list: self.keywords.clone(),
-                        },
-                        "Canister".to_string(),
-                    );
-                    vec![acc, child_declarations].concat()
-                });
-
-        let candid_file_generation_code =
-            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
-
-        quote! {
-            #canister_declaration_code
-            #(#child_declarations)*
-            #candid_file_generation_code
-        }
-    }
-
-    fn create_act_not_function_code(&self) -> TokenStream {
-        let body = &self.body;
         let header = &self.header;
 
         let randomness_implementation = random::generate_randomness_implementation(&self.cdk_name);
@@ -67,6 +41,16 @@ impl AbstractCanisterTree {
         let try_from_vm_value_impls = &self.try_from_vm_value_impls;
 
         let func_arg_token = func::generate_func_arg_token();
+
+        let body = &self.body;
+
+        let canister_method_decls = self.generate_declarations(self.collect_canister_methods());
+        let candid_type_decls = self.generate_declarations(self.collect_candid_types());
+        let guard_function_decls = self.generate_declarations(self.guard_functions.clone());
+        let external_canister_decls = self.generate_declarations(self.external_canisters.clone());
+
+        let candid_file_generation_code =
+            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
 
         quote! {
             #header
@@ -81,41 +65,30 @@ impl AbstractCanisterTree {
             #func_arg_token
 
             #body
+
+            #(#canister_method_decls)*
+            #(#candid_type_decls)*
+            #(#guard_function_decls)*
+            #(#external_canister_decls)*
+
+            #candid_file_generation_code
         }
     }
 
-    fn collect_children(&self) -> Vec<Node> {
-        let canister_methods: Vec<_> = self
-            .collect_canister_methods()
-            .iter()
-            .map(|canister_method| Node::CanisterMethod(canister_method.clone()))
-            .collect();
-
-        let candid_types = self
-            .collect_candid_types()
-            .iter()
-            .map(|candid_type| Node::CandidType(candid_type.clone()))
-            .collect();
-
-        let guard_functions = self
-            .guard_functions
-            .iter()
-            .map(|function_guard| Node::GuardFunction(function_guard.clone()))
-            .collect();
-
-        let external_canisters = self
-            .external_canisters
-            .iter()
-            .map(|external_canister| Node::ExternalCanister(external_canister.clone()))
-            .collect();
-
-        vec![
-            canister_methods,
-            candid_types,
-            guard_functions,
-            external_canisters,
-        ]
-        .concat()
+    fn generate_declarations<T: AsNode>(&self, list: Vec<T>) -> Vec<Declaration> {
+        list.into_iter().fold(vec![], |acc, node| {
+            vec![
+                acc,
+                node.as_node().flatten(
+                    &NodeContext {
+                        keyword_list: self.keywords.clone(),
+                        cdk_name: self.cdk_name.clone(),
+                    },
+                    "Canister".to_string(),
+                ),
+            ]
+            .concat()
+        })
     }
 
     fn collect_canister_methods(&self) -> Vec<CanisterMethod> {

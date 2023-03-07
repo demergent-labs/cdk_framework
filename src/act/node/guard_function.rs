@@ -1,13 +1,19 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{declaration::Declare, Declaration};
+use super::{declaration::Declare, AsNode, Declaration, Node};
 use crate::traits::ToIdent;
 
 #[derive(Debug, Clone)]
 pub struct GuardFunction {
     pub body: TokenStream,
     pub name: String,
+}
+
+impl AsNode for GuardFunction {
+    fn as_node(self) -> Node {
+        Node::GuardFunction(self)
+    }
 }
 
 impl Declare<Vec<String>> for GuardFunction {

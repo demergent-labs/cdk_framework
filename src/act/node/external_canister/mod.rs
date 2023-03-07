@@ -6,12 +6,18 @@ pub mod external_canister_method;
 
 pub use external_canister_method::ExternalCanisterMethod;
 
-use super::{declaration::Declare, Declaration, NodeContext};
+use super::{declaration::Declare, AsNode, Declaration, Node, NodeContext};
 
 #[derive(Clone, Debug)]
 pub struct ExternalCanister {
     pub name: String,
     pub methods: Vec<ExternalCanisterMethod>,
+}
+
+impl AsNode for ExternalCanister {
+    fn as_node(self) -> Node {
+        Node::ExternalCanister(self)
+    }
 }
 
 impl Declare<NodeContext> for ExternalCanister {

@@ -22,6 +22,8 @@ pub use type_alias::TypeAlias;
 pub use type_ref::TypeRef;
 pub use variant::Variant;
 
+use super::{AsNode, Node};
+
 #[derive(Clone, Debug)]
 pub enum CandidType {
     Array(Array),
@@ -33,6 +35,12 @@ pub enum CandidType {
     TypeAlias(TypeAlias),
     TypeRef(TypeRef),
     Variant(Variant),
+}
+
+impl AsNode for CandidType {
+    fn as_node(self) -> Node {
+        Node::CandidType(self)
+    }
 }
 
 impl CandidType {
