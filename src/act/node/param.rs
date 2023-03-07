@@ -14,7 +14,7 @@ pub struct Param {
 }
 
 impl Param {
-    pub fn prefixed_name(&self) -> String {
+    pub fn get_prefixed_name(&self) -> String {
         format!("_cdk_user_defined_{}", self.name)
     }
 
@@ -23,15 +23,15 @@ impl Param {
         keyword_list: &Vec<String>,
         function_prefix: String,
     ) -> TokenStream {
-        let name = self.prefixed_name().to_ident();
+        let name = self.get_prefixed_name().to_ident();
         let type_annotation = self.to_type_annotation(keyword_list, function_prefix);
         quote::quote! {
             #name: #type_annotation
         }
     }
 
-    fn get_name(&self, function_prefix: String) -> String {
-        format!("{}{}", function_prefix, self.prefixed_name())
+    fn create_param_type_prefix(&self, function_prefix: String) -> String {
+        format!("{}{}", function_prefix, self.get_prefixed_name())
     }
 }
 
@@ -42,7 +42,7 @@ impl ToTypeAnnotation<Vec<String>> for Param {
         function_prefix: String,
     ) -> TypeAnnotation {
         self.candid_type
-            .to_type_annotation(keyword_list, self.get_name(function_prefix))
+            .to_type_annotation(keyword_list, self.create_param_type_prefix(function_prefix))
     }
 }
 
@@ -57,6 +57,6 @@ impl Declare<Vec<String>> for Param {
         function_prefix: String,
     ) -> Vec<Declaration> {
         self.candid_type
-            .flatten(context, self.get_name(function_prefix))
+            .flatten(context, self.create_param_type_prefix(function_prefix))
     }
 }
