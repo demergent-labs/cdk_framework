@@ -5,7 +5,7 @@ use crate::{
     traits::ToIdent,
 };
 
-use super::{data_type::type_annotation::TypeAnnotation, proclamation::Proclaim, Declaration};
+use super::{data_type::type_annotation::TypeAnnotation, declaration::Declare, Declaration};
 
 #[derive(Debug, Clone)]
 pub struct Param {
@@ -46,12 +46,8 @@ impl ToTypeAnnotation<Vec<String>> for Param {
     }
 }
 
-impl Proclaim<Vec<String>> for Param {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
-        None
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
+impl Declare<Vec<String>> for Param {
+    fn to_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
         None
     }
 
@@ -60,8 +56,6 @@ impl Proclaim<Vec<String>> for Param {
         context: &Vec<String>,
         function_prefix: String,
     ) -> Vec<Declaration> {
-        self.type_
-            .create_proclamation(context, self.get_name(function_prefix))
-            .flatten()
+        self.type_.flatten(context, self.get_name(function_prefix))
     }
 }

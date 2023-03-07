@@ -4,8 +4,8 @@ use std::ops::Deref;
 
 use crate::act::node::{
     canister_method::QueryOrUpdateDefinition,
+    declaration::Declare,
     param::Param,
-    proclamation::Proclaim,
     traits::{HasParams, HasReturnValue},
     DataType, Declaration,
 };
@@ -39,8 +39,8 @@ impl Deref for UpdateMethod {
     }
 }
 
-impl Proclaim<Vec<String>> for UpdateMethod {
-    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
+impl Declare<Vec<String>> for UpdateMethod {
+    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         let function_declaration = self.generate_function_body(keyword_list);
 
         let macro_args = self.generate_macro_args();
@@ -50,10 +50,6 @@ impl Proclaim<Vec<String>> for UpdateMethod {
             #[candid::candid_method(update)]
             #function_declaration
         })
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.name.clone())
     }
 
     fn collect_inline_declarations(

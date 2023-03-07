@@ -2,8 +2,8 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::act::node::{
+    declaration::Declare,
     param::Param,
-    proclamation::Proclaim,
     traits::{HasParams, HasReturnValue},
     DataType, Declaration,
 };
@@ -113,8 +113,8 @@ impl ExternalCanisterMethod {
     }
 }
 
-impl Proclaim<EcmContext> for ExternalCanisterMethod {
-    fn create_declaration(&self, context: &EcmContext, _: String) -> Option<Declaration> {
+impl Declare<EcmContext> for ExternalCanisterMethod {
+    fn to_declaration(&self, context: &EcmContext, _: String) -> Option<Declaration> {
         let call_function = self.generate_function("call", &context);
         let call_with_payment_function = self.generate_function("call_with_payment", &context);
         let call_with_payment128_function =
@@ -130,10 +130,6 @@ impl Proclaim<EcmContext> for ExternalCanisterMethod {
             #notify_function
             #notify_with_payment128_function
         })
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.create_qualified_name())
     }
 
     fn collect_inline_declarations(&self, context: &EcmContext, _: String) -> Vec<Declaration> {

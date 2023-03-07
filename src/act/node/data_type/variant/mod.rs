@@ -6,7 +6,7 @@ use super::{
     DataType,
 };
 use crate::{
-    act::node::{proclamation::Proclaim, traits::HasMembers, Declaration},
+    act::node::{declaration::Declare, traits::HasMembers, Declaration},
     traits::ToIdent,
 };
 
@@ -35,8 +35,8 @@ impl<C> ToTypeAnnotation<C> for Variant {
     }
 }
 
-impl Proclaim<Vec<String>> for Variant {
-    fn create_declaration(
+impl Declare<Vec<String>> for Variant {
+    fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
@@ -59,10 +59,6 @@ impl Proclaim<Vec<String>> for Variant {
                 #(#member_token_streams),*
             }
         ))
-    }
-
-    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
-        Some(self.get_name(parental_prefix))
     }
 
     fn collect_inline_declarations(

@@ -5,7 +5,7 @@ use super::{
     DataType,
 };
 use crate::{
-    act::node::{proclamation::Proclaim, traits::HasEnclosedType, Declaration},
+    act::node::{declaration::Declare, traits::HasEnclosedType, Declaration},
     traits::ToIdent,
 };
 
@@ -21,18 +21,14 @@ impl ToTypeAnnotation<Vec<String>> for TypeAlias {
     }
 }
 
-impl Proclaim<Vec<String>> for TypeAlias {
-    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
+impl Declare<Vec<String>> for TypeAlias {
+    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         let name = self.name.to_ident();
         let alias = self.aliased_type.to_type_annotation(
             keyword_list,
             self.create_enclosed_type_prefix(self.name.clone(), "TypeAlias".to_string()),
         );
         Some(quote!(type #name = #alias;))
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.name.clone())
     }
 
     fn collect_inline_declarations(

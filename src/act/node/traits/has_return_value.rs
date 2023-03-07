@@ -3,7 +3,7 @@ use crate::act::node::{
         type_annotation::{ToTypeAnnotation, TypeAnnotation},
         DataType,
     },
-    proclamation::Proclaim,
+    declaration::Declare,
     Declaration,
 };
 
@@ -18,11 +18,8 @@ pub trait HasReturnValue {
     }
 
     fn collect_return_inline_declarations(&self, keyword_list: &Vec<String>) -> Vec<Declaration> {
-        let proclamation = self
-            .get_return_type()
-            .create_proclamation(&keyword_list, self.create_return_type_prefix());
-
-        proclamation.flatten()
+        self.get_return_type()
+            .flatten(&keyword_list, self.create_return_type_prefix())
     }
 
     fn create_return_type_prefix(&self) -> String {

@@ -1,5 +1,5 @@
 use self::type_annotation::{ToTypeAnnotation, TypeAnnotation};
-use crate::act::node::{proclamation::Proclaim, Declaration};
+use crate::act::node::{declaration::Declare, Declaration};
 
 pub mod array;
 pub mod func;
@@ -175,41 +175,25 @@ impl ToTypeAnnotation<Vec<String>> for DataType {
     }
 }
 
-impl Proclaim<Vec<String>> for DataType {
-    fn create_declaration(
+impl Declare<Vec<String>> for DataType {
+    fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
         let prefix = format!("DataType{}", parental_prefix);
         match self {
-            DataType::Array(array) => array.create_declaration(keyword_list, parental_prefix),
-            DataType::Func(func) => func.create_declaration(keyword_list, parental_prefix),
-            DataType::Opt(opt) => opt.create_declaration(keyword_list, parental_prefix),
+            DataType::Array(array) => array.to_declaration(keyword_list, parental_prefix),
+            DataType::Func(func) => func.to_declaration(keyword_list, parental_prefix),
+            DataType::Opt(opt) => opt.to_declaration(keyword_list, parental_prefix),
             DataType::Primitive(primitive) => {
-                primitive.create_declaration(keyword_list, parental_prefix)
+                primitive.to_declaration(keyword_list, parental_prefix)
             }
-            DataType::Record(record) => record.create_declaration(keyword_list, prefix),
-            DataType::Tuple(tuple) => tuple.create_declaration(keyword_list, parental_prefix),
-            DataType::TypeAlias(type_alias) => type_alias.create_declaration(keyword_list, prefix),
-            DataType::TypeRef(type_ref) => {
-                type_ref.create_declaration(keyword_list, parental_prefix)
-            }
-            DataType::Variant(variant) => variant.create_declaration(keyword_list, parental_prefix),
-        }
-    }
-
-    fn create_identifier(&self, parental_prefix: String) -> std::option::Option<String> {
-        match self {
-            DataType::Array(array) => array.create_identifier(parental_prefix),
-            DataType::Func(func) => func.create_identifier(parental_prefix),
-            DataType::Opt(opt) => opt.create_identifier(parental_prefix),
-            DataType::Primitive(primitive) => primitive.create_identifier(parental_prefix),
-            DataType::Record(record) => record.create_identifier(parental_prefix),
-            DataType::Tuple(tuple) => tuple.create_identifier(parental_prefix),
-            DataType::TypeAlias(type_alias) => type_alias.create_identifier(parental_prefix),
-            DataType::TypeRef(type_ref) => type_ref.create_identifier(parental_prefix),
-            DataType::Variant(variant) => variant.create_identifier(parental_prefix),
+            DataType::Record(record) => record.to_declaration(keyword_list, prefix),
+            DataType::Tuple(tuple) => tuple.to_declaration(keyword_list, parental_prefix),
+            DataType::TypeAlias(type_alias) => type_alias.to_declaration(keyword_list, prefix),
+            DataType::TypeRef(type_ref) => type_ref.to_declaration(keyword_list, parental_prefix),
+            DataType::Variant(variant) => variant.to_declaration(keyword_list, parental_prefix),
         }
     }
 

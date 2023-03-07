@@ -6,7 +6,7 @@ use super::{
     DataType,
 };
 use crate::{
-    act::node::{proclamation::Proclaim, traits::has_members::HasMembers, Declaration},
+    act::node::{declaration::Declare, traits::has_members::HasMembers, Declaration},
     traits::ToIdent,
 };
 
@@ -35,8 +35,8 @@ impl<C> ToTypeAnnotation<C> for Tuple {
     }
 }
 
-impl Proclaim<Vec<String>> for Tuple {
-    fn create_declaration(
+impl Declare<Vec<String>> for Tuple {
+    fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
@@ -67,10 +67,6 @@ impl Proclaim<Vec<String>> for Tuple {
                 #member_idents
             );
         ))
-    }
-
-    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
-        Some(self.get_name(parental_prefix))
     }
 
     fn collect_inline_declarations(

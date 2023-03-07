@@ -4,8 +4,8 @@ use std::ops::Deref;
 
 use crate::act::node::{
     canister_method::QueryOrUpdateDefinition,
+    declaration::Declare,
     param::Param,
-    proclamation::Proclaim,
     traits::{HasParams, HasReturnValue},
     DataType, Declaration,
 };
@@ -51,8 +51,8 @@ impl Deref for QueryMethod {
     }
 }
 
-impl Proclaim<Vec<String>> for QueryMethod {
-    fn create_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
+impl Declare<Vec<String>> for QueryMethod {
+    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         let function_declaration = self.generate_function_body(keyword_list);
         let macro_args = if self.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
@@ -64,10 +64,6 @@ impl Proclaim<Vec<String>> for QueryMethod {
             #[candid::candid_method(query)]
             #function_declaration
         })
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.name.clone())
     }
 
     fn collect_inline_declarations(

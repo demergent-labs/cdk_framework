@@ -2,7 +2,7 @@ use quote::{quote, ToTokens};
 
 use super::type_annotation::{ToTypeAnnotation, TypeAnnotation};
 use crate::{
-    act::node::{proclamation::Proclaim, Declaration},
+    act::node::{declaration::Declare, Declaration},
     traits::ToIdent,
 };
 
@@ -19,12 +19,8 @@ impl ToTypeAnnotation<Vec<String>> for TypeRef {
     }
 }
 
-impl Proclaim<Vec<String>> for TypeRef {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
-        None
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
+impl Declare<Vec<String>> for TypeRef {
+    fn to_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
         None
     }
 

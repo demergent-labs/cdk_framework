@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::act::node::{
-    param::Param, proclamation::Proclaim, traits::HasParams, Declaration, NodeContext,
+    declaration::Declare, param::Param, traits::HasParams, Declaration, NodeContext,
 };
 
 #[derive(Clone)]
@@ -17,8 +17,8 @@ impl InitMethod {
     }
 }
 
-impl Proclaim<NodeContext> for InitMethod {
-    fn create_declaration(&self, context: &NodeContext, _: String) -> Option<Declaration> {
+impl Declare<NodeContext> for InitMethod {
+    fn to_declaration(&self, context: &NodeContext, _: String) -> Option<Declaration> {
         let function_name = format_ident!("_{}_init", context.cdk_name.to_lowercase());
         let body = &self.body;
         let params = self.create_parameter_list_token_stream(&context.keyword_list);
@@ -29,10 +29,6 @@ impl Proclaim<NodeContext> for InitMethod {
                 #body
             }
         })
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.get_name())
     }
 
     fn collect_inline_declarations(&self, context: &NodeContext, _: String) -> Vec<Declaration> {

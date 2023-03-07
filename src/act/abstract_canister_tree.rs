@@ -6,7 +6,7 @@ use crate::{
         canister_methods::CanisterMethods,
         data_types::DataTypes,
         node::{
-            data_type::func, proclamation::Proclaim, CanisterMethod, DataType, ExternalCanister,
+            data_type::func, declaration::Declare, CanisterMethod, DataType, ExternalCanister,
             GuardFunction, Node, NodeContext,
         },
     },
@@ -31,21 +31,19 @@ impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
         let canister_declaration_code = self.create_act_not_function_code();
 
-        let child_declarations: Vec<_> = self
-            .collect_children()
-            .iter()
-            .map(|child_node| {
-                child_node.create_proclamation(
-                    &NodeContext {
-                        cdk_name: self.cdk_name.clone(),
-                        keyword_list: self.keywords.clone(),
-                    },
-                    "Canister".to_string(),
-                )
-            })
-            .fold(vec![], |acc, child_proclamation| {
-                vec![acc, child_proclamation.flatten()].concat()
-            });
+        let child_declarations: Vec<_> =
+            self.collect_children()
+                .iter()
+                .fold(vec![], |acc, child_node| {
+                    let child_declarations = child_node.flatten(
+                        &NodeContext {
+                            cdk_name: self.cdk_name.clone(),
+                            keyword_list: self.keywords.clone(),
+                        },
+                        "Canister".to_string(),
+                    );
+                    vec![acc, child_declarations].concat()
+                });
 
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);

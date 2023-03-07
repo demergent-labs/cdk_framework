@@ -6,7 +6,7 @@ use super::{
     DataType,
 };
 use crate::{
-    act::node::{proclamation::Proclaim, Declaration},
+    act::node::{declaration::Declare, Declaration},
     traits::ToIdent,
 };
 
@@ -183,17 +183,13 @@ impl<C> ToTypeAnnotation<C> for Func {
     }
 }
 
-impl Proclaim<Vec<String>> for Func {
-    fn create_declaration(
+impl Declare<Vec<String>> for Func {
+    fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Option<Declaration> {
         Some(self.generate_func_struct_and_impls(keyword_list, self.get_name(parental_prefix)))
-    }
-
-    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
-        Some(self.get_name(parental_prefix))
     }
 
     fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {

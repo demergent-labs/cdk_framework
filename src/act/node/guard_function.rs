@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{proclamation::Proclaim, Declaration};
+use super::{declaration::Declare, Declaration};
 use crate::traits::ToIdent;
 
 #[derive(Debug, Clone)]
@@ -10,8 +10,8 @@ pub struct GuardFunction {
     pub name: String,
 }
 
-impl Proclaim<Vec<String>> for GuardFunction {
-    fn create_declaration(&self, _keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
+impl Declare<Vec<String>> for GuardFunction {
+    fn to_declaration(&self, _keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         // TODO we will eventually need that _keyword list for when we analyze function names for keywords
         let name = self.name.to_ident();
         let body = &self.body;
@@ -21,10 +21,6 @@ impl Proclaim<Vec<String>> for GuardFunction {
                 #body
             }
         })
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
-        Some(self.name.clone())
     }
 
     fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {

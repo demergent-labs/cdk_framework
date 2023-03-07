@@ -1,13 +1,12 @@
-use proc_macro2::TokenStream;
-
-use self::proclamation::Proclaim;
+pub use self::declaration::Declaration;
+use self::declaration::Declare;
 
 pub mod canister_method;
 pub mod data_type;
+pub mod declaration;
 pub mod external_canister;
 pub mod guard_function;
 pub mod param;
-pub mod proclamation;
 pub mod traits;
 
 pub use canister_method::CanisterMethod;
@@ -31,41 +30,24 @@ pub struct NodeContext {
     pub cdk_name: String,
 }
 
-pub type Declaration = TokenStream;
-
-impl Proclaim<NodeContext> for Node {
-    fn create_declaration(
+impl Declare<NodeContext> for Node {
+    fn to_declaration(
         &self,
         context: &NodeContext,
         parental_prefix: String,
     ) -> Option<Declaration> {
         match self {
             Node::CanisterMethod(canister_method) => {
-                canister_method.create_declaration(context, parental_prefix)
+                canister_method.to_declaration(context, parental_prefix)
             }
             Node::DataType(data_type) => {
-                data_type.create_declaration(&context.keyword_list, parental_prefix)
+                data_type.to_declaration(&context.keyword_list, parental_prefix)
             }
             Node::ExternalCanister(external_canister) => {
-                external_canister.create_declaration(context, parental_prefix)
+                external_canister.to_declaration(context, parental_prefix)
             }
             Node::GuardFunction(guard_function) => {
-                guard_function.create_declaration(&context.keyword_list, parental_prefix)
-            }
-        }
-    }
-
-    fn create_identifier(&self, parental_prefix: String) -> Option<String> {
-        match self {
-            Node::CanisterMethod(canister_method) => {
-                canister_method.create_identifier(parental_prefix)
-            }
-            Node::DataType(data_type) => data_type.create_identifier(parental_prefix),
-            Node::ExternalCanister(external_canister) => {
-                external_canister.create_identifier(parental_prefix)
-            }
-            Node::GuardFunction(guard_function) => {
-                guard_function.create_identifier(parental_prefix)
+                guard_function.to_declaration(&context.keyword_list, parental_prefix)
             }
         }
     }

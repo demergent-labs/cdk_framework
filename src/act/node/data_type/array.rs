@@ -4,7 +4,7 @@ use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
     DataType,
 };
-use crate::act::node::{proclamation::Proclaim, traits::HasEnclosedType, Declaration};
+use crate::act::node::{declaration::Declare, traits::HasEnclosedType, Declaration};
 
 #[derive(Clone, Debug)]
 pub struct Array {
@@ -25,12 +25,8 @@ impl ToTypeAnnotation<Vec<String>> for Array {
     }
 }
 
-impl Proclaim<Vec<String>> for Array {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
-        None
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
+impl Declare<Vec<String>> for Array {
+    fn to_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
         None
     }
 

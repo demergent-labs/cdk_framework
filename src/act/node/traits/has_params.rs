@@ -3,8 +3,8 @@ use quote::quote;
 
 use crate::act::node::{
     data_type::type_annotation::{ToTypeAnnotation, TypeAnnotation},
+    declaration::Declare,
     param::Param,
-    proclamation::Proclaim,
     Declaration,
 };
 
@@ -48,9 +48,9 @@ pub trait HasParams {
             .iter()
             .enumerate()
             .fold(vec![], |acc, (index, param_type)| {
-                let proclamation =
-                    param_type.create_proclamation(keyword_list, self.create_param_prefix(index));
-                vec![acc, proclamation.flatten()].concat()
+                let declarations =
+                    param_type.flatten(keyword_list, self.create_param_prefix(index));
+                vec![acc, declarations].concat()
             })
     }
 }

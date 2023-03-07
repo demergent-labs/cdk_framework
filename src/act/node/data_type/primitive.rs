@@ -1,7 +1,7 @@
 use quote::quote;
 
 use super::type_annotation::{ToTypeAnnotation, TypeAnnotation};
-use crate::act::node::{proclamation::Proclaim, Declaration};
+use crate::act::node::{declaration::Declare, Declaration};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
@@ -54,12 +54,8 @@ impl<C> ToTypeAnnotation<C> for Primitive {
     }
 }
 
-impl Proclaim<Vec<String>> for Primitive {
-    fn create_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
-        None
-    }
-
-    fn create_identifier(&self, _: String) -> Option<String> {
+impl Declare<Vec<String>> for Primitive {
+    fn to_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
         None
     }
 
