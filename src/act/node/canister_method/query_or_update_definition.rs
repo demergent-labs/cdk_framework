@@ -2,11 +2,8 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::node::{
-        traits::{HasParams, HasReturnValue},
-        CandidType, Param,
-    },
-    traits::ToIdent,
+    act::node::{CandidType, Param},
+    traits::{HasParams, HasReturnValue, ToIdent},
 };
 
 #[derive(Clone, Debug)]

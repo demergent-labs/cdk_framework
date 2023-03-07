@@ -5,8 +5,8 @@ use super::{
     CandidType,
 };
 use crate::{
-    act::node::{declaration::Declare, traits::HasEnclosedType, Declaration},
-    traits::ToIdent,
+    act::node::{declaration::Declare, Declaration},
+    traits::{HasEnclosedType, ToIdent},
 };
 
 #[derive(Clone, Debug)]

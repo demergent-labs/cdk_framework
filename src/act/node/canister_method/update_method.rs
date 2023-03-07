@@ -2,12 +2,12 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use std::ops::Deref;
 
-use crate::act::node::{
-    canister_method::QueryOrUpdateDefinition,
-    declaration::Declare,
-    param::Param,
+use crate::{
+    act::node::{
+        canister_method::QueryOrUpdateDefinition, declaration::Declare, param::Param, CandidType,
+        Declaration,
+    },
     traits::{HasParams, HasReturnValue},
-    CandidType, Declaration,
 };
 
 /// Describes a Rust canister method function body

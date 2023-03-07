@@ -6,7 +6,6 @@ pub mod external_canister;
 pub mod guard_function;
 pub mod node;
 pub mod param;
-pub mod traits;
 
 pub use candid::CandidType;
 pub use canister_method::CanisterMethod;

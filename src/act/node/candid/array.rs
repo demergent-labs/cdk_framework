@@ -4,7 +4,10 @@ use super::{
     type_annotation::{ToTypeAnnotation, TypeAnnotation},
     CandidType,
 };
-use crate::act::node::{declaration::Declare, traits::HasEnclosedType, Declaration};
+use crate::{
+    act::node::{declaration::Declare, Declaration},
+    traits::HasEnclosedType,
+};
 
 #[derive(Clone, Debug)]
 pub struct Array {

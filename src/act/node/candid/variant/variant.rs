@@ -6,10 +6,9 @@ use crate::{
     act::node::{
         candid::type_annotation::{ToTypeAnnotation, TypeAnnotation},
         declaration::Declare,
-        traits::HasMembers,
         CandidType, Declaration,
     },
-    traits::ToIdent,
+    traits::{HasMembers, ToIdent},
 };
 
 #[derive(Clone, Debug)]
