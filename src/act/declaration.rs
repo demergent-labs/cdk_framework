@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 
 pub type Declaration = TokenStream;
 
-pub trait Declare<C> {
+pub(crate) trait Declare<C> {
     fn to_declaration(&self, context: &C, parental_prefix: String) -> Option<Declaration>;
     fn collect_inline_declarations(&self, context: &C, parental_prefix: String)
         -> Vec<Declaration>;

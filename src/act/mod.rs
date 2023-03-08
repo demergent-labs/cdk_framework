@@ -1,8 +1,8 @@
 pub use abstract_canister_tree::AbstractCanisterTree;
 pub use candid_types::CandidTypes;
 pub use canister_methods::CanisterMethods;
-pub use declaration::Declaration;
-pub use declaration::Declare;
+pub(crate) use declaration::Declaration;
+pub(crate) use declaration::Declare;
 pub use type_annotation::ToTypeAnnotation;
 pub use type_annotation::TypeAnnotation;
 pub use vm_value_conversion::VmValueConversion;

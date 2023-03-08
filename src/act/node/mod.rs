@@ -10,7 +10,6 @@ pub use candid::CandidType;
 pub use canister_method::CanisterMethod;
 pub use context::Context;
 pub use external_canister::ExternalCanister;
-pub use external_canister::Method;
 pub use guard_function::GuardFunction;
 pub use node::AsNode;
 pub use node::Node;
