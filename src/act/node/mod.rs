@@ -1,7 +1,6 @@
 pub mod candid;
 pub mod canister_method;
 pub mod context;
-pub mod declaration;
 pub mod external_canister;
 pub mod guard_function;
 pub mod node;
@@ -10,8 +9,6 @@ pub mod param;
 pub use candid::CandidType;
 pub use canister_method::CanisterMethod;
 pub use context::Context;
-pub use declaration::Declaration;
-pub use declaration::Declare;
 pub use external_canister::ExternalCanister;
 pub use external_canister::Method;
 pub use guard_function::GuardFunction;

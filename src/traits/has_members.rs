@@ -1,4 +1,4 @@
-use crate::act::node::{candid::CandidType, declaration::Declare, Declaration};
+use crate::act::{node::CandidType, Declaration, Declare};
 
 pub trait HasMembers {
     fn get_members(&self) -> Vec<CandidType>;

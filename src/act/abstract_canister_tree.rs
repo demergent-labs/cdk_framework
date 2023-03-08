@@ -2,17 +2,17 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::act::{
-    candid_file_generation,
-    node::{
-        candid::func, declaration::Declare, AsNode, CandidType, CanisterMethod, Context,
-        Declaration, ExternalCanister, GuardFunction,
+    candid_file_generation, random, vm_value_conversion, CandidTypes, CanisterMethods,
+    VmValueConversion,
+    {
+        node::{
+            candid::func, AsNode, CandidType, CanisterMethod, Context, ExternalCanister,
+            GuardFunction,
+        },
+        Declaration, Declare,
     },
-    random, vm_value_conversion, CandidTypes, CanisterMethods, VmValueConversions,
 };
 
-// pub mod candid_file_generation;
-// pub mod random;
-// pub mod vm_value_conversion;
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
     pub cdk_name: String,
@@ -22,7 +22,7 @@ pub struct AbstractCanisterTree {
     pub guard_functions: Vec<GuardFunction>,
     pub header: TokenStream,
     pub body: TokenStream,
-    pub vm_value_conversions: VmValueConversions,
+    pub vm_value_conversion: VmValueConversion,
     pub keywords: Vec<String>,
 }
 
@@ -33,9 +33,9 @@ impl AbstractCanisterTree {
         let randomness_implementation = random::generate_randomness_implementation(&self.cdk_name);
 
         let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
-        let try_into_vm_value_impls = &self.vm_value_conversions.try_into_vm_value_impls;
+        let try_into_vm_value_impls = &self.vm_value_conversion.try_into_vm_value_impls;
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
-        let try_from_vm_value_impls = &self.vm_value_conversions.try_from_vm_value_impls;
+        let try_from_vm_value_impls = &self.vm_value_conversion.try_from_vm_value_impls;
 
         let func_arg_token = func::generate_func_arg_token();
 
@@ -81,7 +81,7 @@ impl AbstractCanisterTree {
                         keyword_list: self.keywords.clone(),
                         cdk_name: self.cdk_name.clone(),
                     },
-                    "Canister".to_string(),
+                    "".to_string(),
                 ),
             ]
             .concat()

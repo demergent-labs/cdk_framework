@@ -1,11 +1,9 @@
 use proc_macro2::TokenStream;
 
 use crate::{
-    act::node::{candid::type_annotation::ToTypeAnnotation, CandidType},
+    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::ToIdent,
 };
-
-use super::{candid::type_annotation::TypeAnnotation, declaration::Declare, Declaration};
 
 #[derive(Debug, Clone)]
 pub struct Param {

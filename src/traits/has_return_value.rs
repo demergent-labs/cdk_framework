@@ -1,11 +1,4 @@
-use crate::act::node::{
-    candid::{
-        type_annotation::{ToTypeAnnotation, TypeAnnotation},
-        CandidType,
-    },
-    declaration::Declare,
-    Declaration,
-};
+use crate::act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation};
 
 pub trait HasReturnValue {
     fn get_return_type(&self) -> CandidType;

@@ -2,7 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::{
-    act::node::{declaration::Declare, param::Param, CandidType, Context, Declaration},
+    act::{
+        node::{param::Param, CandidType, Context},
+        Declaration, Declare,
+    },
     traits::{HasParams, HasReturnValue},
 };
 
@@ -23,7 +26,7 @@ impl Method {
         )
     }
 
-    fn generate_function(&self, function_type: &str, context: &Context) -> TokenStream {
+    fn generate_call_function(&self, function_type: &str, context: &Context) -> TokenStream {
         let is_oneway = function_type.contains("notify");
 
         let async_or_not = if is_oneway {
@@ -110,13 +113,13 @@ impl Method {
 
 impl Declare<Context> for Method {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
-        let call_function = self.generate_function("call", &context);
-        let call_with_payment_function = self.generate_function("call_with_payment", &context);
+        let call_function = self.generate_call_function("call", &context);
+        let call_with_payment_function = self.generate_call_function("call_with_payment", &context);
         let call_with_payment128_function =
-            self.generate_function("call_with_payment128", &context);
-        let notify_function = self.generate_function("notify", &context);
+            self.generate_call_function("call_with_payment128", &context);
+        let notify_function = self.generate_call_function("notify", &context);
         let notify_with_payment128_function =
-            self.generate_function("notify_with_payment128", &context);
+            self.generate_call_function("notify_with_payment128", &context);
 
         Some(quote! {
             #call_function

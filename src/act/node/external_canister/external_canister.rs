@@ -1,7 +1,10 @@
 use quote::quote;
 
 use super::Method;
-use crate::act::node::{declaration::Declare, AsNode, Context, Declaration, Node};
+use crate::act::{
+    node::{AsNode, Context, Node},
+    Declaration, Declare,
+};
 
 #[derive(Clone, Debug)]
 pub struct ExternalCanister {

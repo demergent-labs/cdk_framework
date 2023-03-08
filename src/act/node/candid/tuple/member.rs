@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::node::{candid::type_annotation::ToTypeAnnotation, CandidType};
+use crate::act::{node::CandidType, ToTypeAnnotation};
 
 #[derive(Clone, Debug)]
 pub struct Member {

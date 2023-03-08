@@ -1,12 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::node::{
-    candid::type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    declaration::Declare,
-    param::Param,
-    Declaration,
-};
+use crate::act::{node::param::Param, Declaration, Declare, ToTypeAnnotation, TypeAnnotation};
 
 pub trait HasParams {
     fn get_params(&self) -> Vec<Param>;

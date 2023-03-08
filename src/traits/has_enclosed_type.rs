@@ -1,4 +1,4 @@
-use crate::act::node::{candid::CandidType, declaration::Declare, Declaration};
+use crate::act::{node::CandidType, Declaration, Declare};
 
 pub trait HasEnclosedType {
     fn get_enclosed_type(&self) -> CandidType;

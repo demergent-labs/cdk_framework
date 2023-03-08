@@ -1,12 +1,8 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-use super::{
-    type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    CandidType,
-};
 use crate::{
-    act::node::{declaration::Declare, Declaration},
+    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::ToIdent,
 };
 
@@ -191,7 +187,7 @@ impl Declare<Vec<String>> for Func {
     }
 
     fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
-        // My assumption here is that when we get to rust none of the children
+        // TODO My assumption here is that when we get to rust none of the children
         // that were in the func will need to be defined unless they are used
         // somewhere else, and if that's the case then we will pick it up there.
         vec![]

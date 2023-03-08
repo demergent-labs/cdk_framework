@@ -1,11 +1,7 @@
 use quote::quote;
 
-use super::{
-    type_annotation::{ToTypeAnnotation, TypeAnnotation},
-    CandidType,
-};
 use crate::{
-    act::node::{declaration::Declare, Declaration},
+    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::HasEnclosedType,
 };
 

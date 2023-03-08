@@ -1,7 +1,6 @@
 use quote::quote;
 
-use super::type_annotation::{ToTypeAnnotation, TypeAnnotation};
-use crate::act::node::{declaration::Declare, Declaration};
+use crate::act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {

@@ -1,6 +1,6 @@
-use super::{
-    declaration::Declare, CandidType, CanisterMethod, Context, Declaration, ExternalCanister,
-    GuardFunction,
+use crate::act::{
+    node::{CandidType, CanisterMethod, Context, ExternalCanister, GuardFunction},
+    Declaration, Declare,
 };
 
 #[derive(Clone)]

@@ -1,8 +1,13 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use super::{declaration::Declare, AsNode, Declaration, Node};
-use crate::traits::ToIdent;
+use crate::{
+    act::{
+        node::{AsNode, Node},
+        Declaration, Declare,
+    },
+    traits::ToIdent,
+};
 
 #[derive(Debug, Clone)]
 pub struct GuardFunction {

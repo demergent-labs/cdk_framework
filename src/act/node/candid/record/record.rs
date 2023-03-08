@@ -2,11 +2,7 @@ use quote::{quote, ToTokens};
 
 use super::Member;
 use crate::{
-    act::node::{
-        candid::type_annotation::{ToTypeAnnotation, TypeAnnotation},
-        declaration::Declare,
-        CandidType, Declaration,
-    },
+    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::{HasMembers, ToIdent},
 };
 

@@ -1,8 +1,7 @@
 use quote::{quote, ToTokens};
 
-use super::type_annotation::{ToTypeAnnotation, TypeAnnotation};
 use crate::{
-    act::node::{declaration::Declare, Declaration},
+    act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::ToIdent,
 };
 

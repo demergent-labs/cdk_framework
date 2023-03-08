@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::act::node::{declaration::Declare, Declaration};
+use crate::act::{Declaration, Declare};
 
 #[derive(Clone)]
 pub struct HeartbeatMethod {
