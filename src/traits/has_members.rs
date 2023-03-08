@@ -24,9 +24,6 @@ pub trait HasMembers {
     }
 
     fn create_member_prefix(&self, member: &Member, parent_name: String) -> String {
-        format!(
-            "{parent_name}Member{member_name}",
-            member_name = member.name
-        )
+        format!("{parent_name}_{member_name}", member_name = member.name)
     }
 }
