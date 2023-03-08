@@ -4,6 +4,7 @@ pub mod has_params;
 pub mod has_return_value;
 pub mod to_ident;
 
+pub use crate::act::ToTypeAnnotation;
 pub use has_enclosed_type::HasEnclosedType;
 pub use has_members::HasMembers;
 pub use has_params::HasParams;
