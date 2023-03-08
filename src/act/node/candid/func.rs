@@ -30,10 +30,10 @@ pub enum Mode {
 }
 
 impl Func {
-    fn get_name(&self, parental_prefix: String) -> String {
+    fn get_name(&self, inline_name: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => utils::create_inline_name(&parental_prefix),
+            None => utils::create_inline_name(&inline_name),
         }
     }
 
@@ -175,8 +175,8 @@ impl Func {
 }
 
 impl<C> ToTypeAnnotation<C> for Func {
-    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
-        self.get_name(parental_prefix).to_ident().to_token_stream()
+    fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
+        self.get_name(inline_name).to_ident().to_token_stream()
     }
 }
 
@@ -184,22 +184,20 @@ impl Declare<Vec<String>> for Func {
     fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Option<Declaration> {
-        Some(self.generate_func_struct_and_impls(keyword_list, self.get_name(parental_prefix)))
+        Some(self.generate_func_struct_and_impls(keyword_list, self.get_name(inline_name)))
     }
 
     fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_declarations(
-            &self.get_name(parental_prefix.clone()),
-            keyword_list,
-        );
+        let param_declarations = self
+            .collect_param_inline_declarations(&self.get_name(inline_name.clone()), keyword_list);
         let return_declarations =
-            self.collect_return_inline_declarations(&self.get_name(parental_prefix), keyword_list);
+            self.collect_return_inline_declarations(&self.get_name(inline_name), keyword_list);
         vec![param_declarations, return_declarations].concat()
     }
 }

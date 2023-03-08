@@ -15,17 +15,17 @@ pub struct Tuple {
 }
 
 impl Tuple {
-    fn get_name(&self, parental_prefix: String) -> String {
+    fn get_name(&self, inline_name: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => utils::create_inline_name(&parental_prefix),
+            None => utils::create_inline_name(&inline_name),
         }
     }
 }
 
 impl<C> ToTypeAnnotation<C> for Tuple {
-    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
-        self.get_name(parental_prefix).to_ident().to_token_stream()
+    fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
+        self.get_name(inline_name).to_ident().to_token_stream()
     }
 }
 
@@ -33,9 +33,9 @@ impl Declare<Vec<String>> for Tuple {
     fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Option<Declaration> {
-        let tuple_ident = self.get_name(parental_prefix.clone()).to_ident();
+        let tuple_ident = self.get_name(inline_name.clone()).to_ident();
         let member_idents: Vec<TokenStream> = self
             .elems
             .iter()
@@ -45,7 +45,7 @@ impl Declare<Vec<String>> for Tuple {
                     keyword_list,
                     self.create_member_prefix(
                         &to_member(elem, index),
-                        self.get_name(parental_prefix.clone()),
+                        self.get_name(inline_name.clone()),
                     ),
                 )
             })
@@ -69,9 +69,9 @@ impl Declare<Vec<String>> for Tuple {
     fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(keyword_list, self.get_name(parental_prefix))
+        self.collect_member_inline_declarations(keyword_list, self.get_name(inline_name))
     }
 }
 

@@ -14,17 +14,17 @@ pub struct Variant {
 }
 
 impl Variant {
-    fn get_name(&self, parental_prefix: String) -> String {
+    fn get_name(&self, inline_name: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => utils::create_inline_name(&parental_prefix),
+            None => utils::create_inline_name(&inline_name),
         }
     }
 }
 
 impl<C> ToTypeAnnotation<C> for Variant {
-    fn to_type_annotation(&self, _: &C, parental_prefix: String) -> TypeAnnotation {
-        self.get_name(parental_prefix).to_ident().to_token_stream()
+    fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
+        self.get_name(inline_name).to_ident().to_token_stream()
     }
 }
 
@@ -32,16 +32,16 @@ impl Declare<Vec<String>> for Variant {
     fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Option<Declaration> {
-        let variant_ident = self.get_name(parental_prefix.clone()).to_ident();
+        let variant_ident = self.get_name(inline_name.clone()).to_ident();
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
             .map(|member| {
                 member.to_variant_member_token_stream(
                     keyword_list,
-                    self.create_member_prefix(member, self.get_name(parental_prefix.clone())),
+                    self.create_member_prefix(member, self.get_name(inline_name.clone())),
                 )
             })
             .collect();
@@ -56,12 +56,9 @@ impl Declare<Vec<String>> for Variant {
     fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(
-            keyword_list,
-            self.get_name(parental_prefix.clone()),
-        )
+        self.collect_member_inline_declarations(keyword_list, self.get_name(inline_name.clone()))
     }
 }
 

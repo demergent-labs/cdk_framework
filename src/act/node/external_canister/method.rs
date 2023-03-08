@@ -19,7 +19,7 @@ pub struct Method {
 impl Method {
     fn create_qualified_name(&self, canister_name: &String) -> String {
         format!(
-            "{canister_name}{method_name}",
+            "{canister_name}_{method_name}",
             canister_name = canister_name,
             method_name = self.name
         )

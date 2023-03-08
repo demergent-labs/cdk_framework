@@ -13,17 +13,17 @@ pub struct Record {
 }
 
 impl Record {
-    fn get_name(&self, parental_prefix: &String) -> String {
+    fn get_name(&self, inline_name: &String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => utils::create_inline_name(parental_prefix),
+            None => utils::create_inline_name(inline_name),
         }
     }
 }
 
 impl ToTypeAnnotation<Vec<String>> for Record {
-    fn to_type_annotation(&self, _: &Vec<String>, parental_prefix: String) -> TypeAnnotation {
-        self.get_name(&parental_prefix).to_ident().to_token_stream()
+    fn to_type_annotation(&self, _: &Vec<String>, inline_name: String) -> TypeAnnotation {
+        self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }
 
@@ -31,16 +31,16 @@ impl Declare<Vec<String>> for Record {
     fn to_declaration(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Option<Declaration> {
-        let record_ident = self.get_name(&parental_prefix).to_ident();
+        let record_ident = self.get_name(&inline_name).to_ident();
         let member_token_streams: Vec<_> = self
             .members
             .iter()
             .map(|member| {
                 member.to_record_member_token_stream(
                     keyword_list,
-                    self.create_member_prefix(member, self.get_name(&parental_prefix)),
+                    self.create_member_prefix(member, self.get_name(&inline_name)),
                 )
             })
             .collect();
@@ -55,9 +55,9 @@ impl Declare<Vec<String>> for Record {
     fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(keyword_list, self.get_name(&parental_prefix))
+        self.collect_member_inline_declarations(keyword_list, self.get_name(&inline_name))
     }
 }
 
