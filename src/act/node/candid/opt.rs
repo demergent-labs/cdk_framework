@@ -1,9 +1,6 @@
 use quote::quote;
 
-use crate::{
-    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::HasEnclosedType,
-};
+use crate::act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation};
 
 #[derive(Clone, Debug)]
 pub struct Opt {
@@ -16,10 +13,9 @@ impl ToTypeAnnotation<Vec<String>> for Opt {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> TypeAnnotation {
-        let enclosed_type_annotation = self.enclosed_type.to_type_annotation(
-            keyword_list,
-            self.create_enclosed_type_prefix(parental_prefix, "Opt".to_string()),
-        );
+        let enclosed_type_annotation = self
+            .enclosed_type
+            .to_type_annotation(keyword_list, parental_prefix);
         quote!(Option<#enclosed_type_annotation>)
     }
 }
@@ -34,16 +30,6 @@ impl Declare<Vec<String>> for Opt {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Vec<Declaration> {
-        self.collect_enclosed_type_inline_declaration(
-            keyword_list,
-            parental_prefix,
-            "Opt".to_string(),
-        )
-    }
-}
-
-impl HasEnclosedType for Opt {
-    fn get_enclosed_type(&self) -> CandidType {
-        *self.enclosed_type.clone()
+        self.enclosed_type.flatten(keyword_list, parental_prefix)
     }
 }

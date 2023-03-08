@@ -1,9 +1,6 @@
 use quote::quote;
 
-use crate::{
-    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::HasEnclosedType,
-};
+use crate::act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation};
 
 #[derive(Clone, Debug)]
 pub struct Array {
@@ -16,10 +13,9 @@ impl ToTypeAnnotation<Vec<String>> for Array {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> TypeAnnotation {
-        let enclosed_rust_ident = self.enclosed_type.to_type_annotation(
-            keyword_list,
-            self.create_enclosed_type_prefix(parental_prefix, "Array".to_string()),
-        );
+        let enclosed_rust_ident = self
+            .enclosed_type
+            .to_type_annotation(keyword_list, parental_prefix);
         quote!(Vec<#enclosed_rust_ident>)
     }
 }
@@ -34,16 +30,6 @@ impl Declare<Vec<String>> for Array {
         keyword_list: &Vec<String>,
         parental_prefix: String,
     ) -> Vec<Declaration> {
-        self.collect_enclosed_type_inline_declaration(
-            keyword_list,
-            parental_prefix,
-            "Array".to_string(),
-        )
-    }
-}
-
-impl HasEnclosedType for Array {
-    fn get_enclosed_type(&self) -> CandidType {
-        *self.enclosed_type.clone()
+        self.enclosed_type.flatten(keyword_list, parental_prefix)
     }
 }

@@ -2,7 +2,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasEnclosedType, ToIdent},
+    traits::ToIdent,
 };
 
 #[derive(Clone, Debug)]
@@ -20,10 +20,9 @@ impl ToTypeAnnotation<Vec<String>> for TypeAlias {
 impl Declare<Vec<String>> for TypeAlias {
     fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
         let name = self.name.to_ident();
-        let alias = self.aliased_type.to_type_annotation(
-            keyword_list,
-            self.create_enclosed_type_prefix(self.name.clone(), "TypeAlias".to_string()),
-        );
+        let alias = self
+            .aliased_type
+            .to_type_annotation(keyword_list, self.name.clone());
         Some(quote!(type #name = #alias;))
     }
 
@@ -32,16 +31,6 @@ impl Declare<Vec<String>> for TypeAlias {
         keyword_list: &Vec<String>,
         _: String,
     ) -> Vec<Declaration> {
-        self.collect_enclosed_type_inline_declaration(
-            keyword_list,
-            self.name.clone(),
-            "TypeAlias".to_string(),
-        )
-    }
-}
-
-impl HasEnclosedType for TypeAlias {
-    fn get_enclosed_type(&self) -> CandidType {
-        *self.aliased_type.clone()
+        self.aliased_type.flatten(keyword_list, self.name.clone())
     }
 }
