@@ -6,7 +6,7 @@ use crate::{
         node::{param::Param, Context},
         Declaration, Declare,
     },
-    traits::HasParams,
+    traits::{HasParams, ToIdent},
 };
 
 #[derive(Clone)]
@@ -23,7 +23,7 @@ impl PostUpgradeMethod {
 
 impl Declare<Context> for PostUpgradeMethod {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
-        let function_name = self.get_name(context);
+        let function_name = self.get_name(context).to_ident();
         let body = &self.body;
         let params =
             self.create_parameter_list_token_stream(&self.get_name(context), &context.keyword_list);
