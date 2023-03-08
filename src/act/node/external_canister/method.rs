@@ -98,8 +98,7 @@ impl Method {
         let param_types: Vec<_> = self
             .params
             .iter()
-            .enumerate()
-            .filter_map(|(index, _)| self.create_param_type_annotation(index, keywords))
+            .map(|param| self.create_param_type_annotation(param, keywords))
             .collect();
 
         let comma = if param_types.len() == 1 {

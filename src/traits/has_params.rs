@@ -12,9 +12,8 @@ pub trait HasParams {
         let params: Vec<_> = self
             .get_params()
             .iter()
-            .enumerate()
-            .map(|(index, param)| {
-                param.to_token_stream(keyword_list, self.create_param_prefix(index))
+            .map(|param| {
+                param.to_token_stream(keyword_list, self.create_param_prefix(param.name.clone()))
             })
             .collect();
         quote!(#(#params),*)
@@ -22,32 +21,24 @@ pub trait HasParams {
 
     fn create_param_type_annotation(
         &self,
-        param_index: usize,
+        param: &Param,
         keyword_list: &Vec<String>,
-    ) -> Option<TypeAnnotation> {
-        match self.get_params().get(param_index) {
-            Some(candid_type) => Some(
-                candid_type.to_type_annotation(keyword_list, self.create_param_prefix(param_index)),
-            ),
-            None => None,
-        }
+    ) -> TypeAnnotation {
+        param.to_type_annotation(keyword_list, self.create_param_prefix(param.name.clone()))
     }
 
-    fn create_param_prefix(&self, param_index: usize) -> String {
+    fn create_param_prefix(&self, param_name: String) -> String {
         format!(
-            "{name}ParamNum{param_index}",
-            name = self.get_inline_prefix()
+            "{prefix}ParamNum{param_name}",
+            prefix = self.get_inline_prefix()
         )
     }
 
     fn collect_param_inline_declarations(&self, keyword_list: &Vec<String>) -> Vec<Declaration> {
-        self.get_params()
-            .iter()
-            .enumerate()
-            .fold(vec![], |acc, (index, param_type)| {
-                let declarations =
-                    param_type.flatten(keyword_list, self.create_param_prefix(index));
-                vec![acc, declarations].concat()
-            })
+        self.get_params().iter().fold(vec![], |acc, param| {
+            let declarations =
+                param.flatten(keyword_list, self.create_param_prefix(param.name.clone()));
+            vec![acc, declarations].concat()
+        })
     }
 }
