@@ -1,5 +1,5 @@
-pub mod member;
+pub mod elem;
 pub mod tuple;
 
-pub use member::Member;
+pub use elem::Elem;
 pub use tuple::Tuple;

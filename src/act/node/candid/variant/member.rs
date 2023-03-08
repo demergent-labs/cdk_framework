@@ -4,17 +4,11 @@ use quote::quote;
 use crate::{
     act::{node::CandidType, ToTypeAnnotation},
     keyword,
-    traits::ToIdent,
+    traits::{has_members::Member, ToIdent},
 };
 
-#[derive(Clone, Debug)]
-pub struct Member {
-    pub name: String,
-    pub candid_type: CandidType,
-}
-
 impl Member {
-    pub fn to_token_stream(
+    pub fn to_variant_member_token_stream(
         &self,
         keyword_list: &Vec<String>,
         member_prefix: String,

@@ -1,10 +1,9 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-use super::Member;
 use crate::{
-    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasMembers, ToIdent},
+    act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
+    traits::{has_members::Member, HasMembers, ToIdent},
 };
 
 #[derive(Clone, Debug)]
@@ -38,11 +37,10 @@ impl Declare<Vec<String>> for Variant {
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
-            .enumerate()
-            .map(|(index, member)| {
-                member.to_token_stream(
+            .map(|member| {
+                member.to_variant_member_token_stream(
                     keyword_list,
-                    self.create_member_prefix(index, self.get_name(parental_prefix.clone())),
+                    self.create_member_prefix(member, self.get_name(parental_prefix.clone())),
                 )
             })
             .collect();
@@ -67,10 +65,7 @@ impl Declare<Vec<String>> for Variant {
 }
 
 impl HasMembers for Variant {
-    fn get_members(&self) -> Vec<CandidType> {
-        self.members
-            .iter()
-            .map(|member| member.candid_type.clone())
-            .collect()
+    fn get_members(&self) -> Vec<Member> {
+        self.members.clone()
     }
 }

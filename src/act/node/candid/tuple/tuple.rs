@@ -1,16 +1,16 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-use super::Member;
+use super::Elem;
 use crate::{
-    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasMembers, ToIdent},
+    act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
+    traits::{has_members::Member, HasMembers, ToIdent},
 };
 
 #[derive(Clone, Debug)]
 pub struct Tuple {
     pub name: Option<String>,
-    pub members: Vec<Member>,
+    pub elems: Vec<Elem>,
 }
 
 impl Tuple {
@@ -36,13 +36,12 @@ impl Declare<Vec<String>> for Tuple {
     ) -> Option<Declaration> {
         let tuple_ident = self.get_name(parental_prefix.clone()).to_ident();
         let member_idents: Vec<TokenStream> = self
-            .members
+            .elems
             .iter()
-            .enumerate()
-            .map(|(index, member)| {
-                member.to_token_stream(
+            .map(|elem| {
+                elem.to_tuple_elem_token_stream(
                     keyword_list,
-                    self.create_member_prefix(index, self.get_name(parental_prefix.clone())),
+                    self.create_member_prefix(&elem.into(), self.get_name(parental_prefix.clone())),
                 )
             })
             .collect();
@@ -72,10 +71,7 @@ impl Declare<Vec<String>> for Tuple {
 }
 
 impl HasMembers for Tuple {
-    fn get_members(&self) -> Vec<CandidType> {
-        self.members
-            .iter()
-            .map(|elem| elem.candid_type.clone())
-            .collect()
+    fn get_members(&self) -> Vec<Member> {
+        self.elems.iter().map(|elem| elem.into()).collect()
     }
 }
