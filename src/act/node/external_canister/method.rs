@@ -14,19 +14,23 @@ pub struct Method {
     pub name: String,
     pub params: Vec<Param>,
     pub return_type: CandidType,
-    pub canister_name: String,
 }
 
 impl Method {
-    fn create_qualified_name(&self) -> String {
+    fn create_qualified_name(&self, canister_name: &String) -> String {
         format!(
             "{canister_name}{method_name}",
-            canister_name = self.canister_name,
+            canister_name = canister_name,
             method_name = self.name
         )
     }
 
-    fn generate_call_function(&self, function_type: &str, context: &Context) -> TokenStream {
+    fn generate_call_function(
+        &self,
+        canister_name: &String,
+        function_type: &str,
+        context: &Context,
+    ) -> TokenStream {
         let is_oneway = function_type.contains("notify");
 
         let async_or_not = if is_oneway {
@@ -39,11 +43,11 @@ impl Method {
             "_{}_{}_{}_{}",
             context.cdk_name,
             function_type,
-            self.canister_name,
+            canister_name,
             &self.name
         );
 
-        let param_types = self.param_types_as_tuple(&context.keyword_list, &self.canister_name);
+        let param_types = self.param_types_as_tuple(&context.keyword_list, canister_name);
 
         let cycles_param = if function_type.contains("with_payment128") {
             quote! { , cycles: u128 }
@@ -53,8 +57,10 @@ impl Method {
             quote! {}
         };
 
-        let function_return_type = self
-            .create_return_type_annotation(&self.create_qualified_name(), &context.keyword_list);
+        let function_return_type = self.create_return_type_annotation(
+            &self.create_qualified_name(canister_name),
+            &context.keyword_list,
+        );
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
@@ -95,12 +101,16 @@ impl Method {
         }
     }
 
-    fn param_types_as_tuple(&self, keywords: &Vec<String>, _: &String) -> TokenStream {
+    fn param_types_as_tuple(&self, keywords: &Vec<String>, canister_name: &String) -> TokenStream {
         let param_types: Vec<_> = self
             .params
             .iter()
             .map(|param| {
-                self.create_param_type_annotation(param, &self.create_qualified_name(), keywords)
+                self.create_param_type_annotation(
+                    param,
+                    &self.create_qualified_name(canister_name),
+                    keywords,
+                )
             })
             .collect();
 
@@ -114,14 +124,15 @@ impl Method {
 }
 
 impl Declare<Context> for Method {
-    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
-        let call_function = self.generate_call_function("call", &context);
-        let call_with_payment_function = self.generate_call_function("call_with_payment", &context);
+    fn to_declaration(&self, context: &Context, canister_name: String) -> Option<Declaration> {
+        let call_function = self.generate_call_function(&canister_name, "call", &context);
+        let call_with_payment_function =
+            self.generate_call_function(&canister_name, "call_with_payment", &context);
         let call_with_payment128_function =
-            self.generate_call_function("call_with_payment128", &context);
-        let notify_function = self.generate_call_function("notify", &context);
+            self.generate_call_function(&canister_name, "call_with_payment128", &context);
+        let notify_function = self.generate_call_function(&canister_name, "notify", &context);
         let notify_with_payment128_function =
-            self.generate_call_function("notify_with_payment128", &context);
+            self.generate_call_function(&canister_name, "notify_with_payment128", &context);
 
         Some(quote! {
             #call_function
@@ -132,13 +143,17 @@ impl Declare<Context> for Method {
         })
     }
 
-    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
+    fn collect_inline_declarations(
+        &self,
+        context: &Context,
+        canister_name: String,
+    ) -> Vec<Declaration> {
         let param_declarations = self.collect_param_inline_declarations(
-            &self.create_qualified_name(),
+            &self.create_qualified_name(&canister_name),
             &context.keyword_list,
         );
         let return_declarations = self.collect_return_inline_declarations(
-            &self.create_qualified_name(),
+            &self.create_qualified_name(&canister_name),
             &context.keyword_list,
         );
         vec![param_declarations, return_declarations].concat()
