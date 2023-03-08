@@ -15,7 +15,15 @@ fn snake_to_camel(s: &String) -> String {
         }
     }
 
-    result
+    capitalize(result)
+}
+
+fn capitalize(s: String) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    }
 }
 
 pub(crate) fn create_inline_name(base_name: &String) -> String {
