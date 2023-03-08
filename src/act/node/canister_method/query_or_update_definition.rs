@@ -21,11 +21,11 @@ pub struct QueryOrUpdateDefinition {
 impl QueryOrUpdateDefinition {
     pub fn generate_function_body(&self, keyword_list: &Vec<String>) -> TokenStream {
         let function_name = self.name.to_ident();
-        let params = self.create_parameter_list_token_stream(keyword_list);
+        let params = self.create_parameter_list_token_stream(&self.name, keyword_list);
 
         let function_body = &self.body;
 
-        let return_type_token = self.create_return_type_annotation(keyword_list);
+        let return_type_token = self.create_return_type_annotation(&self.name, keyword_list);
         let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
             quote! {
                 ic_cdk::api::call::ManualReply<#return_type_token>
@@ -46,18 +46,10 @@ impl HasParams for QueryOrUpdateDefinition {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
-
-    fn get_inline_prefix(&self) -> String {
-        self.name.clone()
-    }
 }
 
 impl HasReturnValue for QueryOrUpdateDefinition {
     fn get_return_type(&self) -> CandidType {
         self.return_type.clone()
-    }
-
-    fn get_inline_prefix(&self) -> String {
-        self.name.clone()
     }
 }

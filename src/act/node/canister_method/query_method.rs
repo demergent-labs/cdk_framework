@@ -71,8 +71,8 @@ impl Declare<Vec<String>> for QueryMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_declarations(keyword_list);
-        let return_declarations = self.collect_return_inline_declarations(keyword_list);
+        let param_declarations = self.collect_param_inline_declarations(&self.name, keyword_list);
+        let return_declarations = self.collect_return_inline_declarations(&self.name, keyword_list);
         vec![param_declarations, return_declarations].concat()
     }
 }
@@ -81,18 +81,10 @@ impl HasParams for QueryMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
-
-    fn get_inline_prefix(&self) -> String {
-        self.name.clone()
-    }
 }
 
 impl HasReturnValue for QueryMethod {
     fn get_return_type(&self) -> CandidType {
         self.return_type.clone()
-    }
-
-    fn get_inline_prefix(&self) -> String {
-        self.name.clone()
     }
 }

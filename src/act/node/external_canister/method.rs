@@ -53,7 +53,8 @@ impl Method {
             quote! {}
         };
 
-        let function_return_type = self.create_return_type_annotation(&context.keyword_list);
+        let function_return_type = self
+            .create_return_type_annotation(&self.create_qualified_name(), &context.keyword_list);
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
@@ -98,7 +99,9 @@ impl Method {
         let param_types: Vec<_> = self
             .params
             .iter()
-            .map(|param| self.create_param_type_annotation(param, keywords))
+            .map(|param| {
+                self.create_param_type_annotation(param, &self.create_qualified_name(), keywords)
+            })
             .collect();
 
         let comma = if param_types.len() == 1 {
@@ -130,8 +133,14 @@ impl Declare<Context> for Method {
     }
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_declarations(&context.keyword_list);
-        let return_declarations = self.collect_return_inline_declarations(&context.keyword_list);
+        let param_declarations = self.collect_param_inline_declarations(
+            &self.create_qualified_name(),
+            &context.keyword_list,
+        );
+        let return_declarations = self.collect_return_inline_declarations(
+            &self.create_qualified_name(),
+            &context.keyword_list,
+        );
         vec![param_declarations, return_declarations].concat()
     }
 }
@@ -140,18 +149,10 @@ impl HasParams for Method {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
-
-    fn get_inline_prefix(&self) -> String {
-        self.create_qualified_name()
-    }
 }
 
 impl HasReturnValue for Method {
     fn get_return_type(&self) -> CandidType {
         self.return_type.clone()
-    }
-
-    fn get_inline_prefix(&self) -> String {
-        self.create_qualified_name()
     }
 }
