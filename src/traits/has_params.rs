@@ -37,7 +37,7 @@ pub trait HasParams {
     }
 
     fn create_param_prefix(&self, param_name: &String, function_name: &String) -> String {
-        format!("{function_name}ParamNum{param_name}",)
+        format!("{function_name}_{param_name}",)
     }
 
     fn collect_param_inline_declarations(
