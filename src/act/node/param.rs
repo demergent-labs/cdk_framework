@@ -22,17 +22,14 @@ impl Param {
         function_prefix: String,
     ) -> TokenStream {
         let name = self.get_prefixed_name().to_ident();
-        let type_annotation = self.to_type_annotation(keyword_list, function_prefix);
+        let function_name = self.to_type_annotation(keyword_list, function_prefix);
         quote::quote! {
-            #name: #type_annotation
+            #name: #function_name
         }
     }
 
     fn create_param_type_prefix(&self, function_prefix: String) -> String {
-        format!(
-            "{function_prefix}{param_prefix}",
-            param_prefix = self.get_prefixed_name()
-        )
+        format!("{function_prefix}{param_name}", param_name = self.name)
     }
 }
 
@@ -40,10 +37,10 @@ impl ToTypeAnnotation<Vec<String>> for Param {
     fn to_type_annotation(
         &self,
         keyword_list: &Vec<String>,
-        function_prefix: String,
+        function_name: String,
     ) -> TypeAnnotation {
         self.candid_type
-            .to_type_annotation(keyword_list, self.create_param_type_prefix(function_prefix))
+            .to_type_annotation(keyword_list, self.create_param_type_prefix(function_name))
     }
 }
 
@@ -55,9 +52,9 @@ impl Declare<Vec<String>> for Param {
     fn collect_inline_declarations(
         &self,
         context: &Vec<String>,
-        function_prefix: String,
+        function_name: String,
     ) -> Vec<Declaration> {
         self.candid_type
-            .flatten(context, self.create_param_type_prefix(function_prefix))
+            .flatten(context, self.create_param_type_prefix(function_name))
     }
 }
