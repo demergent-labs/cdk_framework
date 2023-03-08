@@ -19,16 +19,16 @@ impl Param {
     pub fn to_token_stream(
         &self,
         keyword_list: &Vec<String>,
-        function_prefix: String,
+        function_name: String,
     ) -> TokenStream {
         let name = self.get_prefixed_name().to_ident();
-        let function_name = self.to_type_annotation(keyword_list, function_prefix);
+        let function_name = self.to_type_annotation(keyword_list, function_name);
         quote::quote! {
             #name: #function_name
         }
     }
 
-    pub fn create_type_prefix(&self, function_prefix: String) -> String {
+    fn create_type_prefix(&self, function_prefix: String) -> String {
         format!("{function_prefix}_{param_name}", param_name = self.name)
     }
 }

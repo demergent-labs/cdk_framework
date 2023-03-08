@@ -14,12 +14,7 @@ pub trait HasParams {
         let params: Vec<_> = self
             .get_params()
             .iter()
-            .map(|param| {
-                param.to_token_stream(
-                    keyword_list,
-                    param.create_type_prefix(function_name.clone()),
-                )
-            })
+            .map(|param| param.to_token_stream(keyword_list, function_name.clone()))
             .collect();
         quote!(#(#params),*)
     }
@@ -30,10 +25,7 @@ pub trait HasParams {
         keyword_list: &Vec<String>,
     ) -> Vec<Declaration> {
         self.get_params().iter().fold(vec![], |acc, param| {
-            let declarations = param.flatten(
-                keyword_list,
-                param.create_type_prefix(function_name.clone()),
-            );
+            let declarations = param.flatten(keyword_list, function_name.clone());
             vec![acc, declarations].concat()
         })
     }
