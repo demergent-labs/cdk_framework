@@ -2,8 +2,11 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
 use crate::{
-    act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::ToIdent,
+    act::{
+        node::{CandidType, Param},
+        Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
+    },
+    traits::{HasParams, HasReturnValue, ToIdent},
 };
 
 #[derive(Clone, Debug)]
@@ -47,9 +50,9 @@ impl Func {
         let param_type_strings: Vec<_> = self
             .params
             .iter()
-            .map(|param| {
-                param
-                    .to_type_annotation(keyword_list, name.clone())
+            .enumerate()
+            .map(|(index, param)| {
+                self.create_param_type_annotation(&to_param(index, &param), &name, keyword_list)
                     .to_string()
             })
             .collect();
@@ -88,8 +91,7 @@ impl Func {
             })
             .collect();
         let return_type_string = self
-            .return_type
-            .to_type_annotation(keyword_list, name.clone())
+            .create_return_type_annotation(&name, keyword_list)
             .to_string();
         let func_return_type = if return_type_string == "()" || return_type_string == "" {
             quote! {}
@@ -186,11 +188,41 @@ impl Declare<Vec<String>> for Func {
         Some(self.generate_func_struct_and_impls(keyword_list, self.get_name(parental_prefix)))
     }
 
-    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
-        // TODO My assumption here is that when we get to rust none of the children
-        // that were in the func will need to be defined unless they are used
-        // somewhere else, and if that's the case then we will pick it up there.
-        vec![]
+    fn collect_inline_declarations(
+        &self,
+        keyword_list: &Vec<String>,
+        parental_prefix: String,
+    ) -> Vec<Declaration> {
+        let param_declarations = self.collect_param_inline_declarations(
+            &self.get_name(parental_prefix.clone()),
+            keyword_list,
+        );
+        let return_declarations =
+            self.collect_return_inline_declarations(&self.get_name(parental_prefix), keyword_list);
+        vec![param_declarations, return_declarations].concat()
+    }
+}
+
+fn to_param(index: usize, candid_type: &CandidType) -> Param {
+    Param {
+        name: index.to_string(),
+        candid_type: candid_type.clone(),
+    }
+}
+
+impl HasParams for Func {
+    fn get_params(&self) -> Vec<Param> {
+        self.params
+            .iter()
+            .enumerate()
+            .map(|(index, candid_type)| to_param(index, candid_type))
+            .collect()
+    }
+}
+
+impl HasReturnValue for Func {
+    fn get_return_type(&self) -> CandidType {
+        self.return_type.as_ref().clone()
     }
 }
 
