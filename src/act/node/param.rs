@@ -28,8 +28,8 @@ impl Param {
         }
     }
 
-    fn create_param_type_prefix(&self, function_prefix: String) -> String {
-        format!("{function_prefix}{param_name}", param_name = self.name)
+    pub fn create_type_prefix(&self, function_prefix: String) -> String {
+        format!("{function_prefix}_{param_name}", param_name = self.name)
     }
 }
 
@@ -40,7 +40,7 @@ impl ToTypeAnnotation<Vec<String>> for Param {
         function_name: String,
     ) -> TypeAnnotation {
         self.candid_type
-            .to_type_annotation(keyword_list, self.create_param_type_prefix(function_name))
+            .to_type_annotation(keyword_list, self.create_type_prefix(function_name))
     }
 }
 
@@ -55,6 +55,6 @@ impl Declare<Vec<String>> for Param {
         function_name: String,
     ) -> Vec<Declaration> {
         self.candid_type
-            .flatten(context, self.create_param_type_prefix(function_name))
+            .flatten(context, self.create_type_prefix(function_name))
     }
 }

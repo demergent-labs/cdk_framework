@@ -6,7 +6,7 @@ use crate::{
         node::{param::Param, CandidType, Context},
         Declaration, Declare,
     },
-    traits::{HasParams, HasReturnValue},
+    traits::{HasParams, HasReturnValue, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -106,11 +106,7 @@ impl Method {
             .params
             .iter()
             .map(|param| {
-                self.create_param_type_annotation(
-                    param,
-                    &self.create_qualified_name(canister_name),
-                    keywords,
-                )
+                param.to_type_annotation(keywords, self.create_qualified_name(canister_name))
             })
             .collect();
 

@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::{node::param::Param, Declaration, Declare, ToTypeAnnotation, TypeAnnotation};
+use crate::act::{node::param::Param, Declaration, Declare};
 
 pub trait HasParams {
     fn get_params(&self) -> Vec<Param>;
@@ -17,27 +17,11 @@ pub trait HasParams {
             .map(|param| {
                 param.to_token_stream(
                     keyword_list,
-                    self.create_param_prefix(&param.name, function_name),
+                    param.create_type_prefix(function_name.clone()),
                 )
             })
             .collect();
         quote!(#(#params),*)
-    }
-
-    fn create_param_type_annotation(
-        &self,
-        param: &Param,
-        function_name: &String,
-        keyword_list: &Vec<String>,
-    ) -> TypeAnnotation {
-        param.to_type_annotation(
-            keyword_list,
-            self.create_param_prefix(&param.name, function_name),
-        )
-    }
-
-    fn create_param_prefix(&self, param_name: &String, function_name: &String) -> String {
-        format!("{function_name}_{param_name}",)
     }
 
     fn collect_param_inline_declarations(
@@ -48,7 +32,7 @@ pub trait HasParams {
         self.get_params().iter().fold(vec![], |acc, param| {
             let declarations = param.flatten(
                 keyword_list,
-                self.create_param_prefix(&param.name, function_name),
+                param.create_type_prefix(function_name.clone()),
             );
             vec![acc, declarations].concat()
         })

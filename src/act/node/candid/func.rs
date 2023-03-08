@@ -52,8 +52,9 @@ impl Func {
             .params
             .iter()
             .enumerate()
-            .map(|(index, param)| {
-                self.create_param_type_annotation(&to_param(index, &param), &name, keyword_list)
+            .map(|(index, candid_type)| {
+                to_param(index, candid_type)
+                    .to_type_annotation(keyword_list, name.clone())
                     .to_string()
             })
             .collect();
