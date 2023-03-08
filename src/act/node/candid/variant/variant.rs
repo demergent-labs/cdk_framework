@@ -4,6 +4,7 @@ use quote::{quote, ToTokens};
 use crate::{
     act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::{has_members::Member, HasMembers, ToIdent},
+    utils,
 };
 
 #[derive(Clone, Debug)]
@@ -16,7 +17,7 @@ impl Variant {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{parental_prefix}Variant"),
+            None => utils::create_inline_name(&parental_prefix),
         }
     }
 }

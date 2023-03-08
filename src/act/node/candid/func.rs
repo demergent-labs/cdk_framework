@@ -7,6 +7,7 @@ use crate::{
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
     traits::{HasParams, HasReturnValue, ToIdent},
+    utils,
 };
 
 #[derive(Clone, Debug)]
@@ -32,7 +33,7 @@ impl Func {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{parental_prefix}Func"),
+            None => utils::create_inline_name(&parental_prefix),
         }
     }
 

@@ -5,6 +5,7 @@ use super::Elem;
 use crate::{
     act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::{has_members::Member, HasMembers, ToIdent},
+    utils,
 };
 
 #[derive(Clone, Debug)]
@@ -17,7 +18,7 @@ impl Tuple {
     fn get_name(&self, parental_prefix: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
-            None => format!("{parental_prefix}Tuple"),
+            None => utils::create_inline_name(&parental_prefix),
         }
     }
 }
