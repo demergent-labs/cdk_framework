@@ -27,5 +27,9 @@ fn capitalize(s: String) -> String {
 }
 
 pub(crate) fn create_inline_name(base_name: &String) -> String {
-    format!("_Inline{base}", base = snake_to_camel(base_name))
+    let base_name = snake_to_camel(base_name);
+    if base_name.starts_with("Inline") {
+        return format!("_{base_name}");
+    }
+    format!("_Inline{base_name}")
 }
