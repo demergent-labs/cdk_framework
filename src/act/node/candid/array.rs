@@ -11,11 +11,11 @@ impl ToTypeAnnotation<Vec<String>> for Array {
     fn to_type_annotation(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> TypeAnnotation {
         let enclosed_rust_ident = self
             .enclosed_type
-            .to_type_annotation(keyword_list, parental_prefix);
+            .to_type_annotation(keyword_list, inline_name);
         quote!(Vec<#enclosed_rust_ident>)
     }
 }
@@ -28,8 +28,8 @@ impl Declare<Vec<String>> for Array {
     fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Vec<Declaration> {
-        self.enclosed_type.flatten(keyword_list, parental_prefix)
+        self.enclosed_type.flatten(keyword_list, inline_name)
     }
 }

@@ -11,11 +11,11 @@ impl ToTypeAnnotation<Vec<String>> for Opt {
     fn to_type_annotation(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> TypeAnnotation {
         let enclosed_type_annotation = self
             .enclosed_type
-            .to_type_annotation(keyword_list, parental_prefix);
+            .to_type_annotation(keyword_list, inline_name);
         quote!(Option<#enclosed_type_annotation>)
     }
 }
@@ -28,8 +28,8 @@ impl Declare<Vec<String>> for Opt {
     fn collect_inline_declarations(
         &self,
         keyword_list: &Vec<String>,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Vec<Declaration> {
-        self.enclosed_type.flatten(keyword_list, parental_prefix)
+        self.enclosed_type.flatten(keyword_list, inline_name)
     }
 }

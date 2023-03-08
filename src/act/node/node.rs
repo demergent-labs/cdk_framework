@@ -16,19 +16,19 @@ pub trait AsNode {
 }
 
 impl Declare<Context> for Node {
-    fn to_declaration(&self, context: &Context, parental_prefix: String) -> Option<Declaration> {
+    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
         match self {
             Node::CanisterMethod(canister_method) => {
-                canister_method.to_declaration(context, parental_prefix)
+                canister_method.to_declaration(context, inline_name)
             }
             Node::CandidType(candid_type) => {
-                candid_type.to_declaration(&context.keyword_list, parental_prefix)
+                candid_type.to_declaration(&context.keyword_list, inline_name)
             }
             Node::ExternalCanister(external_canister) => {
-                external_canister.to_declaration(context, parental_prefix)
+                external_canister.to_declaration(context, inline_name)
             }
             Node::GuardFunction(guard_function) => {
-                guard_function.to_declaration(&context.keyword_list, parental_prefix)
+                guard_function.to_declaration(&context.keyword_list, inline_name)
             }
         }
     }
@@ -36,20 +36,20 @@ impl Declare<Context> for Node {
     fn collect_inline_declarations(
         &self,
         context: &Context,
-        parental_prefix: String,
+        inline_name: String,
     ) -> Vec<Declaration> {
         match self {
             Node::CanisterMethod(canister_method) => {
-                canister_method.collect_inline_declarations(context, parental_prefix)
+                canister_method.collect_inline_declarations(context, inline_name)
             }
             Node::CandidType(candid_type) => {
-                candid_type.collect_inline_declarations(&context.keyword_list, parental_prefix)
+                candid_type.collect_inline_declarations(&context.keyword_list, inline_name)
             }
             Node::ExternalCanister(external_canister) => {
-                external_canister.collect_inline_declarations(context, parental_prefix)
+                external_canister.collect_inline_declarations(context, inline_name)
             }
             Node::GuardFunction(guard_function) => {
-                guard_function.collect_inline_declarations(&context.keyword_list, parental_prefix)
+                guard_function.collect_inline_declarations(&context.keyword_list, inline_name)
             }
         }
     }
