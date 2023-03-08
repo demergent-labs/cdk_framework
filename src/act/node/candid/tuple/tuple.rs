@@ -38,10 +38,14 @@ impl Declare<Vec<String>> for Tuple {
         let member_idents: Vec<TokenStream> = self
             .elems
             .iter()
-            .map(|elem| {
+            .enumerate()
+            .map(|(index, elem)| {
                 elem.to_tuple_elem_token_stream(
                     keyword_list,
-                    self.create_member_prefix(&elem.into(), self.get_name(parental_prefix.clone())),
+                    self.create_member_prefix(
+                        &to_member(elem, index),
+                        self.get_name(parental_prefix.clone()),
+                    ),
                 )
             })
             .collect();
@@ -72,6 +76,17 @@ impl Declare<Vec<String>> for Tuple {
 
 impl HasMembers for Tuple {
     fn get_members(&self) -> Vec<Member> {
-        self.elems.iter().map(|elem| elem.into()).collect()
+        self.elems
+            .iter()
+            .enumerate()
+            .map(|(index, elem)| to_member(elem, index))
+            .collect()
+    }
+}
+
+fn to_member(elem: &Elem, index: usize) -> Member {
+    Member {
+        name: index.to_string(),
+        candid_type: elem.candid_type.clone(),
     }
 }

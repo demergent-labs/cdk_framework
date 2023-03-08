@@ -1,24 +1,11 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{
-    act::{node::CandidType, ToTypeAnnotation},
-    traits::has_members::Member,
-};
+use crate::act::{node::CandidType, ToTypeAnnotation};
 
 #[derive(Clone, Debug)]
 pub struct Elem {
-    pub index: usize,
     pub candid_type: CandidType,
-}
-
-impl Into<Member> for &Elem {
-    fn into(self) -> Member {
-        Member {
-            name: self.index.to_string(),
-            candid_type: self.candid_type.clone(),
-        }
-    }
 }
 
 impl Elem {
