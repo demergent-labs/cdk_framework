@@ -30,7 +30,7 @@ impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
         let header = &self.header;
 
-        let randomness_implementation = random::generate_randomness_implementation(&self.cdk_name);
+        let randomness_implementation = random::generate_randomness_implementation();
 
         let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
         let try_into_vm_value_impls = &self.vm_value_conversion.try_into_vm_value_impls;
