@@ -3,7 +3,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{
-        node::{node_parts::return_type, CandidType, Param, ReturnType},
+        node::{CandidType, Param, ReturnType},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
     traits::{HasInlines, IsCallable, ToIdent},
