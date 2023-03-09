@@ -2,8 +2,8 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::node::{CandidType, Param},
-    traits::{HasParams, HasReturnValue, ToIdent},
+    act::node::{CandidType, Param, ReturnType},
+    traits::{HasParams, HasReturnValue, ToIdent, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -25,7 +25,9 @@ impl QueryOrUpdateDefinition {
 
         let function_body = &self.body;
 
-        let return_type_token = self.create_return_type_annotation(&self.name, keyword_list);
+        let return_type_token = ReturnType::new(self.return_type.clone())
+            .to_type_annotation(keyword_list, self.name.clone());
+
         let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
             quote! {
                 ic_cdk::api::call::ManualReply<#return_type_token>
@@ -49,7 +51,7 @@ impl HasParams for QueryOrUpdateDefinition {
 }
 
 impl HasReturnValue for QueryOrUpdateDefinition {
-    fn get_return_type(&self) -> CandidType {
-        self.return_type.clone()
+    fn get_return_type(&self) -> ReturnType {
+        ReturnType::new(self.return_type.clone())
     }
 }

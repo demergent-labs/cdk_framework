@@ -57,9 +57,9 @@ impl Method {
             quote! {}
         };
 
-        let function_return_type = self.create_return_type_annotation(
-            &self.create_qualified_name(canister_name),
+        let function_return_type = ReturnType::new(self.return_type.clone()).to_type_annotation(
             &context.keyword_list,
+            self.create_qualified_name(canister_name),
         );
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
@@ -167,7 +167,7 @@ impl HasParams for Method {
 }
 
 impl HasReturnValue for Method {
-    fn get_return_type(&self) -> CandidType {
-        self.return_type.clone()
+    fn get_return_type(&self) -> ReturnType {
+        ReturnType::new(self.return_type.clone())
     }
 }

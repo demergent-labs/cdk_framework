@@ -4,7 +4,7 @@ use std::ops::Deref;
 
 use crate::{
     act::{
-        node::{canister_method::QueryOrUpdateDefinition, CandidType, Param, ReturnType},
+        node::{canister_method::QueryOrUpdateDefinition, Param, ReturnType},
         Declaration, Declare,
     },
     traits::{HasDeclarableTypes, HasParams, HasReturnValue},
@@ -94,7 +94,7 @@ impl HasParams for QueryMethod {
 }
 
 impl HasReturnValue for QueryMethod {
-    fn get_return_type(&self) -> CandidType {
-        self.return_type.clone()
+    fn get_return_type(&self) -> ReturnType {
+        ReturnType::new(self.return_type.clone())
     }
 }

@@ -92,8 +92,8 @@ impl Func {
                 }
             })
             .collect();
-        let return_type_string = self
-            .create_return_type_annotation(&name, keyword_list)
+        let return_type_string = ReturnType::new(self.return_type.as_ref().clone())
+            .to_type_annotation(keyword_list, name.clone())
             .to_string();
         let func_return_type = if return_type_string == "()" || return_type_string == "" {
             quote! {}
@@ -229,8 +229,8 @@ impl HasParams for Func {
 }
 
 impl HasReturnValue for Func {
-    fn get_return_type(&self) -> CandidType {
-        self.return_type.as_ref().clone()
+    fn get_return_type(&self) -> ReturnType {
+        ReturnType::new(self.return_type.as_ref().clone())
     }
 }
 
