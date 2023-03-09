@@ -81,6 +81,6 @@ impl IsCallable for QueryMethod {
     }
 
     fn get_return_type(&self) -> Option<ReturnType> {
-        Some(ReturnType::new(self.return_type.clone()))
+        Some(self.return_type.clone())
     }
 }
