@@ -6,7 +6,7 @@ use crate::{
         node::{CandidType, Param, ReturnType},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::{HasDeclarableTypes, HasParams, HasReturnValue, ToIdent},
+    traits::{HasInlineTypes, IsFunction, ToIdent},
     utils,
 };
 
@@ -195,19 +195,7 @@ impl Declare<Vec<String>> for Func {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        let param_declarations =
-            <Func as HasDeclarableTypes<Param>>::collect_inline_declarations_from(
-                &self,
-                self.get_name(inline_name.clone()),
-                keyword_list,
-            );
-        let return_declarations =
-            <Func as HasDeclarableTypes<ReturnType>>::collect_inline_declarations_from(
-                &self,
-                self.get_name(inline_name),
-                keyword_list,
-            );
-        vec![param_declarations, return_declarations].concat()
+        self.collect_inline_declarations_from(self.get_name(inline_name), keyword_list)
     }
 }
 
@@ -218,7 +206,7 @@ fn to_param(index: usize, candid_type: &CandidType) -> Param {
     }
 }
 
-impl HasParams for Func {
+impl IsFunction for Func {
     fn get_params(&self) -> Vec<Param> {
         self.params
             .iter()
@@ -226,11 +214,9 @@ impl HasParams for Func {
             .map(|(index, candid_type)| to_param(index, candid_type))
             .collect()
     }
-}
 
-impl HasReturnValue for Func {
-    fn get_return_type(&self) -> ReturnType {
-        ReturnType::new(self.return_type.as_ref().clone())
+    fn get_return_type(&self) -> Option<ReturnType> {
+        Some(ReturnType::new(self.return_type.as_ref().clone()))
     }
 }
 

@@ -5,6 +5,7 @@ use crate::{
     traits::{Declare, HasPrefix, ToTypeAnnotation},
 };
 
+#[derive(Clone)]
 pub struct ReturnType {
     candid_type: CandidType,
 }

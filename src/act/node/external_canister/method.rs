@@ -6,7 +6,7 @@ use crate::{
         node::{CandidType, Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasDeclarableTypes, HasParams, HasReturnValue, ToTypeAnnotation},
+    traits::{HasInlineTypes, IsFunction, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -144,30 +144,19 @@ impl Declare<Context> for Method {
         context: &Context,
         canister_name: String,
     ) -> Vec<Declaration> {
-        let param_declarations =
-            <Method as HasDeclarableTypes<Param>>::collect_inline_declarations_from(
-                &self,
-                self.create_qualified_name(&canister_name),
-                &context.keyword_list,
-            );
-        let return_declarations =
-            <Method as HasDeclarableTypes<ReturnType>>::collect_inline_declarations_from(
-                &self,
-                self.name.clone(),
-                &context.keyword_list,
-            );
-        vec![param_declarations, return_declarations].concat()
+        self.collect_inline_declarations_from(
+            self.create_qualified_name(&canister_name),
+            &context.keyword_list,
+        )
     }
 }
 
-impl HasParams for Method {
+impl IsFunction for Method {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
-}
 
-impl HasReturnValue for Method {
-    fn get_return_type(&self) -> ReturnType {
-        ReturnType::new(self.return_type.clone())
+    fn get_return_type(&self) -> Option<ReturnType> {
+        Some(ReturnType::new(self.return_type.clone()))
     }
 }

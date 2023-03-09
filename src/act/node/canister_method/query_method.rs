@@ -7,7 +7,7 @@ use crate::{
         node::{canister_method::QueryOrUpdateDefinition, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasDeclarableTypes, HasParams, HasReturnValue},
+    traits::{HasInlineTypes, IsFunction},
 };
 
 /// Describes a Rust canister method function body
@@ -71,30 +71,16 @@ impl Declare<Vec<String>> for QueryMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> Vec<Declaration> {
-        let param_declarations =
-            <QueryMethod as HasDeclarableTypes<Param>>::collect_inline_declarations_from(
-                &self,
-                self.name.clone(),
-                keyword_list,
-            );
-        let return_declarations =
-            <QueryMethod as HasDeclarableTypes<ReturnType>>::collect_inline_declarations_from(
-                &self,
-                self.name.clone(),
-                keyword_list,
-            );
-        vec![param_declarations, return_declarations].concat()
+        self.collect_inline_declarations_from(self.name.clone(), keyword_list)
     }
 }
 
-impl HasParams for QueryMethod {
+impl IsFunction for QueryMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }
-}
 
-impl HasReturnValue for QueryMethod {
-    fn get_return_type(&self) -> ReturnType {
-        ReturnType::new(self.return_type.clone())
+    fn get_return_type(&self) -> Option<ReturnType> {
+        Some(ReturnType::new(self.return_type.clone()))
     }
 }

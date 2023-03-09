@@ -3,7 +3,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{node::Member, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasDeclarableTypes, HasMembers, ToIdent},
+    traits::{HasInlineTypes, HasMembers, ToIdent},
     utils,
 };
 

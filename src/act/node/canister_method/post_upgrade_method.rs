@@ -3,10 +3,10 @@ use quote::quote;
 
 use crate::{
     act::{
-        node::{Context, Param},
+        node::{Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasDeclarableTypes, HasParams, ToIdent},
+    traits::{HasInlineTypes, IsFunction, ToIdent},
 };
 
 #[derive(Clone)]
@@ -40,8 +40,12 @@ impl Declare<Context> for PostUpgradeMethod {
     }
 }
 
-impl HasParams for PostUpgradeMethod {
+impl IsFunction for PostUpgradeMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
+    }
+
+    fn get_return_type(&self) -> Option<ReturnType> {
+        None
     }
 }

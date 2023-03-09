@@ -2,7 +2,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasDeclarableTypes, HasMembers, ToIdent},
+    traits::{HasInlineTypes, HasMembers, ToIdent},
     utils,
 };
 
