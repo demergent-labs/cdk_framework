@@ -45,17 +45,18 @@ impl Declare<Vec<String>> for ReturnType {
     fn to_declaration(
         &self,
         context: &Vec<String>,
-        inline_name: String,
+        function_name: String,
     ) -> Option<crate::act::Declaration> {
-        self.candid_type.to_declaration(context, inline_name)
+        self.candid_type
+            .to_declaration(context, self.get_prefix(&function_name))
     }
 
     fn collect_inline_declarations(
         &self,
         context: &Vec<String>,
-        inline_name: String,
+        function_name: String,
     ) -> Vec<crate::act::Declaration> {
         self.candid_type
-            .collect_inline_declarations(context, inline_name)
+            .collect_inline_declarations(context, self.get_prefix(&function_name))
     }
 }
