@@ -2,9 +2,11 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{has_members::Member, HasMembers, ToIdent},
+    traits::{HasDeclarableTypes, HasMembers, ToIdent},
     utils,
 };
+
+use super::Member;
 
 #[derive(Clone, Debug)]
 pub struct Record {
@@ -38,10 +40,7 @@ impl Declare<Vec<String>> for Record {
             .members
             .iter()
             .map(|member| {
-                member.to_record_member_token_stream(
-                    keyword_list,
-                    self.create_member_prefix(member, self.get_name(&inline_name)),
-                )
+                member.to_record_member_token_stream(keyword_list, self.get_name(&inline_name))
             })
             .collect();
         Some(quote!(
@@ -57,7 +56,7 @@ impl Declare<Vec<String>> for Record {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(keyword_list, self.get_name(&inline_name))
+        self.collect_inline_declarations_from(self.get_name(&inline_name), keyword_list)
     }
 }
 

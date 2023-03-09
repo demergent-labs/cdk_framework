@@ -3,10 +3,10 @@ use quote::{format_ident, quote};
 
 use crate::{
     act::{
-        node::{param::Param, CandidType, Context},
+        node::{CandidType, Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasParams, HasReturnValue, ToTypeAnnotation},
+    traits::{HasDeclarableTypes, HasParams, HasReturnValue, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -144,14 +144,18 @@ impl Declare<Context> for Method {
         context: &Context,
         canister_name: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_declarations(
-            &self.create_qualified_name(&canister_name),
-            &context.keyword_list,
-        );
-        let return_declarations = self.collect_return_inline_declarations(
-            &self.create_qualified_name(&canister_name),
-            &context.keyword_list,
-        );
+        let param_declarations =
+            <Method as HasDeclarableTypes<Param>>::collect_inline_declarations_from(
+                &self,
+                self.create_qualified_name(&canister_name),
+                &context.keyword_list,
+            );
+        let return_declarations =
+            <Method as HasDeclarableTypes<ReturnType>>::collect_inline_declarations_from(
+                &self,
+                self.name.clone(),
+                &context.keyword_list,
+            );
         vec![param_declarations, return_declarations].concat()
     }
 }

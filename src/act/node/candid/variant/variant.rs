@@ -2,8 +2,8 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
 use crate::{
-    act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{has_members::Member, HasMembers, ToIdent},
+    act::{node::Member, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
+    traits::{HasDeclarableTypes, HasMembers, ToIdent},
     utils,
 };
 
@@ -14,7 +14,7 @@ pub struct Variant {
 }
 
 impl Variant {
-    fn get_name(&self, inline_name: String) -> String {
+    fn get_name(&self, inline_name: &String) -> String {
         match &self.name {
             Some(name) => name.clone(),
             None => utils::create_inline_name(&inline_name),
@@ -24,7 +24,7 @@ impl Variant {
 
 impl<C> ToTypeAnnotation<C> for Variant {
     fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
-        self.get_name(inline_name).to_ident().to_token_stream()
+        self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }
 
@@ -34,15 +34,12 @@ impl Declare<Vec<String>> for Variant {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Option<Declaration> {
-        let variant_ident = self.get_name(inline_name.clone()).to_ident();
+        let variant_ident = self.get_name(&inline_name).to_ident();
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
             .map(|member| {
-                member.to_variant_member_token_stream(
-                    keyword_list,
-                    self.create_member_prefix(member, self.get_name(inline_name.clone())),
-                )
+                member.to_variant_member_token_stream(keyword_list, self.get_name(&inline_name))
             })
             .collect();
         Some(quote!(
@@ -58,7 +55,7 @@ impl Declare<Vec<String>> for Variant {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(keyword_list, self.get_name(inline_name.clone()))
+        self.collect_inline_declarations_from(self.get_name(&inline_name), keyword_list)
     }
 }
 

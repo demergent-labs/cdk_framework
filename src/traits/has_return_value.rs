@@ -1,27 +1,25 @@
-use crate::act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation};
+use crate::act::{node::ReturnType, ToTypeAnnotation, TypeAnnotation};
+
+use super::{HasDeclarableTypes, HasPrefix};
 
 pub trait HasReturnValue {
-    fn get_return_type(&self) -> CandidType;
+    fn get_return_type(&self) -> ReturnType;
 
     fn create_return_type_annotation(
         &self,
         function_name: &String,
         keyword_list: &Vec<String>,
     ) -> TypeAnnotation {
-        self.get_return_type()
-            .to_type_annotation(keyword_list, self.create_return_type_prefix(function_name))
+        let return_type = self.get_return_type();
+        return_type.to_type_annotation(keyword_list, return_type.get_prefix(function_name))
     }
+}
 
-    fn collect_return_inline_declarations(
-        &self,
-        function_name: &String,
-        keyword_list: &Vec<String>,
-    ) -> Vec<Declaration> {
-        self.get_return_type()
-            .flatten(&keyword_list, self.create_return_type_prefix(function_name))
-    }
-
-    fn create_return_type_prefix(&self, function_name: &String) -> String {
-        format!("{function_name}ReturnType")
+impl<T> HasDeclarableTypes<ReturnType> for T
+where
+    T: HasReturnValue,
+{
+    fn get_declarable_items(&self) -> Vec<ReturnType> {
+        vec![self.get_return_type()]
     }
 }

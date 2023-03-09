@@ -3,10 +3,10 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{
-        node::{CandidType, Param},
+        node::{CandidType, Param, ReturnType},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::{HasParams, HasReturnValue, ToIdent},
+    traits::{HasDeclarableTypes, HasParams, HasReturnValue, ToIdent},
     utils,
 };
 
@@ -195,10 +195,18 @@ impl Declare<Vec<String>> for Func {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self
-            .collect_param_inline_declarations(&self.get_name(inline_name.clone()), keyword_list);
+        let param_declarations =
+            <Func as HasDeclarableTypes<Param>>::collect_inline_declarations_from(
+                &self,
+                self.get_name(inline_name.clone()),
+                keyword_list,
+            );
         let return_declarations =
-            self.collect_return_inline_declarations(&self.get_name(inline_name), keyword_list);
+            <Func as HasDeclarableTypes<ReturnType>>::collect_inline_declarations_from(
+                &self,
+                self.get_name(inline_name),
+                keyword_list,
+            );
         vec![param_declarations, return_declarations].concat()
     }
 }

@@ -3,8 +3,8 @@ use quote::{quote, ToTokens};
 
 use super::Elem;
 use crate::{
-    act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{has_members::Member, HasMembers, ToIdent},
+    act::{node::Member, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
+    traits::{HasDeclarableTypes, HasMembers, ToIdent},
     utils,
 };
 
@@ -15,7 +15,7 @@ pub struct Tuple {
 }
 
 impl Tuple {
-    fn get_name(&self, inline_name: String) -> String {
+    fn get_name(&self, inline_name: &String) -> String {
         match &self.name {
             Some(name) => name.clone(),
             None => utils::create_inline_name(&inline_name),
@@ -25,7 +25,7 @@ impl Tuple {
 
 impl<C> ToTypeAnnotation<C> for Tuple {
     fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
-        self.get_name(inline_name).to_ident().to_token_stream()
+        self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }
 
@@ -35,19 +35,13 @@ impl Declare<Vec<String>> for Tuple {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Option<Declaration> {
-        let tuple_ident = self.get_name(inline_name.clone()).to_ident();
+        let tuple_ident = self.get_name(&inline_name).to_ident();
         let member_idents: Vec<TokenStream> = self
             .elems
             .iter()
             .enumerate()
             .map(|(index, elem)| {
-                elem.to_tuple_elem_token_stream(
-                    keyword_list,
-                    self.create_member_prefix(
-                        &to_member(elem, index),
-                        self.get_name(inline_name.clone()),
-                    ),
-                )
+                elem.to_tuple_elem_token_stream(index, &self.get_name(&inline_name), keyword_list)
             })
             .collect();
 
@@ -71,7 +65,7 @@ impl Declare<Vec<String>> for Tuple {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_member_inline_declarations(keyword_list, self.get_name(inline_name))
+        self.collect_inline_declarations_from(self.get_name(&inline_name), keyword_list)
     }
 }
 
@@ -80,14 +74,7 @@ impl HasMembers for Tuple {
         self.elems
             .iter()
             .enumerate()
-            .map(|(index, elem)| to_member(elem, index))
+            .map(|(index, elem)| elem.to_member(index))
             .collect()
-    }
-}
-
-fn to_member(elem: &Elem, index: usize) -> Member {
-    Member {
-        name: index.to_string(),
-        candid_type: elem.candid_type.clone(),
     }
 }

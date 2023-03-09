@@ -4,10 +4,10 @@ use std::ops::Deref;
 
 use crate::{
     act::{
-        node::{canister_method::QueryOrUpdateDefinition, param::Param, CandidType},
+        node::{canister_method::QueryOrUpdateDefinition, CandidType, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasParams, HasReturnValue},
+    traits::{HasDeclarableTypes, HasParams, HasReturnValue},
 };
 
 /// Describes a Rust canister method function body
@@ -71,8 +71,18 @@ impl Declare<Vec<String>> for QueryMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> Vec<Declaration> {
-        let param_declarations = self.collect_param_inline_declarations(&self.name, keyword_list);
-        let return_declarations = self.collect_return_inline_declarations(&self.name, keyword_list);
+        let param_declarations =
+            <QueryMethod as HasDeclarableTypes<Param>>::collect_inline_declarations_from(
+                &self,
+                self.name.clone(),
+                keyword_list,
+            );
+        let return_declarations =
+            <QueryMethod as HasDeclarableTypes<ReturnType>>::collect_inline_declarations_from(
+                &self,
+                self.name.clone(),
+                keyword_list,
+            );
         vec![param_declarations, return_declarations].concat()
     }
 }

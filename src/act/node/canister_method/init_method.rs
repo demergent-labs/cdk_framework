@@ -3,10 +3,10 @@ use quote::quote;
 
 use crate::{
     act::{
-        node::{param::Param, Context},
+        node::{Context, Param},
         Declaration, Declare,
     },
-    traits::{HasParams, ToIdent},
+    traits::{HasDeclarableTypes, HasParams, ToIdent},
 };
 
 #[derive(Clone)]
@@ -37,7 +37,7 @@ impl Declare<Context> for InitMethod {
     }
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        self.collect_param_inline_declarations(&self.get_name(&context), &context.keyword_list)
+        self.collect_inline_declarations_from(self.get_name(&context), &context.keyword_list)
     }
 }
 
