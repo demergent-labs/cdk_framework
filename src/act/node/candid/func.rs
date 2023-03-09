@@ -6,7 +6,7 @@ use crate::{
         node::{CandidType, Param, ReturnType},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::{HasInlineTypes, IsFunction, ToIdent},
+    traits::{HasInlines, IsCallable, ToIdent},
     utils,
 };
 
@@ -195,7 +195,7 @@ impl Declare<Vec<String>> for Func {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_inline_declarations_from(self.get_name(inline_name), keyword_list)
+        self.flatten_inlines(self.get_name(inline_name), keyword_list)
     }
 }
 
@@ -206,7 +206,7 @@ fn to_param(index: usize, candid_type: &CandidType) -> Param {
     }
 }
 
-impl IsFunction for Func {
+impl IsCallable for Func {
     fn get_params(&self) -> Vec<Param> {
         self.params
             .iter()

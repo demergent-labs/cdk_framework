@@ -7,7 +7,7 @@ use crate::{
         node::{canister_method::QueryOrUpdateDefinition, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlineTypes, IsFunction},
+    traits::{HasInlines, IsCallable},
 };
 
 /// Describes a Rust canister method function body
@@ -57,11 +57,11 @@ impl Declare<Vec<String>> for UpdateMethod {
         keyword_list: &Vec<String>,
         _: String,
     ) -> Vec<Declaration> {
-        self.collect_inline_declarations_from(self.name.clone(), keyword_list)
+        self.flatten_inlines(self.name.clone(), keyword_list)
     }
 }
 
-impl IsFunction for UpdateMethod {
+impl IsCallable for UpdateMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }

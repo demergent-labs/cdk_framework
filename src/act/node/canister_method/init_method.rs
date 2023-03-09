@@ -6,7 +6,7 @@ use crate::{
         node::{Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlineTypes, IsFunction, ToIdent},
+    traits::{HasInlines, IsCallable, ToIdent},
 };
 
 #[derive(Clone)]
@@ -37,11 +37,11 @@ impl Declare<Context> for InitMethod {
     }
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        self.collect_inline_declarations_from(self.get_name(&context), &context.keyword_list)
+        self.flatten_inlines(self.get_name(&context), &context.keyword_list)
     }
 }
 
-impl IsFunction for InitMethod {
+impl IsCallable for InitMethod {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }

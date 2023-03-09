@@ -3,7 +3,7 @@ use quote::quote;
 
 use crate::{
     act::node::{CandidType, Param, ReturnType},
-    traits::{IsFunction, ToIdent, ToTypeAnnotation},
+    traits::{IsCallable, ToIdent, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -44,7 +44,7 @@ impl QueryOrUpdateDefinition {
     }
 }
 
-impl IsFunction for QueryOrUpdateDefinition {
+impl IsCallable for QueryOrUpdateDefinition {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }

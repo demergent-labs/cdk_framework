@@ -6,7 +6,7 @@ use crate::{
         node::{CandidType, Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlineTypes, IsFunction, ToTypeAnnotation},
+    traits::{HasInlines, IsCallable, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -144,14 +144,14 @@ impl Declare<Context> for Method {
         context: &Context,
         canister_name: String,
     ) -> Vec<Declaration> {
-        self.collect_inline_declarations_from(
+        self.flatten_inlines(
             self.create_qualified_name(&canister_name),
             &context.keyword_list,
         )
     }
 }
 
-impl IsFunction for Method {
+impl IsCallable for Method {
     fn get_params(&self) -> Vec<Param> {
         self.params.clone()
     }

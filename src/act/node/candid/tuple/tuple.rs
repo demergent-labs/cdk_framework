@@ -4,7 +4,7 @@ use quote::{quote, ToTokens};
 use super::Elem;
 use crate::{
     act::{node::Member, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasInlineTypes, HasMembers, ToIdent},
+    traits::{HasInlines, HasMembers, ToIdent},
     utils,
 };
 
@@ -65,7 +65,7 @@ impl Declare<Vec<String>> for Tuple {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_inline_declarations_from(self.get_name(&inline_name), keyword_list)
+        self.flatten_inlines(self.get_name(&inline_name), keyword_list)
     }
 }
 

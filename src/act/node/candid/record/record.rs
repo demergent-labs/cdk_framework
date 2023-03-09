@@ -2,7 +2,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasInlineTypes, HasMembers, ToIdent},
+    traits::{HasInlines, HasMembers, ToIdent},
     utils,
 };
 
@@ -56,7 +56,7 @@ impl Declare<Vec<String>> for Record {
         keyword_list: &Vec<String>,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.collect_inline_declarations_from(self.get_name(&inline_name), keyword_list)
+        self.flatten_inlines(self.get_name(&inline_name), keyword_list)
     }
 }
 
