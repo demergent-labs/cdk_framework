@@ -1,27 +1,24 @@
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 
-pub fn generate_candid_file_generation_code(cdk_name: &String) -> TokenStream {
-    let function_name = format_ident!("_{}_export_candid", cdk_name.to_lowercase());
-    let test_function_name = format_ident!("_{}_write_candid_to_disk", cdk_name.to_lowercase());
-
+pub fn generate_candid_file_generation_code() -> TokenStream {
     quote! {
         candid::export_service!();
 
-        #[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
-        fn #function_name() -> String {
-            __export_service()
+        // Heavily inspired by https://stackoverflow.com/a/47676844
+        use std::ffi::CString;
+        use std::os::raw::c_char;
+
+        #[no_mangle]
+        pub fn _cdk_get_candid_pointer() -> *mut c_char {
+            let c_string = CString::new(__export_service()).unwrap();
+
+            c_string.into_raw()
         }
 
-        #[cfg(test)]
-
-        mod tests {
-            use super::*;
-
-            #[test]
-            fn #test_function_name() {
-                std::fs::write("index.did", #function_name()).unwrap();
-            }
+        #[no_mangle]
+        pub fn _cdk_get_candid_length() -> usize {
+            __export_service().len()
         }
     }
 }

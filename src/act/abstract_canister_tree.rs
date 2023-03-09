@@ -47,7 +47,7 @@ impl AbstractCanisterTree {
         let external_canister_decls = self.generate_declarations(self.external_canisters.clone());
 
         let candid_file_generation_code =
-            candid_file_generation::generate_candid_file_generation_code(&self.cdk_name);
+            candid_file_generation::generate_candid_file_generation_code();
 
         quote! {
             #header
