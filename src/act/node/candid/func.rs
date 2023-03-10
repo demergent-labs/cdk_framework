@@ -116,8 +116,6 @@ impl Func {
             .collect();
         let return_type_string = self
             .return_type
-            .as_ref()
-            .clone()
             .to_type_annotation(keyword_list, name.clone())
             .to_string();
         let func_return_type = if return_type_string == "()" || return_type_string == "" {

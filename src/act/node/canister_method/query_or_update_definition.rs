@@ -49,7 +49,6 @@ impl QueryOrUpdateDefinition {
 
         let return_type_token = self
             .return_type
-            .clone()
             .to_type_annotation(keyword_list, self.name.clone());
 
         let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
