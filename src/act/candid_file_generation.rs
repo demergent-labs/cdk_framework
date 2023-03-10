@@ -15,10 +15,5 @@ pub fn generate_candid_file_generation_code() -> TokenStream {
 
             c_string.into_raw()
         }
-
-        #[no_mangle]
-        pub fn _cdk_get_candid_length() -> usize {
-            __export_service().len()
-        }
     }
 }
