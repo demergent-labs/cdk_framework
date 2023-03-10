@@ -226,7 +226,7 @@ impl Declare<Vec<String>> for Func {
 
 fn to_param(index: usize, candid_type: &CandidType) -> Param {
     Param {
-        name: index.to_string(),
+        name: format!("Param{}", index.to_string()),
         candid_type: candid_type.clone(),
     }
 }
