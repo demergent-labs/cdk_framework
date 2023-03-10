@@ -14,7 +14,7 @@ use crate::{
 pub struct Func {
     pub name: Option<String>,
     pub params: Vec<CandidType>,
-    pub return_type: Box<CandidType>,
+    pub return_type: Box<ReturnType>,
     pub mode: Mode,
     pub to_vm_value: fn(String) -> TokenStream,
     pub list_to_vm_value: fn(String) -> TokenStream,
@@ -30,6 +30,28 @@ pub enum Mode {
 }
 
 impl Func {
+    pub fn new(
+        name: Option<String>,
+        params: Vec<CandidType>,
+        return_type: CandidType,
+        mode: Mode,
+        to_vm_value: fn(String) -> TokenStream,
+        list_to_vm_value: fn(String) -> TokenStream,
+        from_vm_value: fn(String) -> TokenStream,
+        list_from_vm_value: fn(String) -> TokenStream,
+    ) -> Func {
+        Func {
+            name,
+            params,
+            return_type: Box::new(ReturnType::new(return_type)),
+            mode,
+            to_vm_value,
+            list_to_vm_value,
+            from_vm_value,
+            list_from_vm_value,
+        }
+    }
+
     fn get_name(&self, inline_name: String) -> String {
         match &self.name {
             Some(name) => name.clone(),
@@ -92,7 +114,8 @@ impl Func {
                 }
             })
             .collect();
-        let return_type_string = ReturnType::new(self.return_type.as_ref().clone())
+        let return_type_string = self
+            .return_type
             .to_type_annotation(keyword_list, name.clone())
             .to_string();
         let func_return_type = if return_type_string == "()" || return_type_string == "" {
@@ -201,7 +224,7 @@ impl Declare<Vec<String>> for Func {
 
 fn to_param(index: usize, candid_type: &CandidType) -> Param {
     Param {
-        name: index.to_string(),
+        name: format!("Param{}", index.to_string()),
         candid_type: candid_type.clone(),
     }
 }
@@ -216,7 +239,7 @@ impl IsCallable for Func {
     }
 
     fn get_return_type(&self) -> Option<ReturnType> {
-        Some(ReturnType::new(self.return_type.as_ref().clone()))
+        Some(self.return_type.as_ref().clone())
     }
 }
 

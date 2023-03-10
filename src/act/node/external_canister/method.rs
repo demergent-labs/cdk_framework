@@ -13,10 +13,18 @@ use crate::{
 pub struct Method {
     pub name: String,
     pub params: Vec<Param>,
-    pub return_type: CandidType,
+    pub return_type: ReturnType,
 }
 
 impl Method {
+    pub fn new(name: String, params: Vec<Param>, return_type: CandidType) -> Method {
+        Method {
+            name,
+            params,
+            return_type: ReturnType::new(return_type),
+        }
+    }
+
     pub fn create_qualified_name(&self, canister_name: &String) -> String {
         format!(
             "{canister_name}_{method_name}",
@@ -57,7 +65,7 @@ impl Method {
             quote! {}
         };
 
-        let function_return_type = ReturnType::new(self.return_type.clone()).to_type_annotation(
+        let function_return_type = self.return_type.clone().to_type_annotation(
             &context.keyword_list,
             self.create_qualified_name(canister_name),
         );
@@ -157,6 +165,6 @@ impl IsCallable for Method {
     }
 
     fn get_return_type(&self) -> Option<ReturnType> {
-        Some(ReturnType::new(self.return_type.clone()))
+        Some(self.return_type.clone())
     }
 }
