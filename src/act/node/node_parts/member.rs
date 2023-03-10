@@ -10,9 +10,9 @@ pub struct Member {
 }
 
 impl ToTypeAnnotation<Vec<String>> for Member {
-    fn to_type_annotation(&self, context: &Vec<String>, inline_name: String) -> TypeAnnotation {
+    fn to_type_annotation(&self, context: &Vec<String>, parent_name: String) -> TypeAnnotation {
         self.candid_type
-            .to_type_annotation(context, self.get_prefix(&inline_name))
+            .to_type_annotation(context, self.get_prefix(&parent_name))
     }
 }
 
@@ -24,9 +24,10 @@ impl Declare<Vec<String>> for Member {
     fn collect_inline_declarations(
         &self,
         context: &Vec<String>,
-        inline_name: String,
+        parent_name: String,
     ) -> Vec<Declaration> {
-        self.candid_type.flatten(context, inline_name)
+        self.candid_type
+            .flatten(context, self.get_prefix(&parent_name))
     }
 }
 
