@@ -11,6 +11,7 @@ use crate::{
 
 #[derive(Clone)]
 pub struct PostUpgradeMethod {
+    pub guard_function_name: Option<String>,
     pub params: Vec<Param>,
     pub body: TokenStream,
 }
@@ -27,8 +28,13 @@ impl Declare<Context> for PostUpgradeMethod {
         let body = &self.body;
         let params =
             self.create_parameter_list_token_stream(&self.get_name(context), &context.keyword_list);
+        let macro_args = match &self.guard_function_name {
+            Some(guard_function_name) => quote! {guard = #guard_function_name},
+            None => quote!(),
+        };
+
         Some(quote! {
-            #[ic_cdk_macros::post_upgrade]
+            #[ic_cdk_macros::post_upgrade(#macro_args)]
             fn #function_name(#params) {
                 #body
             }

@@ -30,7 +30,7 @@ impl Member {
             }
             _ => {
                 let member_type_annotation = self.to_type_annotation(keyword_list, parent_name);
-                quote!((#member_type_annotation))
+                quote!((Box<#member_type_annotation>))
             }
         };
         let member_name = keyword::make_rust_safe(&self.name, keyword_list).to_ident();

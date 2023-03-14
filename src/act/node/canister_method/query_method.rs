@@ -21,25 +21,31 @@ impl QueryMethod {
         let mut args: Vec<TokenStream> = vec![];
         if self.is_async {
             args.push(quote! {composite = true});
-        };
+        }
         if self.is_manual {
             args.push(quote! {manual_reply = true});
-        };
+        }
         if let Some(guard_function) = &self.guard_function_name {
             args.push(quote! {guard = #guard_function});
-        };
+        }
 
         quote!(#(#args),*)
     }
 
     fn generate_not_kybra_macro_args(&self) -> TokenStream {
+        let mut args: Vec<TokenStream> = vec![];
         if self.is_async {
-            quote! {composite = true, manual_reply = true}
-        } else if self.is_manual {
-            quote! {manual_reply = true}
-        } else {
-            quote! {}
+            args.push(quote! {composite = true});
+            args.push(quote! {manual_reply = true});
         }
+        if self.is_manual {
+            args.push(quote! {manual_reply = true});
+        }
+        if let Some(guard_function) = &self.guard_function_name {
+            args.push(quote! {guard = #guard_function});
+        }
+
+        quote!(#(#args),*)
     }
 }
 
