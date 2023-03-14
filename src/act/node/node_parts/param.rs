@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 
 use crate::{
     act::{node::CandidType, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{HasPrefix, ToIdent},
+    traits::{HasInlineName, ToIdent},
 };
 
 #[derive(Debug, Clone)]
@@ -29,8 +29,8 @@ impl Param {
     }
 }
 
-impl HasPrefix for Param {
-    fn get_prefix(&self, function_name: &String) -> String {
+impl HasInlineName for Param {
+    fn get_inline_name(&self, function_name: &String) -> String {
         format!("{function_name}_{param_name}", param_name = self.name)
     }
 }
@@ -42,7 +42,7 @@ impl ToTypeAnnotation<Vec<String>> for Param {
         function_name: String,
     ) -> TypeAnnotation {
         self.candid_type
-            .to_type_annotation(keyword_list, self.get_prefix(&function_name))
+            .to_type_annotation(keyword_list, self.get_inline_name(&function_name))
     }
 }
 
@@ -57,6 +57,6 @@ impl Declare<Vec<String>> for Param {
         function_name: String,
     ) -> Vec<Declaration> {
         self.candid_type
-            .flatten(context, self.get_prefix(&function_name))
+            .flatten(context, self.get_inline_name(&function_name))
     }
 }

@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use crate::{
     act::node::CandidType,
-    traits::{Declare, HasPrefix, ToTypeAnnotation},
+    traits::{Declare, HasInlineName, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -24,8 +24,8 @@ impl Deref for ReturnType {
     }
 }
 
-impl HasPrefix for ReturnType {
-    fn get_prefix(&self, function_name: &String) -> String {
+impl HasInlineName for ReturnType {
+    fn get_inline_name(&self, function_name: &String) -> String {
         format!("{function_name}ReturnType")
     }
 }
@@ -37,7 +37,7 @@ impl ToTypeAnnotation<Vec<String>> for ReturnType {
         function_name: String,
     ) -> crate::act::TypeAnnotation {
         self.candid_type
-            .to_type_annotation(keyword_list, self.get_prefix(&function_name))
+            .to_type_annotation(keyword_list, self.get_inline_name(&function_name))
     }
 }
 
@@ -48,7 +48,7 @@ impl Declare<Vec<String>> for ReturnType {
         function_name: String,
     ) -> Option<crate::act::Declaration> {
         self.candid_type
-            .to_declaration(context, self.get_prefix(&function_name))
+            .to_declaration(context, self.get_inline_name(&function_name))
     }
 
     fn collect_inline_declarations(
@@ -57,6 +57,6 @@ impl Declare<Vec<String>> for ReturnType {
         function_name: String,
     ) -> Vec<crate::act::Declaration> {
         self.candid_type
-            .collect_inline_declarations(context, self.get_prefix(&function_name))
+            .collect_inline_declarations(context, self.get_inline_name(&function_name))
     }
 }
