@@ -36,11 +36,11 @@ The idea behind the CDK framework is to help convert a canister written in any l
 AST -> ACT -> Rust canister code -> Wasm binary -> IC
 
 > **Note**
-> While the CDK framework will help to generate the lib.rs files for the canisters your CDK will build, your CDK will still need to provide all of the other parts of teh Rust canister.
+> While the CDK framework will help to generate the lib.rs files for the canisters your CDK will build, your CDK will still need to provide all of the other parts of the Rust canister.
 
-To generate the Rust token stream for the lib.rs you simply need to construct an `AbstractCanisterTree`
+To generate the Rust token stream for the lib.rs you simply need to construct an `AbstractCanisterTree`.
 
-For example
+For example:
 
 ```rust
 fn main() {
@@ -135,16 +135,14 @@ With the high level overview of the ACT in mind, let's now explore each part req
 
 ### Candid Types
 
-[Candid](https://internetcomputer.org/docs/current/developer-docs/build/candid/candid-intro) is an interface description language created by [DFINITY](https://dfinity.org/). It defines interfaces between services (in our context canisters), allowing canisters and clients written in various languages to easily interact with each other.
-
-Besides the candid types that are part of [canister methods](#canister-methods) or [external canisters](#external-cansiters), any complex candid types will need to be provided to the ACT so that they can be fully defined in the generated lib files. The `act::CandidTypes` struct enumerates all of the types you maybe need to provide. Do not confuse this with `act::node::CandidType` which is a enum with all of the possible candid types.
+Besides the candid types that are part of [canister methods](#canister-methods) or [external canisters](#external-cansiters), any complex candid types will need to be provided to the ACT so that they can be fully defined in the generated lib files. The `act::CandidTypes` struct enumerates all of the types you might need to provide. Do not confuse this with `act::node::CandidType` which is an enum with all of the possible candid types.
 
 > **Note**
 > The primitive types and other types such as arrays and opts do not need this additional definition because the CDK framework already knows how to define them, therefore they are not included in `act::CandidTypes`.
 
 ### Members and Elems
 
-Records and Variant have members that are just a name and a `CandidType`. Similarly Tuples have elems that are just a wrapper for `CandidType`. These structs will become important in the [Advanced Usage Section](#advanced-usage) when we start discussing [inline names](#inline-names).
+Records and Variants have members that are just a name and a `CandidType`. Similarly Tuples have elems that are just a wrapper for `CandidType`. These structs will become important in the [Advanced Usage Section](#advanced-usage) when we start discussing [inline names](#inline-names).
 
 ### Canister Methods
 
@@ -180,7 +178,7 @@ Guard functions are special types of functions that run before a canister method
 
 ### Custom Rust
 
-These are parts of the lib file that the CDK framework is unable to generalize. For example it might include code to import and set up your CDK's vm. The Rust parts are, header, body (not to be confused with a [function/method body](#body)), and the try into and try from vm value impls.
+These are parts of the lib file that the CDK framework is unable to generalize. For example it might include code to import and set up your CDK's vm. The custom Rust sections are: the header, the body (not to be confused with a [function/method body](#body)), and the try into and try from vm value impls.
 
 ### Generated Cargo.toml
 
