@@ -54,6 +54,14 @@ fn main() {
     let type_aliases;   // TODO build type aliases,
     let variants;       // TODO build variants,
 
+    let candid_types = CandidTypes {
+        funcs,
+        records,
+        tuples,
+        type_aliases,
+        variants,
+    };
+
     let heartbeat_method;       // TODO build heartbeat method,
     let init_method;            // TODO build init method,
     let inspect_message_method; // TODO build inspect method,
@@ -61,16 +69,6 @@ fn main() {
     let pre_upgrade_method;     // TODO build pre upgrade method,
     let query_methods;          // TODO build query methods,
     let update_methods;         // TODO build update methods,
-
-    let guard_functions;    // TODO build guard functions
-
-    let header; // TODO generate any Rust code your CDK needs to come at the beginning of the generated lib file
-    let body;   // TODO generate any Rust code your CDK needs to have in the body of the generated lib file
-    let try_from_vm_value_impls; // TODO generate try into vm value impls,
-    let try_into_vm_value_impls; // TODO generate try from vm value impls,
-
-    let keywords;   // TODO generate a list of keyword from your CDK's language
-    // For example vec!["for", "if", "int", "import", "bool", "while", etc...]
 
     let canister_methods = CanisterMethods {
         heartbeat_method,
@@ -82,27 +80,31 @@ fn main() {
         update_methods,
     };
 
-    let candid_types = CandidTypes {
-        funcs,
-        records,
-        tuples,
-        type_aliases,
-        variants,
-    };
+    let external_canisters; // TODO build external canisters
+
+    let guard_functions;    // TODO build guard functions
+
+    let header; // TODO generate any Rust code your CDK needs to come at the beginning of the generated lib file
+    let body;   // TODO generate any Rust code your CDK needs to have in the body of the generated lib file
+    let try_from_vm_value_impls; // TODO generate try into vm value impls,
+    let try_into_vm_value_impls; // TODO generate try from vm value impls,
 
     let vm_value_conversion = VmValueConversion {
         try_from_vm_value_impls,
         try_into_vm_value_impls,
     };
 
+    let keywords;   // TODO generate a list of keyword from your CDK's language
+    // For example vec!["for", "if", "int", "import", "bool", "while", etc...]
+
     let lib_file = AbstractCanisterTree {
         cdk_name,
-        header,
-        body,
         candid_types,
         canister_methods,
         external_canisters,
         guard_functions,
+        header,
+        body,
         vm_value_conversion,
         keywords,
     }.to_token_stream().to_string()
@@ -128,7 +130,7 @@ With the high level overview of the ACT in mind, let's now explore each part req
   - [Function Body](#body)
 - [External Canisters](#external-canisters)
 - [Guard Functions](#guard-functions)
-- [Rust Parts](#rust-parts)
+- [Custom Rust](#custom-rust)
 - [Generated Cargo.toml](#your-cdk)
 
 ### Candid Types
@@ -176,7 +178,7 @@ External Canisters are simply the name of the external canister and a list of me
 
 Guard functions are special types of functions that run before a canister method is run and determine if that canister method will be run or not. To create a Guard Function you just need a name, and a [body](#body). Each canister method that wants to use this guard function will need specify this guard function's name when creating it.
 
-### Rust Parts
+### Custom Rust
 
 These are parts of the lib file that the CDK framework is unable to generalize. For example it might include code to import and set up your CDK's vm. The Rust parts are, header, body (not to be confused with a [function/method body](#body)), and the try into and try from vm value impls.
 
