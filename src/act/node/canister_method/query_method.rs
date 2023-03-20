@@ -38,7 +38,7 @@ impl QueryMethod {
             args.push(quote! {composite = true});
             args.push(quote! {manual_reply = true});
         }
-        if self.is_manual {
+        if self.is_manual && !self.is_async {
             args.push(quote! {manual_reply = true});
         }
         if let Some(guard_function) = &self.guard_function_name {
