@@ -37,8 +37,6 @@ impl AbstractCanisterTree {
         let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
         let try_from_vm_value_impls = &self.vm_value_conversion.try_from_vm_value_impls;
 
-        let func_arg_token = func::generate_func_arg_token();
-
         let body = &self.body;
 
         let canister_method_decls = self.generate_declarations(self.collect_canister_methods());
@@ -58,8 +56,6 @@ impl AbstractCanisterTree {
             #try_into_vm_value_impls
             #try_from_vm_value_trait
             #try_from_vm_value_impls
-
-            #func_arg_token
 
             #body
 
