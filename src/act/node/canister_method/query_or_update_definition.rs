@@ -60,7 +60,7 @@ impl QueryOrUpdateDefinition {
         };
 
         quote! {
-            async fn #function_name(#params) -> #wrapped_return_type {
+            async fn #function_name(#params) -> (#wrapped_return_type) {
                 #function_body
             }
         }

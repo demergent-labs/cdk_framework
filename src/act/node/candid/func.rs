@@ -75,18 +75,9 @@ impl Declare<Vec<String>> for Func {
         let name = self.get_name(inline_name.clone()).to_ident();
         let params_type_annotations =
             self.get_params_type_annotations(&self.get_name(inline_name.clone()), keyword_list);
-
-        // Because of the way void and null work with Candid/the Rust cdk, we need to do this check
-        // Basically if we see the type annotation is () we need to treat it as an empty quote!()
-        // So that the define_function macro doesn't pick it up as null
         let return_type_annotation = self
             .return_type
             .to_type_annotation(keyword_list, inline_name.clone());
-        let return_type_annotation = if return_type_annotation.to_string() == "()" {
-            quote!()
-        } else {
-            return_type_annotation
-        };
         let func_mode = match self.mode {
             Mode::Query => quote!(query),
             Mode::Oneway => quote!(oneway),

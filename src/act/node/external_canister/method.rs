@@ -72,7 +72,11 @@ impl Method {
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
-            quote! {CallResult<(#function_return_type,)>}
+            if function_return_type.to_string() == "" {
+                quote! {CallResult<()>}
+            } else {
+                quote! {CallResult<(#function_return_type,)>}
+            }
         };
 
         let function_type_ident = format_ident!("{}", function_type);
