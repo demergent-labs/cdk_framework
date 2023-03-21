@@ -1,9 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::{
-    node::{Param, ReturnType},
-    Declaration,
+use crate::{
+    act::{
+        node::{Param, ReturnType},
+        Declaration,
+    },
+    traits::{HasInlineName, ToTypeAnnotation},
 };
 
 use super::{Declare, HasInlines};
@@ -27,6 +30,23 @@ pub trait IsCallable {
             .get_params()
             .iter()
             .map(|param| param.to_token_stream(keyword_list, function_name.clone()))
+            .collect();
+        quote!(#(#params),*)
+    }
+
+    fn get_params_type_annotations(
+        &self,
+        function_name: &String,
+        keyword_list: &Vec<String>,
+    ) -> TokenStream {
+        let params: Vec<_> = self
+            .get_params()
+            .iter()
+            .map(|param| {
+                param
+                    .candid_type
+                    .to_type_annotation(keyword_list, param.get_inline_name(function_name))
+            })
             .collect();
         quote!(#(#params),*)
     }
