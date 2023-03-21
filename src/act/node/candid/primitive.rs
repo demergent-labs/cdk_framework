@@ -44,11 +44,11 @@ impl<C> ToTypeAnnotation<C> for Primitive {
             Primitive::Nat16 => quote!(u16),
             Primitive::Nat32 => quote!(u32),
             Primitive::Nat64 => quote!(u64),
-            Primitive::Null => quote! {(())},
+            Primitive::Null => quote! {()},
             Primitive::Principal => quote!(candid::Principal),
             Primitive::Reserved => quote!(candid::Reserved),
             Primitive::String => quote!(String),
-            Primitive::Void => quote! {()},
+            Primitive::Void => quote! {},
         }
     }
 }
