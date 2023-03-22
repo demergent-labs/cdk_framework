@@ -1,3 +1,4 @@
+use proc_macro2::TokenStream;
 use quote::quote;
 
 use super::Method;
@@ -13,6 +14,10 @@ use crate::{
 pub struct ExternalCanister {
     pub name: String,
     pub methods: Vec<Method>,
+    pub to_vm_value: fn(String) -> TokenStream,
+    pub list_to_vm_value: fn(String) -> TokenStream,
+    pub from_vm_value: fn(String) -> TokenStream,
+    pub list_from_vm_value: fn(String) -> TokenStream,
 }
 
 impl AsNode for ExternalCanister {
@@ -48,45 +53,22 @@ impl Declare<Context> for ExternalCanister {
             })
             .collect();
 
-        // TODO add the vec implementations
         // TODO get rid of bad unwraps and stuff
-        // TODO add many examples to the tests
+
+        let service_to_vm_value = (self.to_vm_value)(self.name.clone());
+        let service_list_to_vm_value = (self.list_to_vm_value)(self.name.clone());
+        let service_from_vm_value = (self.from_vm_value)(self.name.clone());
+        let service_list_from_vm_value = (self.list_from_vm_value)(self.name.clone());
 
         Some(quote! {
             ic_cdk::export::candid::define_service!(#service_name : {
                 #(#service_funcs);*
             });
 
-            impl CdkActTryIntoVmValue<&mut boa_engine::Context, boa_engine::JsValue> for #service_name {
-                fn try_into_vm_value(self, context: &mut boa_engine::Context) -> Result<boa_engine::JsValue, CdkActTryIntoVmValueError> {
-                    Ok(context.eval(
-                        format!(
-                            "new {}(Principal.fromText(\"{}\"))",
-                            stringify!(#service_name),
-                            self.0.principal.to_string()
-                        )
-                    ).unwrap())
-                }
-            }
-
-            impl CdkActTryFromVmValue<#service_name, &mut boa_engine::Context> for boa_engine::JsValue {
-                fn try_from_vm_value(self, context: &mut boa_engine::Context) -> Result<#service_name, CdkActTryFromVmValueError> {
-                    let js_object = self.as_object().unwrap();
-                    let canister_id_js_value = js_object.get("canisterId", context).unwrap();
-                    let canister_id_js_object = canister_id_js_value.as_object().unwrap();
-                    let canister_id_to_string_js_value = canister_id_js_object.get("toText", context).unwrap();
-                    let canister_id_to_string_js_object = canister_id_to_string_js_value.as_object().unwrap();
-                    let canister_id_string_js_value = canister_id_to_string_js_object.call(
-                        &canister_id_js_value,
-                        &[],
-                        context
-                    ).unwrap();
-                    let canister_id_js_string = canister_id_string_js_value.to_string(context).unwrap();
-                    let canister_id_string = canister_id_js_string.to_std_string_escaped();
-
-                    Ok(#service_name::new(ic_cdk::export::Principal::from_str(&canister_id_string).unwrap()))
-                }
-            }
+            #service_to_vm_value
+            #service_list_to_vm_value
+            #service_from_vm_value
+            #service_list_from_vm_value
 
             #(#cross_canister_call_functions)*
         })
