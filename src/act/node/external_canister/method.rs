@@ -3,7 +3,7 @@ use quote::{format_ident, quote};
 
 use crate::{
     act::{
-        node::{CandidType, Context, Param, ReturnType},
+        node::{candid::func::Mode, CandidType, Context, Param, ReturnType},
         Declaration, Declare,
     },
     traits::{HasInlines, IsCallable, ToTypeAnnotation},
@@ -12,14 +12,16 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct Method {
     pub name: String,
+    pub mode: Mode,
     pub params: Vec<Param>,
     pub return_type: ReturnType,
 }
 
 impl Method {
-    pub fn new(name: String, params: Vec<Param>, return_type: CandidType) -> Method {
+    pub fn new(name: String, mode: Mode, params: Vec<Param>, return_type: CandidType) -> Method {
         Method {
             name,
+            mode,
             params,
             return_type: ReturnType::new(return_type),
         }

@@ -73,16 +73,23 @@ impl Declare<Vec<String>> for Func {
         inline_name: String,
     ) -> Option<Declaration> {
         let name = self.get_name(inline_name.clone()).to_ident();
-        let params_type_annotations =
-            self.get_params_type_annotations(&self.get_name(inline_name.clone()), keyword_list);
-        let return_type_annotation = self
-            .return_type
-            .to_type_annotation(keyword_list, inline_name.clone());
-        let func_mode = match self.mode {
-            Mode::Query => quote!(query),
-            Mode::Oneway => quote!(oneway),
-            Mode::Update => quote!(),
-        };
+        // let params_type_annotations =
+        //     self.get_params_type_annotations(&self.get_name(inline_name.clone()), keyword_list);
+        // // TODO has the inline name been handled properly here?
+        // let return_type_annotation = self
+        //     .return_type
+        //     .to_type_annotation(keyword_list, inline_name.clone());
+        // let func_mode = match self.mode {
+        //     Mode::Query => quote!(query),
+        //     Mode::Oneway => quote!(oneway),
+        //     Mode::Update => quote!(),
+        // };
+        let func_macro_token_stream = self.get_func_macro_token_stream(
+            &name.to_string(),
+            &inline_name,
+            keyword_list,
+            &self.mode,
+        );
 
         let func_to_vm_value = (self.to_vm_value)(self.get_name(inline_name.clone()));
         let func_list_to_vm_value = (self.list_to_vm_value)(self.get_name(inline_name.clone()));
@@ -90,7 +97,7 @@ impl Declare<Vec<String>> for Func {
         let func_list_from_vm_value = (self.list_from_vm_value)(self.get_name(inline_name.clone()));
 
         Some(quote! {
-            ic_cdk::export::candid::define_function!(pub #name : (#params_type_annotations) -> (#return_type_annotation) #func_mode);
+            ic_cdk::export::candid::define_function!(pub #name : #func_macro_token_stream);
 
             #func_to_vm_value
             #func_list_to_vm_value
