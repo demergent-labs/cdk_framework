@@ -1,5 +1,5 @@
 use crate::act::{
-    node::{CandidType, CanisterMethod, Context, ExternalCanister, GuardFunction},
+    node::{CandidType, CanisterMethod, Context, GuardFunction, Service},
     Declaration, Declare,
 };
 
@@ -7,7 +7,7 @@ use crate::act::{
 pub enum Node {
     CanisterMethod(CanisterMethod),
     CandidType(CandidType),
-    ExternalCanister(ExternalCanister),
+    Service(Service),
     GuardFunction(GuardFunction),
 }
 
@@ -24,9 +24,7 @@ impl Declare<Context> for Node {
             Node::CandidType(candid_type) => {
                 candid_type.to_declaration(&context.keyword_list, inline_name)
             }
-            Node::ExternalCanister(external_canister) => {
-                external_canister.to_declaration(context, inline_name)
-            }
+            Node::Service(service) => service.to_declaration(context, inline_name),
             Node::GuardFunction(guard_function) => {
                 guard_function.to_declaration(&context.keyword_list, inline_name)
             }
@@ -45,9 +43,7 @@ impl Declare<Context> for Node {
             Node::CandidType(candid_type) => {
                 candid_type.collect_inline_declarations(&context.keyword_list, inline_name)
             }
-            Node::ExternalCanister(external_canister) => {
-                external_canister.collect_inline_declarations(context, inline_name)
-            }
+            Node::Service(service) => service.collect_inline_declarations(context, inline_name),
             Node::GuardFunction(guard_function) => {
                 guard_function.collect_inline_declarations(&context.keyword_list, inline_name)
             }

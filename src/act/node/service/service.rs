@@ -11,7 +11,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-pub struct ExternalCanister {
+pub struct Service {
     pub name: String,
     pub methods: Vec<Method>,
     pub to_vm_value: fn(String) -> TokenStream,
@@ -20,13 +20,13 @@ pub struct ExternalCanister {
     pub list_from_vm_value: fn(String) -> TokenStream,
 }
 
-impl AsNode for ExternalCanister {
+impl AsNode for Service {
     fn as_node(self) -> Node {
-        Node::ExternalCanister(self)
+        Node::Service(self)
     }
 }
 
-impl Declare<Context> for ExternalCanister {
+impl Declare<Context> for Service {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let cross_canister_call_functions: Vec<_> = self
             .methods
