@@ -54,7 +54,7 @@ impl Declare<Context> for ExternalCanister {
 
         Some(quote! {
             ic_cdk::export::candid::define_service!(#service_name : {
-                #(#service_funcs),*
+                #(#service_funcs);*
             });
 
             impl CdkActTryIntoVmValue<&mut boa_engine::Context, boa_engine::JsValue> for #service_name {
