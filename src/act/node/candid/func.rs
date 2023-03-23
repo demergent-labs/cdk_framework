@@ -73,17 +73,6 @@ impl Declare<Vec<String>> for Func {
         inline_name: String,
     ) -> Option<Declaration> {
         let name = self.get_name(inline_name.clone()).to_ident();
-        // let params_type_annotations =
-        //     self.get_params_type_annotations(&self.get_name(inline_name.clone()), keyword_list);
-        // // TODO has the inline name been handled properly here?
-        // let return_type_annotation = self
-        //     .return_type
-        //     .to_type_annotation(keyword_list, inline_name.clone());
-        // let func_mode = match self.mode {
-        //     Mode::Query => quote!(query),
-        //     Mode::Oneway => quote!(oneway),
-        //     Mode::Update => quote!(),
-        // };
         let func_macro_token_stream = self.get_func_macro_token_stream(
             &name.to_string(),
             &inline_name,

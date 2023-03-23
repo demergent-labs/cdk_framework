@@ -53,8 +53,6 @@ impl Declare<Context> for Service {
             })
             .collect();
 
-        // TODO get rid of bad unwraps and stuff
-
         let service_to_vm_value = (self.to_vm_value)(self.name.clone());
         let service_list_to_vm_value = (self.list_to_vm_value)(self.name.clone());
         let service_from_vm_value = (self.from_vm_value)(self.name.clone());
