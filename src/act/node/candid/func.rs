@@ -73,12 +73,8 @@ impl Declare<Vec<String>> for Func {
         inline_name: String,
     ) -> Option<Declaration> {
         let name = self.get_name(inline_name.clone()).to_ident();
-        let func_macro_token_stream = self.get_func_macro_token_stream(
-            &name.to_string(),
-            &inline_name,
-            keyword_list,
-            &self.mode,
-        );
+        let func_macro_token_stream =
+            self.get_func_macro_token_stream(&inline_name, keyword_list, &self.mode);
 
         let func_to_vm_value = (self.to_vm_value)(self.get_name(inline_name.clone()));
         let func_list_to_vm_value = (self.list_to_vm_value)(self.get_name(inline_name.clone()));
