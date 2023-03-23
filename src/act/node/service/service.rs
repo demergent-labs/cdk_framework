@@ -41,8 +41,7 @@ impl Declare<Context> for Service {
             .map(|method| {
                 let method_name = method.name.clone();
                 let func_macro_token_stream = method.get_func_macro_token_stream(
-                    &self.name,
-                    &self.name,
+                    &method.create_qualified_name(&self.name),
                     &context.keyword_list,
                     &method.mode,
                 );

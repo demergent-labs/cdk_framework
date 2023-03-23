@@ -37,17 +37,14 @@ pub trait IsCallable {
     fn get_func_macro_token_stream(
         &self,
         function_name: &String,
-        inline_name: &str,
         keyword_list: &Vec<String>,
         mode: &Mode,
     ) -> TokenStream {
         let params_type_annotations = self.get_params_type_annotations(function_name, keyword_list);
-        // TODO fix the return type thing of course
-        // TODO figure out the inline name issue
         let return_type_annotation = self
             .get_return_type()
             .unwrap()
-            .to_type_annotation(keyword_list, inline_name.to_string());
+            .to_type_annotation(keyword_list, function_name.to_string());
         let func_mode = match mode {
             Mode::Query => quote!(query),
             Mode::Oneway => quote!(oneway),
