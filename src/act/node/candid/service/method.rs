@@ -69,7 +69,6 @@ impl Method {
 
         let function_return_type = self
             .return_type
-            .clone()
             .to_type_annotation(context, self.create_qualified_name(canister_name));
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
