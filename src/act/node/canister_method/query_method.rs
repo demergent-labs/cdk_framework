@@ -4,7 +4,7 @@ use std::ops::Deref;
 
 use crate::{
     act::{
-        node::{canister_method::QueryOrUpdateDefinition, Param, ReturnType},
+        node::{canister_method::QueryOrUpdateDefinition, Context, Param, ReturnType},
         Declaration, Declare,
     },
     traits::{HasInlines, IsCallable},
@@ -57,10 +57,10 @@ impl Deref for QueryMethod {
     }
 }
 
-impl Declare<Vec<String>> for QueryMethod {
-    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
-        let function_declaration = self.generate_function_body(keyword_list);
-        let macro_args = if self.cdk_name == "kybra" {
+impl Declare<Context> for QueryMethod {
+    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+        let function_declaration = self.generate_function_body(context);
+        let macro_args = if context.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
         } else {
             self.generate_not_kybra_macro_args()
@@ -72,12 +72,8 @@ impl Declare<Vec<String>> for QueryMethod {
         })
     }
 
-    fn collect_inline_declarations(
-        &self,
-        keyword_list: &Vec<String>,
-        _: String,
-    ) -> Vec<Declaration> {
-        self.flatten_inlines(self.name.clone(), keyword_list)
+    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
+        self.flatten_inlines(self.name.clone(), context)
     }
 }
 

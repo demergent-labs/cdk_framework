@@ -4,14 +4,14 @@ The CDK Framework helps CDK authors build CDKs for the [Internet Computer](https
 
 ## Contents
 
-- [Installation](#installation)
-- [Abstract Canister Tree (ACT)](#abstract-canister-tree)
-- [Parts of the ACT](#parts-of-the-abstract-canister-tree)
-- [Advanced Usage](#advanced-usage)
-  - [Inline Names](#inline-names)
-  - [Flatten](#flatten)
-  - [ToTypeAnnotation](#to-type-annotation)
-  - [Traits](#traits)
+-   [Installation](#installation)
+-   [Abstract Canister Tree (ACT)](#abstract-canister-tree)
+-   [Parts of the ACT](#parts-of-the-abstract-canister-tree)
+-   [Advanced Usage](#advanced-usage)
+    -   [Inline Names](#inline-names)
+    -   [Flatten](#flatten)
+    -   [ToTypeAnnotation](#to-type-annotation)
+    -   [Traits](#traits)
 
 ## Installation
 
@@ -80,7 +80,7 @@ fn main() {
         update_methods,
     };
 
-    let external_canisters; // TODO build external canisters
+    let services; // TODO build services
 
     let guard_functions;    // TODO build guard functions
 
@@ -101,7 +101,7 @@ fn main() {
         cdk_name,
         candid_types,
         canister_methods,
-        external_canisters,
+        services,
         guard_functions,
         header,
         body,
@@ -122,16 +122,16 @@ fn main() {
 
 With the high level overview of the ACT in mind, let's now explore each part required to build the ACT.
 
-- [Candid Types](#candid-types)
-  - [Members and Elems](#members-and-elems)
-- [Canister Methods](#canister-methods)
-  - [Params](#params)
-  - [Return Type](#return-type)
-  - [Function Body](#body)
-- [External Canisters](#external-canisters)
-- [Guard Functions](#guard-functions)
-- [Custom Rust](#custom-rust)
-- [Generated Cargo.toml](#your-cdk)
+-   [Candid Types](#candid-types)
+    -   [Members and Elems](#members-and-elems)
+-   [Canister Methods](#canister-methods)
+    -   [Params](#params)
+    -   [Return Type](#return-type)
+    -   [Function Body](#body)
+-   [External Canisters](#external-canisters)
+-   [Guard Functions](#guard-functions)
+-   [Custom Rust](#custom-rust)
+-   [Generated Cargo.toml](#your-cdk)
 
 ### Candid Types
 
@@ -170,7 +170,7 @@ The body will be a Rust token stream that will determine how the function intera
 
 ### External Canisters
 
-External Canisters are simply the name of the external canister and a list of methods that that canister has. The methods are represented by `act::node::external_canister::Method`, which is simply a name, list of [params](#params), and a [return type](#return-type)
+External Canisters are simply the name of the external canister and a list of methods that that canister has. The methods are represented by `act::node::service::Method`, which is simply a name, list of [params](#params), and a [return type](#return-type)
 
 ### Guard Functions
 
@@ -214,7 +214,7 @@ The `ToTypeAnnotation` is implemented on all variations of `CandidType` and prov
 ### Traits
 
 The CDK framework defines a handful of traits as helpers for collecting inline types, ensuring consistency, and making the code look a little neater. Very briefly they are,
-`HasInlines` which is a helper for collecting inline types. It is implemented on two of the other traits, `IsCallable` and `HasMembers`, which anything that is callable or has members can implement to make it easier to collect the inline types for that node. For example the `external_canister::Method` implements `IsCallable`. That implementation will allow `IsCallable` to know how to access its return type and params, so that you can call `flatten_inlines` (from `HasInlines`) directly on the `external_canister::Method` to get all of the inline types for the `Member`.
+`HasInlines` which is a helper for collecting inline types. It is implemented on two of the other traits, `IsCallable` and `HasMembers`, which anything that is callable or has members can implement to make it easier to collect the inline types for that node. For example the `service::Method` implements `IsCallable`. That implementation will allow `IsCallable` to know how to access its return type and params, so that you can call `flatten_inlines` (from `HasInlines`) directly on the `service::Method` to get all of the inline types for the `Member`.
 
 The `HasInlineName` trait is just to make a consistent interface for things that may have a special inline name. For example the `ReturnType` needs to append "ReturnType" to the end of all its names. The `HasInlineName` implementation for `ReturnType` will take care of that so that it can be applied consistently everywhere.
 

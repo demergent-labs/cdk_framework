@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
 use crate::{
-    act::node::CandidType,
+    act::node::{CandidType, Context},
     traits::{Declare, HasInlineName, ToTypeAnnotation},
 };
 
@@ -30,21 +30,21 @@ impl HasInlineName for ReturnType {
     }
 }
 
-impl ToTypeAnnotation<Vec<String>> for ReturnType {
+impl ToTypeAnnotation<Context> for ReturnType {
     fn to_type_annotation(
         &self,
-        keyword_list: &Vec<String>,
+        context: &Context,
         function_name: String,
     ) -> crate::act::TypeAnnotation {
         self.candid_type
-            .to_type_annotation(keyword_list, self.get_inline_name(&function_name))
+            .to_type_annotation(context, self.get_inline_name(&function_name))
     }
 }
 
-impl Declare<Vec<String>> for ReturnType {
+impl Declare<Context> for ReturnType {
     fn to_declaration(
         &self,
-        context: &Vec<String>,
+        context: &Context,
         function_name: String,
     ) -> Option<crate::act::Declaration> {
         self.candid_type
@@ -53,7 +53,7 @@ impl Declare<Vec<String>> for ReturnType {
 
     fn collect_inline_declarations(
         &self,
-        context: &Vec<String>,
+        context: &Context,
         function_name: String,
     ) -> Vec<crate::act::Declaration> {
         self.candid_type

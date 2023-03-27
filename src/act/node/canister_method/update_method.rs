@@ -4,7 +4,7 @@ use std::ops::Deref;
 
 use crate::{
     act::{
-        node::{canister_method::QueryOrUpdateDefinition, Param, ReturnType},
+        node::{canister_method::QueryOrUpdateDefinition, Context, Param, ReturnType},
         Declaration, Declare,
     },
     traits::{HasInlines, IsCallable},
@@ -17,10 +17,10 @@ pub struct UpdateMethod {
 }
 
 impl UpdateMethod {
-    fn generate_macro_args(&self) -> TokenStream {
+    fn generate_macro_args(&self, cdk_name: &str) -> TokenStream {
         let mut args: Vec<TokenStream> = vec![];
 
-        if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
+        if self.is_manual || (self.is_async && cdk_name != "kybra") {
             args.push(quote! {manual_reply = true});
         };
         if let Some(guard_function) = &self.guard_function_name {
@@ -39,11 +39,11 @@ impl Deref for UpdateMethod {
     }
 }
 
-impl Declare<Vec<String>> for UpdateMethod {
-    fn to_declaration(&self, keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
-        let function_declaration = self.generate_function_body(keyword_list);
+impl Declare<Context> for UpdateMethod {
+    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+        let function_declaration = self.generate_function_body(context);
 
-        let macro_args = self.generate_macro_args();
+        let macro_args = self.generate_macro_args(&context.cdk_name);
 
         Some(quote! {
             #[ic_cdk_macros::update(#macro_args)]
@@ -52,12 +52,8 @@ impl Declare<Vec<String>> for UpdateMethod {
         })
     }
 
-    fn collect_inline_declarations(
-        &self,
-        keyword_list: &Vec<String>,
-        _: String,
-    ) -> Vec<Declaration> {
-        self.flatten_inlines(self.name.clone(), keyword_list)
+    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
+        self.flatten_inlines(self.name.clone(), context)
     }
 }
 

@@ -4,7 +4,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::act::{
-    node::{CandidType, Member},
+    node::{CandidType, Context, Member},
     ToTypeAnnotation,
 };
 
@@ -18,11 +18,11 @@ impl Elem {
         &self,
         index: usize,
         parent_name: &String,
-        keyword_list: &Vec<String>,
+        context: &Context,
     ) -> TokenStream {
         let type_annotation = self
             .to_member(index)
-            .to_type_annotation(keyword_list, parent_name.clone());
+            .to_type_annotation(context, parent_name.clone());
         quote!(Box<#type_annotation>)
     }
 

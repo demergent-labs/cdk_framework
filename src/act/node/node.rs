@@ -1,5 +1,5 @@
 use crate::act::{
-    node::{CandidType, CanisterMethod, Context, ExternalCanister, GuardFunction},
+    node::{CandidType, CanisterMethod, Context, GuardFunction},
     Declaration, Declare,
 };
 
@@ -7,7 +7,6 @@ use crate::act::{
 pub enum Node {
     CanisterMethod(CanisterMethod),
     CandidType(CandidType),
-    ExternalCanister(ExternalCanister),
     GuardFunction(GuardFunction),
 }
 
@@ -21,14 +20,9 @@ impl Declare<Context> for Node {
             Node::CanisterMethod(canister_method) => {
                 canister_method.to_declaration(context, inline_name)
             }
-            Node::CandidType(candid_type) => {
-                candid_type.to_declaration(&context.keyword_list, inline_name)
-            }
-            Node::ExternalCanister(external_canister) => {
-                external_canister.to_declaration(context, inline_name)
-            }
+            Node::CandidType(candid_type) => candid_type.to_declaration(context, inline_name),
             Node::GuardFunction(guard_function) => {
-                guard_function.to_declaration(&context.keyword_list, inline_name)
+                guard_function.to_declaration(context, inline_name)
             }
         }
     }
@@ -43,13 +37,10 @@ impl Declare<Context> for Node {
                 canister_method.collect_inline_declarations(context, inline_name)
             }
             Node::CandidType(candid_type) => {
-                candid_type.collect_inline_declarations(&context.keyword_list, inline_name)
-            }
-            Node::ExternalCanister(external_canister) => {
-                external_canister.collect_inline_declarations(context, inline_name)
+                candid_type.collect_inline_declarations(context, inline_name)
             }
             Node::GuardFunction(guard_function) => {
-                guard_function.collect_inline_declarations(&context.keyword_list, inline_name)
+                guard_function.collect_inline_declarations(context, inline_name)
             }
         }
     }

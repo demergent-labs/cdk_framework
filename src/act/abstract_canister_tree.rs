@@ -5,10 +5,7 @@ use crate::act::{
     candid_file_generation, random, vm_value_conversion, CandidTypes, CanisterMethods,
     VmValueConversion,
     {
-        node::{
-            candid::func, AsNode, CandidType, CanisterMethod, Context, ExternalCanister,
-            GuardFunction,
-        },
+        node::{AsNode, CandidType, CanisterMethod, Context, GuardFunction},
         Declaration, Declare,
     },
 };
@@ -18,7 +15,6 @@ pub struct AbstractCanisterTree {
     pub cdk_name: String,
     pub canister_methods: CanisterMethods,
     pub candid_types: CandidTypes,
-    pub external_canisters: Vec<ExternalCanister>,
     pub guard_functions: Vec<GuardFunction>,
     pub header: TokenStream,
     pub body: TokenStream,
@@ -42,7 +38,6 @@ impl AbstractCanisterTree {
         let canister_method_decls = self.generate_declarations(self.collect_canister_methods());
         let candid_type_decls = self.generate_declarations(self.collect_candid_types());
         let guard_function_decls = self.generate_declarations(self.guard_functions.clone());
-        let external_canister_decls = self.generate_declarations(self.external_canisters.clone());
 
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code();
@@ -62,7 +57,6 @@ impl AbstractCanisterTree {
             #(#canister_method_decls)*
             #(#candid_type_decls)*
             #(#guard_function_decls)*
-            #(#external_canister_decls)*
 
             #candid_file_generation_code
         }
@@ -151,6 +145,12 @@ impl AbstractCanisterTree {
             .iter()
             .map(|record| CandidType::Record(record.clone()))
             .collect();
+        let services = self
+            .candid_types
+            .services
+            .iter()
+            .map(|service| CandidType::Service(service.clone()))
+            .collect();
         let tuples = self
             .candid_types
             .tuples
@@ -170,6 +170,6 @@ impl AbstractCanisterTree {
             .map(|variant| CandidType::Variant(variant.clone()))
             .collect();
 
-        vec![funcs, records, tuples, type_aliases, variants].concat()
+        vec![funcs, records, services, tuples, type_aliases, variants].concat()
     }
 }

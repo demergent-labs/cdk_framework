@@ -3,7 +3,7 @@ use quote::{format_ident, quote};
 
 use crate::{
     act::{
-        node::{CandidType, Context, Param, ReturnType},
+        node::{node_parts::mode::Mode, CandidType, Context, Param, ReturnType},
         Declaration, Declare,
     },
     traits::{HasInlines, IsCallable, ToTypeAnnotation},
@@ -12,14 +12,16 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct Method {
     pub name: String,
+    pub mode: Mode,
     pub params: Vec<Param>,
     pub return_type: ReturnType,
 }
 
 impl Method {
-    pub fn new(name: String, params: Vec<Param>, return_type: CandidType) -> Method {
+    pub fn new(name: String, mode: Mode, params: Vec<Param>, return_type: CandidType) -> Method {
         Method {
             name,
+            mode,
             params,
             return_type: ReturnType::new(return_type),
         }
@@ -55,7 +57,7 @@ impl Method {
             &self.name
         );
 
-        let param_types = self.param_types_as_tuple(&context.keyword_list, canister_name);
+        let param_types = self.param_types_as_tuple(context, canister_name);
 
         let cycles_param = if function_type.contains("with_payment128") {
             quote! { , cycles: u128 }
@@ -65,10 +67,9 @@ impl Method {
             quote! {}
         };
 
-        let function_return_type = self.return_type.clone().to_type_annotation(
-            &context.keyword_list,
-            self.create_qualified_name(canister_name),
-        );
+        let function_return_type = self
+            .return_type
+            .to_type_annotation(context, self.create_qualified_name(canister_name));
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
@@ -113,12 +114,12 @@ impl Method {
         }
     }
 
-    fn param_types_as_tuple(&self, keywords: &Vec<String>, canister_name: &String) -> TokenStream {
+    fn param_types_as_tuple(&self, context: &Context, canister_name: &String) -> TokenStream {
         let param_types: Vec<_> = self
             .params
             .iter()
             .map(|param| {
-                param.to_type_annotation(keywords, self.create_qualified_name(canister_name))
+                param.to_type_annotation(context, self.create_qualified_name(canister_name))
             })
             .collect();
 
@@ -156,10 +157,7 @@ impl Declare<Context> for Method {
         context: &Context,
         canister_name: String,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(
-            self.create_qualified_name(&canister_name),
-            &context.keyword_list,
-        )
+        self.flatten_inlines(self.create_qualified_name(&canister_name), context)
     }
 }
 

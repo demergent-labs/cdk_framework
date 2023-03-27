@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::node::{CandidType, Param, ReturnType},
+    act::node::{CandidType, Context, Param, ReturnType},
     traits::{IsCallable, ToIdent, ToTypeAnnotation},
 };
 
@@ -15,7 +15,6 @@ pub struct QueryOrUpdateDefinition {
     pub params: Vec<Param>,
     pub return_type: ReturnType,
     pub body: TokenStream,
-    pub cdk_name: String,
 }
 
 impl QueryOrUpdateDefinition {
@@ -27,7 +26,6 @@ impl QueryOrUpdateDefinition {
         params: Vec<Param>,
         return_type: CandidType,
         body: TokenStream,
-        cdk_name: String,
     ) -> QueryOrUpdateDefinition {
         QueryOrUpdateDefinition {
             is_async,
@@ -37,27 +35,27 @@ impl QueryOrUpdateDefinition {
             params,
             return_type: ReturnType::new(return_type),
             body,
-            cdk_name,
         }
     }
 
-    pub fn generate_function_body(&self, keyword_list: &Vec<String>) -> TokenStream {
+    pub fn generate_function_body(&self, context: &Context) -> TokenStream {
         let function_name = self.name.to_ident();
-        let params = self.create_parameter_list_token_stream(&self.name, keyword_list);
+        let params = self.create_parameter_list_token_stream(&self.name, context);
 
         let function_body = &self.body;
 
         let return_type_token = self
             .return_type
-            .to_type_annotation(keyword_list, self.name.clone());
+            .to_type_annotation(context, self.name.clone());
 
-        let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
-            quote! {
-                ic_cdk::api::call::ManualReply<#return_type_token>
-            }
-        } else {
-            return_type_token
-        };
+        let wrapped_return_type =
+            if self.is_manual || (self.is_async && context.cdk_name != "kybra") {
+                quote! {
+                    ic_cdk::api::call::ManualReply<#return_type_token>
+                }
+            } else {
+                return_type_token
+            };
 
         quote! {
             async fn #function_name(#params) -> (#wrapped_return_type) {

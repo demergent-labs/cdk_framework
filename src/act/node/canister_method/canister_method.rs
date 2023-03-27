@@ -28,10 +28,10 @@ impl Declare<Context> for CanisterMethod {
     fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
         match self {
             CanisterMethod::Update(update_method) => {
-                update_method.to_declaration(&context.keyword_list, inline_name)
+                update_method.to_declaration(context, inline_name)
             }
             CanisterMethod::Query(query_method) => {
-                query_method.to_declaration(&context.keyword_list, inline_name)
+                query_method.to_declaration(context, inline_name)
             }
             CanisterMethod::Init(init_method) => init_method.to_declaration(context, inline_name),
             CanisterMethod::PreUpgrade(pre_upgrade_method) => {
@@ -56,13 +56,13 @@ impl Declare<Context> for CanisterMethod {
     ) -> Vec<Declaration> {
         match self {
             CanisterMethod::Update(update_method) => {
-                update_method.collect_inline_declarations(&context.keyword_list, inline_name)
+                update_method.collect_inline_declarations(context, inline_name)
             }
             CanisterMethod::Query(query_method) => {
-                query_method.collect_inline_declarations(&context.keyword_list, inline_name)
+                query_method.collect_inline_declarations(context, inline_name)
             }
             CanisterMethod::Init(init_method) => {
-                init_method.collect_inline_declarations(&context, inline_name)
+                init_method.collect_inline_declarations(context, inline_name)
             }
             CanisterMethod::PreUpgrade(pre_upgrade_method) => {
                 pre_upgrade_method.collect_inline_declarations(&context.cdk_name, inline_name)
