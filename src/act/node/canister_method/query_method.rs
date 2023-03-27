@@ -60,7 +60,7 @@ impl Deref for QueryMethod {
 impl Declare<Context> for QueryMethod {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let function_declaration = self.generate_function_body(context);
-        let macro_args = if self.cdk_name == "kybra" {
+        let macro_args = if context.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
         } else {
             self.generate_not_kybra_macro_args()

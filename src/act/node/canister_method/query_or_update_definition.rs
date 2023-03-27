@@ -15,7 +15,6 @@ pub struct QueryOrUpdateDefinition {
     pub params: Vec<Param>,
     pub return_type: ReturnType,
     pub body: TokenStream,
-    pub cdk_name: String,
 }
 
 impl QueryOrUpdateDefinition {
@@ -27,7 +26,6 @@ impl QueryOrUpdateDefinition {
         params: Vec<Param>,
         return_type: CandidType,
         body: TokenStream,
-        cdk_name: String,
     ) -> QueryOrUpdateDefinition {
         QueryOrUpdateDefinition {
             is_async,
@@ -37,7 +35,6 @@ impl QueryOrUpdateDefinition {
             params,
             return_type: ReturnType::new(return_type),
             body,
-            cdk_name,
         }
     }
 
@@ -51,13 +48,14 @@ impl QueryOrUpdateDefinition {
             .return_type
             .to_type_annotation(context, self.name.clone());
 
-        let wrapped_return_type = if self.is_manual || (self.is_async && self.cdk_name != "kybra") {
-            quote! {
-                ic_cdk::api::call::ManualReply<#return_type_token>
-            }
-        } else {
-            return_type_token
-        };
+        let wrapped_return_type =
+            if self.is_manual || (self.is_async && context.cdk_name != "kybra") {
+                quote! {
+                    ic_cdk::api::call::ManualReply<#return_type_token>
+                }
+            } else {
+                return_type_token
+            };
 
         quote! {
             async fn #function_name(#params) -> (#wrapped_return_type) {

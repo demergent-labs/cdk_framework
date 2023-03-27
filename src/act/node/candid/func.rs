@@ -3,7 +3,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{
-        node::{CandidType, Context, Param, ReturnType},
+        node::{node_parts::mode::Mode, CandidType, Context, Param, ReturnType},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
     traits::{HasInlines, IsCallable, ToIdent},
@@ -20,13 +20,6 @@ pub struct Func {
     pub list_to_vm_value: fn(String) -> TokenStream,
     pub from_vm_value: fn(String) -> TokenStream,
     pub list_from_vm_value: fn(String) -> TokenStream,
-}
-
-#[derive(Clone, Debug)]
-pub enum Mode {
-    Query,
-    Update,
-    Oneway,
 }
 
 impl Func {

@@ -3,7 +3,7 @@ use quote::{format_ident, quote};
 
 use crate::{
     act::{
-        node::{candid::func::Mode, CandidType, Context, Param, ReturnType},
+        node::{node_parts::mode::Mode, CandidType, Context, Param, ReturnType},
         Declaration, Declare,
     },
     traits::{HasInlines, IsCallable, ToTypeAnnotation},
