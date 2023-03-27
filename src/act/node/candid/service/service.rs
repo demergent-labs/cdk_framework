@@ -1,13 +1,10 @@
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{quote, ToTokens};
 
 use super::Method;
 use crate::{
-    act::{
-        node::{AsNode, Context, Node},
-        Declaration, Declare,
-    },
-    traits::{IsCallable, ToIdent},
+    act::{node::Context, Declaration, Declare, TypeAnnotation},
+    traits::{IsCallable, ToIdent, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -20,9 +17,15 @@ pub struct Service {
     pub list_from_vm_value: fn(String) -> TokenStream,
 }
 
-impl AsNode for Service {
-    fn as_node(self) -> Node {
-        Node::Service(self)
+impl Service {
+    fn get_name(&self, _: &String) -> String {
+        self.name.clone()
+    }
+}
+
+impl ToTypeAnnotation<Context> for Service {
+    fn to_type_annotation(&self, _: &Context, inline_name: String) -> TypeAnnotation {
+        self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }
 
@@ -42,7 +45,7 @@ impl Declare<Context> for Service {
                 let method_name = method.name.clone();
                 let func_macro_token_stream = method.get_func_macro_token_stream(
                     &method.create_qualified_name(&self.name),
-                    &context.keyword_list,
+                    context,
                     &method.mode,
                 );
 

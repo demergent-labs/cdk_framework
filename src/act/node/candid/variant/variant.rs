@@ -2,7 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
 use crate::{
-    act::{node::Member, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
+    act::{
+        node::{Context, Member},
+        Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
+    },
     traits::{HasInlines, HasMembers, ToIdent},
     utils,
 };
@@ -28,18 +31,14 @@ impl<C> ToTypeAnnotation<C> for Variant {
     }
 }
 
-impl Declare<Vec<String>> for Variant {
-    fn to_declaration(
-        &self,
-        keyword_list: &Vec<String>,
-        inline_name: String,
-    ) -> Option<Declaration> {
+impl Declare<Context> for Variant {
+    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
         let variant_ident = self.get_name(&inline_name).to_ident();
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
             .map(|member| {
-                member.to_variant_member_token_stream(keyword_list, self.get_name(&inline_name))
+                member.to_variant_member_token_stream(context, self.get_name(&inline_name))
             })
             .collect();
         Some(quote!(
@@ -52,10 +51,10 @@ impl Declare<Vec<String>> for Variant {
 
     fn collect_inline_declarations(
         &self,
-        keyword_list: &Vec<String>,
+        context: &Context,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(&inline_name), keyword_list)
+        self.flatten_inlines(self.get_name(&inline_name), context)
     }
 }
 

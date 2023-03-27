@@ -3,7 +3,10 @@ use quote::{quote, ToTokens};
 
 use super::Elem;
 use crate::{
-    act::{node::Member, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
+    act::{
+        node::{Context, Member},
+        Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
+    },
     traits::{HasInlines, HasMembers, ToIdent},
     utils,
 };
@@ -29,19 +32,15 @@ impl<C> ToTypeAnnotation<C> for Tuple {
     }
 }
 
-impl Declare<Vec<String>> for Tuple {
-    fn to_declaration(
-        &self,
-        keyword_list: &Vec<String>,
-        inline_name: String,
-    ) -> Option<Declaration> {
+impl Declare<Context> for Tuple {
+    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
         let tuple_ident = self.get_name(&inline_name).to_ident();
         let member_idents: Vec<TokenStream> = self
             .elems
             .iter()
             .enumerate()
             .map(|(index, elem)| {
-                elem.to_tuple_elem_token_stream(index, &self.get_name(&inline_name), keyword_list)
+                elem.to_tuple_elem_token_stream(index, &self.get_name(&inline_name), context)
             })
             .collect();
 
@@ -62,10 +61,10 @@ impl Declare<Vec<String>> for Tuple {
 
     fn collect_inline_declarations(
         &self,
-        keyword_list: &Vec<String>,
+        context: &Context,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(&inline_name), keyword_list)
+        self.flatten_inlines(self.get_name(&inline_name), context)
     }
 }
 

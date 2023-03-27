@@ -9,6 +9,8 @@ use crate::{
     traits::ToIdent,
 };
 
+use super::Context;
+
 #[derive(Debug, Clone)]
 pub struct GuardFunction {
     pub body: TokenStream,
@@ -21,8 +23,8 @@ impl AsNode for GuardFunction {
     }
 }
 
-impl Declare<Vec<String>> for GuardFunction {
-    fn to_declaration(&self, _keyword_list: &Vec<String>, _: String) -> Option<Declaration> {
+impl Declare<Context> for GuardFunction {
+    fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
         // TODO we will eventually need that _keyword list for when we analyze function names for keywords
         let name = self.name.to_ident();
         let body = &self.body;
@@ -34,7 +36,7 @@ impl Declare<Vec<String>> for GuardFunction {
         })
     }
 
-    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
+    fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
         vec![]
     }
 }

@@ -1,7 +1,7 @@
 use quote::{quote, ToTokens};
 
 use crate::{
-    act::{Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
+    act::{node::Context, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
     traits::ToIdent,
 };
 
@@ -10,20 +10,20 @@ pub struct TypeRef {
     pub name: String,
 }
 
-impl ToTypeAnnotation<Vec<String>> for TypeRef {
-    fn to_type_annotation(&self, _keyword_list: &Vec<String>, _: String) -> TypeAnnotation {
+impl ToTypeAnnotation<Context> for TypeRef {
+    fn to_type_annotation(&self, _: &Context, _: String) -> TypeAnnotation {
         // TODO use the keyword list to make the identifier rust safe
         let ident = self.name.to_ident().to_token_stream();
         quote!(#ident)
     }
 }
 
-impl Declare<Vec<String>> for TypeRef {
-    fn to_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
+impl Declare<Context> for TypeRef {
+    fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
         None
     }
 
-    fn collect_inline_declarations(&self, _: &Vec<String>, _: String) -> Vec<Declaration> {
+    fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
         vec![]
     }
 }

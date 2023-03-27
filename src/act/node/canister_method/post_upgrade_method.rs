@@ -26,8 +26,7 @@ impl Declare<Context> for PostUpgradeMethod {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let function_name = self.get_name(context).to_ident();
         let body = &self.body;
-        let params =
-            self.create_parameter_list_token_stream(&self.get_name(context), &context.keyword_list);
+        let params = self.create_parameter_list_token_stream(&self.get_name(context), context);
         let macro_args = match &self.guard_function_name {
             Some(guard_function_name) => quote! {guard = #guard_function_name},
             None => quote!(),
@@ -42,7 +41,7 @@ impl Declare<Context> for PostUpgradeMethod {
     }
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(context), &context.keyword_list)
+        self.flatten_inlines(self.get_name(context), context)
     }
 }
 

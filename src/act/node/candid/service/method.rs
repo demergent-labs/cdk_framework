@@ -57,7 +57,7 @@ impl Method {
             &self.name
         );
 
-        let param_types = self.param_types_as_tuple(&context.keyword_list, canister_name);
+        let param_types = self.param_types_as_tuple(context, canister_name);
 
         let cycles_param = if function_type.contains("with_payment128") {
             quote! { , cycles: u128 }
@@ -67,10 +67,10 @@ impl Method {
             quote! {}
         };
 
-        let function_return_type = self.return_type.clone().to_type_annotation(
-            &context.keyword_list,
-            self.create_qualified_name(canister_name),
-        );
+        let function_return_type = self
+            .return_type
+            .clone()
+            .to_type_annotation(context, self.create_qualified_name(canister_name));
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
@@ -115,12 +115,12 @@ impl Method {
         }
     }
 
-    fn param_types_as_tuple(&self, keywords: &Vec<String>, canister_name: &String) -> TokenStream {
+    fn param_types_as_tuple(&self, context: &Context, canister_name: &String) -> TokenStream {
         let param_types: Vec<_> = self
             .params
             .iter()
             .map(|param| {
-                param.to_type_annotation(keywords, self.create_qualified_name(canister_name))
+                param.to_type_annotation(context, self.create_qualified_name(canister_name))
             })
             .collect();
 
@@ -158,10 +158,7 @@ impl Declare<Context> for Method {
         context: &Context,
         canister_name: String,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(
-            self.create_qualified_name(&canister_name),
-            &context.keyword_list,
-        )
+        self.flatten_inlines(self.create_qualified_name(&canister_name), context)
     }
 }
 

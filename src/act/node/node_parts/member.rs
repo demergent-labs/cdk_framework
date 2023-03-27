@@ -1,5 +1,8 @@
 use crate::{
-    act::{node::CandidType, Declaration, Declare, TypeAnnotation},
+    act::{
+        node::{CandidType, Context},
+        Declaration, Declare, TypeAnnotation,
+    },
     traits::{HasInlineName, ToTypeAnnotation},
 };
 
@@ -9,21 +12,21 @@ pub struct Member {
     pub candid_type: CandidType,
 }
 
-impl ToTypeAnnotation<Vec<String>> for Member {
-    fn to_type_annotation(&self, context: &Vec<String>, parent_name: String) -> TypeAnnotation {
+impl ToTypeAnnotation<Context> for Member {
+    fn to_type_annotation(&self, context: &Context, parent_name: String) -> TypeAnnotation {
         self.candid_type
             .to_type_annotation(context, self.get_inline_name(&parent_name))
     }
 }
 
-impl Declare<Vec<String>> for Member {
-    fn to_declaration(&self, _: &Vec<String>, _: String) -> Option<Declaration> {
+impl Declare<Context> for Member {
+    fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
         None
     }
 
     fn collect_inline_declarations(
         &self,
-        context: &Vec<String>,
+        context: &Context,
         parent_name: String,
     ) -> Vec<Declaration> {
         self.candid_type

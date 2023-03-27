@@ -3,7 +3,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{
-        node::{CandidType, Param, ReturnType},
+        node::{CandidType, Context, Param, ReturnType},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
     traits::{HasInlines, IsCallable, ToIdent},
@@ -66,15 +66,11 @@ impl<C> ToTypeAnnotation<C> for Func {
     }
 }
 
-impl Declare<Vec<String>> for Func {
-    fn to_declaration(
-        &self,
-        keyword_list: &Vec<String>,
-        inline_name: String,
-    ) -> Option<Declaration> {
+impl Declare<Context> for Func {
+    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
         let name = self.get_name(inline_name.clone()).to_ident();
         let func_macro_token_stream =
-            self.get_func_macro_token_stream(&inline_name, keyword_list, &self.mode);
+            self.get_func_macro_token_stream(&inline_name, context, &self.mode);
 
         let func_to_vm_value = (self.to_vm_value)(self.get_name(inline_name.clone()));
         let func_list_to_vm_value = (self.list_to_vm_value)(self.get_name(inline_name.clone()));
@@ -93,10 +89,10 @@ impl Declare<Vec<String>> for Func {
 
     fn collect_inline_declarations(
         &self,
-        keyword_list: &Vec<String>,
+        context: &Context,
         inline_name: String,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(inline_name), keyword_list)
+        self.flatten_inlines(self.get_name(inline_name), context)
     }
 }
 

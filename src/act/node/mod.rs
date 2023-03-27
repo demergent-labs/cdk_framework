@@ -4,7 +4,6 @@ pub mod context;
 pub mod guard_function;
 pub mod node;
 pub mod node_parts;
-pub mod service;
 
 pub use candid::CandidType;
 pub use canister_method::CanisterMethod;
@@ -15,4 +14,3 @@ pub use node::Node;
 pub use node_parts::member::Member;
 pub use node_parts::param::Param;
 pub use node_parts::return_type::ReturnType;
-pub use service::Service;
