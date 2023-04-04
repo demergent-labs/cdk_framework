@@ -5,13 +5,16 @@ use crate::{
         node::{CandidType, Context},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::ToIdent,
+    traits::{ToIdent, ToTokenStream},
 };
+
+use super::TypeParam;
 
 #[derive(Clone, Debug)]
 pub struct TypeAlias {
     pub name: String,
     pub aliased_type: Box<CandidType>,
+    pub type_params: Vec<TypeParam>,
 }
 
 impl ToTypeAnnotation<Context> for TypeAlias {
@@ -21,12 +24,14 @@ impl ToTypeAnnotation<Context> for TypeAlias {
 }
 
 impl Declare<Context> for TypeAlias {
-    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
         let name = self.name.to_ident();
         let alias = self
             .aliased_type
             .to_type_annotation(context, self.name.clone());
-        Some(quote!(type #name = #alias;))
+        let type_params_token_stream = self.type_params.to_token_stream(context, &inline_name);
+
+        Some(quote!(type #name #type_params_token_stream = #alias;))
     }
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {

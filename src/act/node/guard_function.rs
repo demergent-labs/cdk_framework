@@ -30,7 +30,7 @@ impl Declare<Context> for GuardFunction {
         let body = &self.body;
 
         Some(quote! {
-            fn #name() -> std::result::Result<(), String> {
+            fn #name() -> Result<(), String> {
                 #body
             }
         })
