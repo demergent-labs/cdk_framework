@@ -8,6 +8,7 @@ pub mod record;
 pub mod service;
 pub mod tuple;
 pub mod type_alias;
+pub mod type_param;
 pub mod type_ref;
 pub mod variant;
 
@@ -19,6 +20,7 @@ pub use record::Record;
 pub use service::Service;
 pub use tuple::Tuple;
 pub use type_alias::TypeAlias;
+pub use type_param::TypeParam;
 pub use type_ref::TypeRef;
 pub use variant::Variant;
 
@@ -34,6 +36,7 @@ pub enum CandidType {
     Service(Service),
     Tuple(Tuple),
     TypeAlias(TypeAlias),
+    TypeParam(TypeParam),
     TypeRef(TypeRef),
     Variant(Variant),
 }
@@ -57,6 +60,9 @@ impl ToTypeAnnotation<Context> for CandidType {
             CandidType::TypeAlias(type_alias) => {
                 type_alias.to_type_annotation(context, inline_name)
             }
+            CandidType::TypeParam(type_param) => {
+                type_param.to_type_annotation(context, inline_name)
+            }
             CandidType::TypeRef(type_ref) => type_ref.to_type_annotation(context, inline_name),
             CandidType::Variant(variant) => variant.to_type_annotation(context, inline_name),
         }
@@ -76,6 +82,7 @@ impl Declare<Context> for CandidType {
             CandidType::Service(service) => service.to_declaration(context, inline_name),
             CandidType::Tuple(tuple) => tuple.to_declaration(context, inline_name),
             CandidType::TypeAlias(type_alias) => type_alias.to_declaration(context, inline_name),
+            CandidType::TypeParam(type_param) => type_param.to_declaration(context, inline_name),
             CandidType::TypeRef(type_ref) => type_ref.to_declaration(context, inline_name),
             CandidType::Variant(variant) => variant.to_declaration(context, inline_name),
         }
@@ -100,6 +107,9 @@ impl Declare<Context> for CandidType {
             CandidType::Tuple(tuple) => tuple.collect_inline_declarations(context, inline_name),
             CandidType::TypeAlias(type_alias) => {
                 type_alias.collect_inline_declarations(context, inline_name)
+            }
+            CandidType::TypeParam(type_param) => {
+                type_param.collect_inline_declarations(context, inline_name)
             }
             CandidType::TypeRef(type_ref) => {
                 type_ref.collect_inline_declarations(context, inline_name)

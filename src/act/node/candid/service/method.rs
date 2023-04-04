@@ -71,7 +71,7 @@ impl Method {
             .return_type
             .to_type_annotation(context, self.create_qualified_name(canister_name));
         let return_type = if is_oneway {
-            quote! {Result<(), ic_cdk::api::call::RejectionCode>}
+            quote! {std::result::Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
             if function_return_type.to_string() == "" {
                 quote! {CallResult<()>}

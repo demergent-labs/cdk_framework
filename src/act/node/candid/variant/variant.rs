@@ -3,7 +3,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{
-        node::{Context, Member},
+        node::{candid::type_param::TypeParam, Context, Member},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
     traits::{HasInlines, HasMembers, ToIdent},
@@ -14,6 +14,7 @@ use crate::{
 pub struct Variant {
     pub name: Option<String>,
     pub members: Vec<Member>,
+    pub type_params: Vec<TypeParam>,
 }
 
 impl Variant {
@@ -41,9 +42,44 @@ impl Declare<Context> for Variant {
                 member.to_variant_member_token_stream(context, self.get_name(&inline_name))
             })
             .collect();
+        let type_param_token_streams: Vec<TokenStream> = self
+            .type_params
+            .iter()
+            .map(|type_param| {
+                let name = type_param.name.to_ident();
+
+                quote!(#name : for<'a> CdkActTryIntoVmValue<&'a mut boa_engine::Context, boa_engine::JsValue>)
+            })
+            .collect();
+        let type_params_token_stream = if type_param_token_streams.len() != 0 {
+            quote!(<#(#type_param_token_streams),*>)
+        } else {
+            quote!()
+        };
+
+        let where_clause_token_streams: Vec<TokenStream> = self
+            .type_params
+            .iter()
+            .map(|type_param| {
+                let name = type_param.name.to_ident();
+
+                quote!(
+                    boa_engine::JsValue:
+                        for<'a> CdkActTryFromVmValue<Box<#name>, &'a mut boa_engine::Context>
+                )
+            })
+            .collect();
+
+        let where_clause_token_stream = if where_clause_token_streams.len() != 0 {
+            quote!(where #(#where_clause_token_streams),*)
+        } else {
+            quote!()
+        };
+
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            enum #variant_ident {
+            enum #variant_ident #type_params_token_stream #where_clause_token_stream
+            {
                 #(#member_token_streams),*
             }
         ))
