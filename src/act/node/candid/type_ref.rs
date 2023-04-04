@@ -22,7 +22,11 @@ impl ToTypeAnnotation<Context> for TypeRef {
         let type_argument_token_streams: Vec<TokenStream> = self
             .type_arguments
             .iter()
-            .map(|type_argument| type_argument.to_type_annotation(context, inline_name.clone()))
+            .enumerate()
+            .map(|(index, type_argument)| {
+                type_argument
+                    .to_type_annotation(context, get_type_arg_inline_name(&inline_name, index))
+            })
             .collect();
         let type_arguments_token_stream = if type_argument_token_streams.len() != 0 {
             quote!(<#(#type_argument_token_streams),*>)
@@ -39,7 +43,24 @@ impl Declare<Context> for TypeRef {
         None
     }
 
-    fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
-        vec![]
+    fn collect_inline_declarations(
+        &self,
+        context: &Context,
+        inline_name: String,
+    ) -> Vec<Declaration> {
+        self.type_arguments
+            .iter()
+            .enumerate()
+            .fold(vec![], |acc, (index, item)| {
+                vec![
+                    acc,
+                    item.flatten(context, get_type_arg_inline_name(&inline_name, index)),
+                ]
+                .concat()
+            })
     }
+}
+
+fn get_type_arg_inline_name(inline_name: &str, index: usize) -> String {
+    format!("{inline_name}TypeArg{index}")
 }
