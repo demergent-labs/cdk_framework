@@ -40,8 +40,7 @@ impl Declare<Context> for TypeRef {
             .fold(vec![], |acc, (index, item)| {
                 vec![
                     acc,
-                    item.0
-                        .flatten(context, item.get_inline_name(&inline_name, index)),
+                    item.flatten(context, item.get_inline_name(&inline_name, index)),
                 ]
                 .concat()
             })

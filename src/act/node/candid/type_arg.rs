@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -17,6 +19,14 @@ impl TypeArg {
     }
 }
 
+impl Deref for TypeArg {
+    type Target = CandidType;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl ToTokenStream<Context> for Vec<TypeArg> {
     fn to_token_stream(&self, context: &Context, inline_name: &str) -> proc_macro2::TokenStream {
         let type_argument_token_streams: Vec<TokenStream> = self
@@ -24,7 +34,6 @@ impl ToTokenStream<Context> for Vec<TypeArg> {
             .enumerate()
             .map(|(index, type_argument)| {
                 type_argument
-                    .0
                     .to_type_annotation(context, type_argument.get_inline_name(&inline_name, index))
             })
             .collect();
