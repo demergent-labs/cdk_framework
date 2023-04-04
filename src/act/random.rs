@@ -7,7 +7,7 @@ pub fn generate_randomness_implementation() -> TokenStream {
             static _CDK_RNG_REF_CELL: std::cell::RefCell<StdRng> = std::cell::RefCell::new(SeedableRng::from_seed([0u8; 32]));
         }
 
-        pub fn _cdk_custom_getrandom(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
+        fn _cdk_custom_getrandom(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
             _CDK_RNG_REF_CELL.with(|rng_ref_cell| {
                 let mut rng = rng_ref_cell.borrow_mut();
                 rng.fill(_buf);
