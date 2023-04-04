@@ -26,7 +26,7 @@ impl Declare<Context> for TypeParam {
     }
 
     fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
-        vec![] // TODO do we need this?
+        vec![]
     }
 }
 
