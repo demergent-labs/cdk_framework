@@ -47,8 +47,9 @@ impl Declare<Context> for Variant {
             .iter()
             .map(|type_param| {
                 let name = type_param.name.to_ident();
+                let try_into_vm_value_trait_bound = &type_param.try_into_vm_value_trait_bound;
 
-                quote!(#name : for<'a> CdkActTryIntoVmValue<&'a mut boa_engine::Context, boa_engine::JsValue>)
+                quote!(#name: #try_into_vm_value_trait_bound)
             })
             .collect();
         let type_params_token_stream = if type_param_token_streams.len() != 0 {
@@ -61,12 +62,10 @@ impl Declare<Context> for Variant {
             .type_params
             .iter()
             .map(|type_param| {
-                let name = type_param.name.to_ident();
+                let try_from_vm_value_trait_bound =
+                    (&type_param.try_from_vm_value_trait_bound)(type_param.name.clone());
 
-                quote!(
-                    boa_engine::JsValue:
-                        for<'a> CdkActTryFromVmValue<Box<#name>, &'a mut boa_engine::Context>
-                )
+                try_from_vm_value_trait_bound
             })
             .collect();
 

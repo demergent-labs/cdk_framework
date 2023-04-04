@@ -1,3 +1,4 @@
+use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
@@ -8,6 +9,8 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct TypeParam {
     pub name: String,
+    pub try_into_vm_value_trait_bound: TokenStream,
+    pub try_from_vm_value_trait_bound: fn(String) -> TokenStream,
 }
 
 impl ToTypeAnnotation<Context> for TypeParam {
