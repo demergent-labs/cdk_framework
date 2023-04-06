@@ -4,7 +4,7 @@ use quote::{quote, ToTokens};
 use super::Elem;
 use crate::{
     act::{
-        node::{Context, Member},
+        node::{candid::type_param::TypeParams, Context, Member},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
     traits::{HasInlines, HasMembers, ToIdent},
@@ -15,6 +15,7 @@ use crate::{
 pub struct Tuple {
     pub name: Option<String>,
     pub elems: Vec<Elem>,
+    pub type_params: TypeParams,
 }
 
 impl Tuple {
@@ -51,11 +52,14 @@ impl Declare<Context> for Tuple {
             quote!(#(#member_idents),*)
         };
 
+        let type_params_token_stream = self.type_params.get_type_params_token_stream();
+        let where_clause_token_stream = self.type_params.get_where_clause_token_stream();
+
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            struct #tuple_ident (
+            struct #tuple_ident #type_params_token_stream (
                 #member_idents
-            );
+            ) #where_clause_token_stream;
         ))
     }
 

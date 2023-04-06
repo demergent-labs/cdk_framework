@@ -1,9 +1,11 @@
+use std::ops::Deref;
+
 use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
     act::{node::Context, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{ToIdent, ToTokenStream},
+    traits::ToIdent,
 };
 
 #[derive(Clone, Debug)]
@@ -30,8 +32,25 @@ impl Declare<Context> for TypeParam {
     }
 }
 
-impl ToTokenStream<Context> for Vec<TypeParam> {
-    fn to_token_stream(&self, _: &Context, _: &str) -> TokenStream {
+#[derive(Clone, Debug)]
+pub struct TypeParams(pub Vec<TypeParam>);
+
+impl Deref for TypeParams {
+    type Target = Vec<TypeParam>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<Vec<TypeParam>> for TypeParams {
+    fn from(vec: Vec<TypeParam>) -> Self {
+        TypeParams(vec)
+    }
+}
+
+impl TypeParams {
+    pub fn get_type_params_token_stream(&self) -> TokenStream {
         let type_param_token_streams: Vec<TokenStream> = self
             .iter()
             .map(|type_param| {
@@ -48,6 +67,10 @@ impl ToTokenStream<Context> for Vec<TypeParam> {
             quote!()
         };
 
+        type_params_token_stream
+    }
+
+    pub fn get_where_clause_token_stream(&self) -> TokenStream {
         let where_clause_token_streams: Vec<TokenStream> = self
             .iter()
             .map(|type_param| {
@@ -64,6 +87,6 @@ impl ToTokenStream<Context> for Vec<TypeParam> {
             quote!()
         };
 
-        quote!(#type_params_token_stream #where_clause_token_stream)
+        where_clause_token_stream
     }
 }

@@ -2,10 +2,10 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{
-        node::{candid::TypeParam, Context},
+        node::{candid::type_param::TypeParams, Context},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::{HasInlines, HasMembers, ToIdent, ToTokenStream},
+    traits::{HasInlines, HasMembers, ToIdent},
     utils,
 };
 
@@ -15,7 +15,7 @@ use super::Member;
 pub struct Record {
     pub name: Option<String>,
     pub members: Vec<Member>,
-    pub type_params: Vec<TypeParam>,
+    pub type_params: TypeParams,
 }
 
 impl Record {
@@ -43,11 +43,12 @@ impl Declare<Context> for Record {
                 member.to_record_member_token_stream(context, self.get_name(&inline_name))
             })
             .collect();
-        let type_params_token_stream = self.type_params.to_token_stream(context, &inline_name);
+        let type_params_token_stream = self.type_params.get_type_params_token_stream();
+        let where_clause_token_stream = self.type_params.get_where_clause_token_stream();
 
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
-            struct #record_ident #type_params_token_stream {
+            struct #record_ident #type_params_token_stream #where_clause_token_stream {
                 #(#member_token_streams),*
             }
         ))
