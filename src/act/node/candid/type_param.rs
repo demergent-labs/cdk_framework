@@ -55,9 +55,8 @@ impl TypeParams {
             .iter()
             .map(|type_param| {
                 let name = type_param.name.to_ident();
-                let try_into_vm_value_trait_bound = &type_param.try_into_vm_value_trait_bound;
 
-                quote!(#name: #try_into_vm_value_trait_bound)
+                quote!(#name)
             })
             .collect();
 
@@ -74,10 +73,15 @@ impl TypeParams {
         let where_clause_token_streams: Vec<TokenStream> = self
             .iter()
             .map(|type_param| {
+                let name = type_param.name.to_ident();
+                let try_into_vm_value_trait_bound = &type_param.try_into_vm_value_trait_bound;
                 let try_from_vm_value_trait_bound =
                     (&type_param.try_from_vm_value_trait_bound)(type_param.name.clone());
 
-                try_from_vm_value_trait_bound
+                quote! {
+                    #name: #try_into_vm_value_trait_bound,
+                    #try_from_vm_value_trait_bound
+                }
             })
             .collect();
 
