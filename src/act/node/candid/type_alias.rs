@@ -5,16 +5,16 @@ use crate::{
         node::{CandidType, Context},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::{ToIdent, ToTokenStream},
+    traits::ToIdent,
 };
 
-use super::TypeParam;
+use super::type_param::TypeParams;
 
 #[derive(Clone, Debug)]
 pub struct TypeAlias {
     pub name: String,
     pub aliased_type: Box<CandidType>,
-    pub type_params: Vec<TypeParam>,
+    pub type_params: TypeParams,
 }
 
 impl ToTypeAnnotation<Context> for TypeAlias {
@@ -24,14 +24,15 @@ impl ToTypeAnnotation<Context> for TypeAlias {
 }
 
 impl Declare<Context> for TypeAlias {
-    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
+    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
         let name = self.name.to_ident();
         let alias = self
             .aliased_type
             .to_type_annotation(context, self.name.clone());
-        let type_params_token_stream = self.type_params.to_token_stream(context, &inline_name);
+        let type_params_token_stream = self.type_params.get_type_params_token_stream();
+        let where_clause_token_stream = self.type_params.get_where_clause_token_stream();
 
-        Some(quote!(type #name #type_params_token_stream = #alias;))
+        Some(quote!(type #name #type_params_token_stream #where_clause_token_stream = #alias;))
     }
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
