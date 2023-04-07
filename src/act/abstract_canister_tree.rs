@@ -25,39 +25,25 @@ pub struct AbstractCanisterTree {
 impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> TokenStream {
         let header = &self.header;
-
         let randomness_implementation = random::generate_randomness_implementation();
-
-        let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
-        let try_into_vm_value_impls = &self.vm_value_conversion.try_into_vm_value_impls;
-        let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
-        let try_from_vm_value_impls = &self.vm_value_conversion.try_from_vm_value_impls;
-
+        let vm_value_conversion = vm_value_conversion::generate(&self.vm_value_conversion);
         let body = &self.body;
-
         let canister_method_decls = self.generate_declarations(self.collect_canister_methods());
         let candid_type_decls = self.generate_declarations(self.collect_candid_types());
         let guard_function_decls = self.generate_declarations(self.guard_functions.clone());
-
-        let candid_file_generation_code =
-            candid_file_generation::generate_candid_file_generation_code();
+        let candid_file_generation_code = candid_file_generation::generate();
 
         quote! {
             #header
 
             #randomness_implementation
 
-            #try_into_vm_value_trait
-            #try_into_vm_value_impls
-            #try_from_vm_value_trait
-            #try_from_vm_value_impls
+            #vm_value_conversion
 
             #body
-
-            #(#canister_method_decls)*
             #(#candid_type_decls)*
+            #(#canister_method_decls)*
             #(#guard_function_decls)*
-
             #candid_file_generation_code
         }
     }
