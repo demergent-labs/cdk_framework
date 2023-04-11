@@ -74,9 +74,9 @@ impl Method {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
             if function_return_type.to_string() == "" {
-                quote! {CallResult<()>}
+                quote! {ic_cdk::api::call::CallResult<()>}
             } else {
-                quote! {CallResult<(#function_return_type,)>}
+                quote! {ic_cdk::api::call::CallResult<(#function_return_type,)>}
             }
         };
 
