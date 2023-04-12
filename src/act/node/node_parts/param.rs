@@ -5,7 +5,7 @@ use crate::{
         node::{CandidType, Context},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::{HasInlineName, ToIdent},
+    traits::{HasInlineName, ToIdent, WithUserDefinedPrefix},
 };
 
 #[derive(Debug, Clone)]
@@ -16,7 +16,7 @@ pub struct Param {
 
 impl Param {
     pub fn get_prefixed_name(&self) -> String {
-        format!("_cdk_user_defined_{name}", name = self.name)
+        self.name.with_user_defined_prefix()
     }
 
     pub fn to_token_stream(&self, context: &Context, function_name: String) -> TokenStream {

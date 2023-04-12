@@ -7,7 +7,7 @@ use crate::{
         node::{canister_method::QueryOrUpdateDefinition, Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlines, IsCallable},
+    traits::{HasInlines, IsCallable, WithUserDefinedPrefix},
 };
 
 /// Describes a Rust canister method function body
@@ -26,7 +26,8 @@ impl QueryMethod {
             args.push(quote! {manual_reply = true});
         }
         if let Some(guard_function) = &self.guard_function_name {
-            args.push(quote! {guard = #guard_function});
+            let prefixed_guard_function_name = guard_function.with_user_defined_prefix();
+            args.push(quote! {guard = #prefixed_guard_function_name});
         }
 
         quote!(#(#args),*)
@@ -42,7 +43,8 @@ impl QueryMethod {
             args.push(quote! {manual_reply = true});
         }
         if let Some(guard_function) = &self.guard_function_name {
-            args.push(quote! {guard = #guard_function});
+            let prefixed_guard_function_name = guard_function.with_user_defined_prefix();
+            args.push(quote! {guard = #prefixed_guard_function_name});
         }
 
         quote!(#(#args),*)

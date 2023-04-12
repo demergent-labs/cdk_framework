@@ -6,7 +6,7 @@ use crate::{
         node::{AsNode, Node},
         Declaration, Declare,
     },
-    traits::ToIdent,
+    traits::{ToIdent, WithUserDefinedPrefix},
 };
 
 use super::Context;
@@ -26,7 +26,7 @@ impl AsNode for GuardFunction {
 impl Declare<Context> for GuardFunction {
     fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
         // TODO we will eventually need that _keyword list for when we analyze function names for keywords
-        let name = self.name.to_ident();
+        let name = self.name.with_user_defined_prefix().to_ident();
         let body = &self.body;
 
         Some(quote! {

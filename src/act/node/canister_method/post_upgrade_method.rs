@@ -6,7 +6,7 @@ use crate::{
         node::{Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlines, IsCallable, ToIdent},
+    traits::{HasInlines, IsCallable, ToIdent, WithUserDefinedPrefix},
 };
 
 #[derive(Clone)]
@@ -28,7 +28,10 @@ impl Declare<Context> for PostUpgradeMethod {
         let body = &self.body;
         let params = self.create_parameter_list_token_stream(&self.get_name(context), context);
         let macro_args = match &self.guard_function_name {
-            Some(guard_function_name) => quote! {guard = #guard_function_name},
+            Some(guard_function_name) => {
+                let prefixed_guard_function_name = guard_function_name.with_user_defined_prefix();
+                quote! {guard = #prefixed_guard_function_name}
+            }
             None => quote!(),
         };
 

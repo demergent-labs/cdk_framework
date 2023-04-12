@@ -1,7 +1,10 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::act::{Declaration, Declare};
+use crate::{
+    act::{Declaration, Declare},
+    traits::WithUserDefinedPrefix,
+};
 
 #[derive(Clone)]
 pub struct InspectMessageMethod {
@@ -14,7 +17,10 @@ impl Declare<String> for InspectMessageMethod {
         let function_name = format_ident!("_{}_inspect_message", cdk_name.to_lowercase(),);
         let body = &self.body;
         let macro_args = match &self.guard_function_name {
-            Some(guard_function_name) => quote! {guard = #guard_function_name},
+            Some(guard_function_name) => {
+                let prefixed_guard_function_name = guard_function_name.with_user_defined_prefix();
+                quote! {guard = #prefixed_guard_function_name}
+            }
             None => quote!(),
         };
 
