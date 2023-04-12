@@ -18,7 +18,9 @@ pub struct UpdateMethod {
 
 impl UpdateMethod {
     fn generate_macro_args(&self, cdk_name: &str) -> TokenStream {
-        let mut args: Vec<TokenStream> = vec![];
+        let user_defined_name = &self.name;
+
+        let mut args: Vec<TokenStream> = vec![quote! {name = #user_defined_name}];
 
         if self.is_manual || (self.is_async && cdk_name != "kybra") {
             args.push(quote! {manual_reply = true});

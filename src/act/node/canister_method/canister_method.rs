@@ -35,16 +35,16 @@ impl Declare<Context> for CanisterMethod {
             }
             CanisterMethod::Init(init_method) => init_method.to_declaration(context, inline_name),
             CanisterMethod::PreUpgrade(pre_upgrade_method) => {
-                pre_upgrade_method.to_declaration(&context.cdk_name, inline_name)
+                pre_upgrade_method.to_declaration(context, inline_name)
             }
             CanisterMethod::PostUpgrade(post_upgrade_method) => {
                 post_upgrade_method.to_declaration(context, inline_name)
             }
             CanisterMethod::InspectMessage(inspect_method) => {
-                inspect_method.to_declaration(&context.cdk_name, inline_name)
+                inspect_method.to_declaration(context, inline_name)
             }
             CanisterMethod::Heartbeat(heartbeat_method) => {
-                heartbeat_method.to_declaration(&context.cdk_name, inline_name)
+                heartbeat_method.to_declaration(context, inline_name)
             }
         }
     }
@@ -65,16 +65,16 @@ impl Declare<Context> for CanisterMethod {
                 init_method.collect_inline_declarations(context, inline_name)
             }
             CanisterMethod::PreUpgrade(pre_upgrade_method) => {
-                pre_upgrade_method.collect_inline_declarations(&context.cdk_name, inline_name)
+                pre_upgrade_method.collect_inline_declarations(&context, inline_name)
             }
             CanisterMethod::PostUpgrade(post_upgrade_method) => {
                 post_upgrade_method.collect_inline_declarations(context, inline_name)
             }
             CanisterMethod::InspectMessage(inspect_message_method) => {
-                inspect_message_method.collect_inline_declarations(&context.cdk_name, inline_name)
+                inspect_message_method.collect_inline_declarations(&context, inline_name)
             }
             CanisterMethod::Heartbeat(heartbeat_method) => {
-                heartbeat_method.collect_inline_declarations(&context.cdk_name, inline_name)
+                heartbeat_method.collect_inline_declarations(&context, inline_name)
             }
         }
     }

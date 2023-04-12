@@ -3,7 +3,7 @@ use quote::quote;
 
 use crate::{
     act::node::{CandidType, Context, Param, ReturnType},
-    traits::{IsCallable, ToIdent, ToTypeAnnotation},
+    traits::{IsCallable, ToIdent, ToTypeAnnotation, WithUserDefinedPrefix},
 };
 
 #[derive(Clone, Debug)]
@@ -39,7 +39,7 @@ impl QueryOrUpdateDefinition {
     }
 
     pub fn generate_function_body(&self, context: &Context) -> TokenStream {
-        let function_name = self.name.to_ident();
+        let function_name = self.name.with_user_defined_prefix().to_ident();
         let params = self.create_parameter_list_token_stream(&self.name, context);
 
         let function_body = &self.body;

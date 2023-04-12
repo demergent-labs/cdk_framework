@@ -1,8 +1,8 @@
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 
 use crate::{
-    act::{Declaration, Declare},
+    act::{node::Context, Declaration, Declare},
     traits::WithUserDefinedPrefix,
 };
 
@@ -12,9 +12,8 @@ pub struct HeartbeatMethod {
     pub body: TokenStream,
 }
 
-impl Declare<String> for HeartbeatMethod {
-    fn to_declaration(&self, cdk_name: &String, _: String) -> Option<Declaration> {
-        let function_name = format_ident!("_{}_heartbeat", cdk_name.to_lowercase());
+impl Declare<Context> for HeartbeatMethod {
+    fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
         let body = &self.body;
         let macro_args = match &self.guard_function_name {
             Some(guard_function_name) => {
@@ -26,13 +25,13 @@ impl Declare<String> for HeartbeatMethod {
 
         Some(quote! {
             #[ic_cdk_macros::heartbeat(#macro_args)]
-            fn #function_name() {
+            fn heartbeat() {
                 #body
             }
         })
     }
 
-    fn collect_inline_declarations(&self, _: &String, _: String) -> Vec<Declaration> {
+    fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
         vec![]
     }
 }

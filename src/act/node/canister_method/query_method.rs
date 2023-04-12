@@ -18,7 +18,9 @@ pub struct QueryMethod {
 
 impl QueryMethod {
     fn generate_kybra_macro_args(&self) -> TokenStream {
-        let mut args: Vec<TokenStream> = vec![];
+        let user_defined_name = &self.name;
+
+        let mut args: Vec<TokenStream> = vec![quote! {name = #user_defined_name}];
         if self.is_async {
             args.push(quote! {composite = true});
         }
@@ -34,7 +36,9 @@ impl QueryMethod {
     }
 
     fn generate_not_kybra_macro_args(&self) -> TokenStream {
-        let mut args: Vec<TokenStream> = vec![];
+        let user_defined_name = &self.name;
+
+        let mut args: Vec<TokenStream> = vec![quote! {name = #user_defined_name}];
         if self.is_async {
             args.push(quote! {composite = true});
             args.push(quote! {manual_reply = true});
