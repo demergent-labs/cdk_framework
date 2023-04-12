@@ -56,7 +56,7 @@ impl Declare<Context> for Tuple {
         let where_clause_token_stream = self.type_params.get_where_clause_token_stream();
 
         Some(quote!(
-            #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
+            #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue, Ord, PartialOrd, Eq, PartialEq)]
             struct #tuple_ident #type_params_token_stream (
                 #member_idents
             ) #where_clause_token_stream;

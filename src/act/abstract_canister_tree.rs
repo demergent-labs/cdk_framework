@@ -2,8 +2,8 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::act::{
-    candid_file_generation, random, vm_value_conversion, CandidTypes, CanisterMethods,
-    VmValueConversion,
+    candid_file_generation, float32, float64, random, vm_value_conversion, CandidTypes,
+    CanisterMethods, VmValueConversion,
     {
         node::{AsNode, CandidType, CanisterMethod, Context, GuardFunction},
         Declaration, Declare,
@@ -42,6 +42,9 @@ impl AbstractCanisterTree {
         let candid_file_generation_code =
             candid_file_generation::generate_candid_file_generation_code();
 
+        let azle_float64 = float64::generate();
+        let azle_float32 = float32::generate();
+
         quote! {
             #header
 
@@ -59,6 +62,9 @@ impl AbstractCanisterTree {
             #(#guard_function_decls)*
 
             #candid_file_generation_code
+
+            #azle_float64
+            #azle_float32
         }
     }
 

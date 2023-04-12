@@ -7,6 +7,7 @@ use crate::{
     },
     traits::{HasInlineName, ToIdent},
 };
+use quote::quote;
 
 #[derive(Debug, Clone)]
 pub struct Param {
@@ -36,8 +37,16 @@ impl HasInlineName for Param {
 
 impl ToTypeAnnotation<Context> for Param {
     fn to_type_annotation(&self, context: &Context, function_name: String) -> TypeAnnotation {
-        self.candid_type
-            .to_type_annotation(context, self.get_inline_name(&function_name))
+        match &self.candid_type {
+            CandidType::Primitive(primitive) => match primitive {
+                crate::act::node::candid::Primitive::Float32 => quote!(f32),
+                crate::act::node::candid::Primitive::Float64 => quote!(f64),
+                _ => primitive.to_type_annotation(context, self.get_inline_name(&function_name)),
+            },
+            _ => self
+                .candid_type
+                .to_type_annotation(context, self.get_inline_name(&function_name)),
+        }
     }
 }
 

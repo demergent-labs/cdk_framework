@@ -4,6 +4,7 @@ use crate::{
     act::node::{CandidType, Context},
     traits::{Declare, HasInlineName, ToTypeAnnotation},
 };
+use quote::quote;
 
 #[derive(Clone, Debug)]
 pub struct ReturnType {
@@ -36,8 +37,16 @@ impl ToTypeAnnotation<Context> for ReturnType {
         context: &Context,
         function_name: String,
     ) -> crate::act::TypeAnnotation {
-        self.candid_type
-            .to_type_annotation(context, self.get_inline_name(&function_name))
+        match &self.candid_type {
+            CandidType::Primitive(primitive) => match primitive {
+                crate::act::node::candid::Primitive::Float32 => quote!(f32),
+                crate::act::node::candid::Primitive::Float64 => quote!(f64),
+                _ => primitive.to_type_annotation(context, self.get_inline_name(&function_name)),
+            },
+            _ => self
+                .candid_type
+                .to_type_annotation(context, self.get_inline_name(&function_name)),
+        }
     }
 }
 

@@ -12,6 +12,8 @@ pub mod candid_file_generation;
 pub mod candid_types;
 pub mod canister_methods;
 pub mod declaration;
+pub mod float32;
+pub mod float64;
 pub mod node;
 pub mod random;
 pub mod type_annotation;
