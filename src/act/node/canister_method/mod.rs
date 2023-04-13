@@ -10,6 +10,7 @@ pub mod query_or_update_definition;
 pub mod query_or_update_method;
 pub mod update_method;
 
+pub use canister_method::get_type_refs;
 pub use canister_method::CanisterMethod;
 pub use canister_method_type::CanisterMethodType;
 pub use heartbeat_method::HeartbeatMethod;

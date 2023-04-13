@@ -3,10 +3,13 @@ use quote::{format_ident, quote};
 
 use crate::{
     act::{
-        node::{node_parts::mode::Mode, CandidType, Context, Param, ReturnType},
+        node::{
+            candid::TypeRef, canister_method, node_parts::mode::Mode, CandidType, Context, Param,
+            ReturnType,
+        },
         Declaration, Declare,
     },
-    traits::{HasInlines, IsCallable, ToTypeAnnotation},
+    traits::{HasInlines, HasTypeRefs, IsCallable, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -162,5 +165,11 @@ impl IsCallable for Method {
 
     fn get_return_type(&self) -> Option<ReturnType> {
         Some(self.return_type.clone())
+    }
+}
+
+impl HasTypeRefs for Method {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        canister_method::get_type_refs(&self.params, Some(&self.return_type))
     }
 }

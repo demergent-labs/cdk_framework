@@ -49,6 +49,15 @@ impl AsNode for CandidType {
     }
 }
 
+impl CandidType {
+    pub fn as_type_ref(&self) -> Option<TypeRef> {
+        match self {
+            CandidType::TypeRef(type_ref) => Some(type_ref.clone()),
+            _ => None,
+        }
+    }
+}
+
 impl ToTypeAnnotation<Context> for CandidType {
     fn to_type_annotation(&self, context: &Context, inline_name: String) -> TypeAnnotation {
         match self {

@@ -3,7 +3,7 @@ use super::{
     QueryMethod, UpdateMethod,
 };
 use crate::act::{
-    node::{AsNode, Context, Node},
+    node::{candid::TypeRef, AsNode, Context, Node, Param, ReturnType},
     Declaration, Declare,
 };
 
@@ -26,26 +26,15 @@ impl AsNode for CanisterMethod {
 
 impl Declare<Context> for CanisterMethod {
     fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
+        let f = |m: &dyn Declare<Context>| m.to_declaration(context, inline_name);
         match self {
-            CanisterMethod::Update(update_method) => {
-                update_method.to_declaration(context, inline_name)
-            }
-            CanisterMethod::Query(query_method) => {
-                query_method.to_declaration(context, inline_name)
-            }
-            CanisterMethod::Init(init_method) => init_method.to_declaration(context, inline_name),
-            CanisterMethod::PreUpgrade(pre_upgrade_method) => {
-                pre_upgrade_method.to_declaration(context, inline_name)
-            }
-            CanisterMethod::PostUpgrade(post_upgrade_method) => {
-                post_upgrade_method.to_declaration(context, inline_name)
-            }
-            CanisterMethod::InspectMessage(inspect_method) => {
-                inspect_method.to_declaration(context, inline_name)
-            }
-            CanisterMethod::Heartbeat(heartbeat_method) => {
-                heartbeat_method.to_declaration(context, inline_name)
-            }
+            CanisterMethod::Update(update_method) => f(update_method),
+            CanisterMethod::Query(query_method) => f(query_method),
+            CanisterMethod::Init(init) => f(init),
+            CanisterMethod::PreUpgrade(pre_upgrade) => f(pre_upgrade),
+            CanisterMethod::PostUpgrade(post_upgrade) => f(post_upgrade),
+            CanisterMethod::InspectMessage(inspect_message) => f(inspect_message),
+            CanisterMethod::Heartbeat(heartbeat) => f(heartbeat),
         }
     }
 
@@ -54,28 +43,34 @@ impl Declare<Context> for CanisterMethod {
         context: &Context,
         inline_name: String,
     ) -> Vec<Declaration> {
+        let f = |m: &dyn Declare<Context>| m.collect_inline_declarations(context, inline_name);
         match self {
-            CanisterMethod::Update(update_method) => {
-                update_method.collect_inline_declarations(context, inline_name)
-            }
-            CanisterMethod::Query(query_method) => {
-                query_method.collect_inline_declarations(context, inline_name)
-            }
-            CanisterMethod::Init(init_method) => {
-                init_method.collect_inline_declarations(context, inline_name)
-            }
-            CanisterMethod::PreUpgrade(pre_upgrade_method) => {
-                pre_upgrade_method.collect_inline_declarations(&context, inline_name)
-            }
-            CanisterMethod::PostUpgrade(post_upgrade_method) => {
-                post_upgrade_method.collect_inline_declarations(context, inline_name)
-            }
-            CanisterMethod::InspectMessage(inspect_message_method) => {
-                inspect_message_method.collect_inline_declarations(&context, inline_name)
-            }
-            CanisterMethod::Heartbeat(heartbeat_method) => {
-                heartbeat_method.collect_inline_declarations(&context, inline_name)
-            }
+            CanisterMethod::Update(update_method) => f(update_method),
+            CanisterMethod::Query(query_method) => f(query_method),
+            CanisterMethod::Init(init) => f(init),
+            CanisterMethod::PreUpgrade(pre_upgrade) => f(pre_upgrade),
+            CanisterMethod::PostUpgrade(post_upgrade) => f(post_upgrade),
+            CanisterMethod::InspectMessage(inspect_message) => f(inspect_message),
+            CanisterMethod::Heartbeat(heartbeat) => f(heartbeat),
         }
     }
+}
+
+pub fn get_type_refs(params: &Vec<Param>, return_type: Option<&ReturnType>) -> Vec<TypeRef> {
+    vec![
+        params
+            .iter()
+            .map(|param| param.candid_type.as_type_ref())
+            .collect(),
+        match return_type {
+            Some(return_type) => {
+                vec![return_type.as_type_ref()]
+            }
+            None => vec![],
+        },
+    ]
+    .into_iter()
+    .flatten()
+    .filter_map(|f| f)
+    .collect()
 }

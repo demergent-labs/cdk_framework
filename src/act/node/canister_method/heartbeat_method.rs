@@ -2,9 +2,14 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::{node::Context, Declaration, Declare},
-    traits::WithUserDefinedPrefix,
+    act::{
+        node::{candid::TypeRef, Context},
+        Declaration, Declare,
+    },
+    traits::{HasTypeRefs, WithUserDefinedPrefix},
 };
+
+use super::canister_method;
 
 #[derive(Clone)]
 pub struct HeartbeatMethod {
@@ -33,5 +38,11 @@ impl Declare<Context> for HeartbeatMethod {
 
     fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
         vec![]
+    }
+}
+
+impl HasTypeRefs for HeartbeatMethod {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        canister_method::get_type_refs(&vec![], None)
     }
 }
