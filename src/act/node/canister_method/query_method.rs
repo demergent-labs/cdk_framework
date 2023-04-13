@@ -65,15 +65,17 @@ impl Deref for QueryMethod {
 
 impl Declare<Context> for QueryMethod {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+        let user_defined_name = &self.name;
         let function_declaration = self.generate_function_body(context);
         let macro_args = if context.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
         } else {
             self.generate_not_kybra_macro_args()
         };
+
         Some(quote! {
             #[ic_cdk_macros::query(#macro_args)]
-            #[candid::candid_method(query)]
+            #[candid::candid_method(query, rename = #user_defined_name)]
             #function_declaration
         })
     }
