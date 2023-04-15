@@ -47,7 +47,7 @@ impl Declare<Context> for Record {
         let where_clause_token_stream = self.type_params.get_where_clause_token_stream();
 
         Some(quote!(
-            #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue)]
+            #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue, Ord, PartialOrd, Eq, PartialEq)]
             struct #record_ident #type_params_token_stream #where_clause_token_stream {
                 #(#member_token_streams),*
             }
