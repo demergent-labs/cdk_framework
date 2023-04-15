@@ -7,7 +7,7 @@ use crate::{
         node::{canister_method::QueryOrUpdateDefinition, Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlines, IsCallable},
+    traits::{HasInlines, IsCallable, WithUserDefinedPrefix},
 };
 
 /// Describes a Rust canister method function body
@@ -18,13 +18,16 @@ pub struct UpdateMethod {
 
 impl UpdateMethod {
     fn generate_macro_args(&self, cdk_name: &str) -> TokenStream {
-        let mut args: Vec<TokenStream> = vec![];
+        let user_defined_name = &self.name;
+
+        let mut args: Vec<TokenStream> = vec![quote! {name = #user_defined_name}];
 
         if self.is_manual || (self.is_async && cdk_name != "kybra") {
             args.push(quote! {manual_reply = true});
         };
         if let Some(guard_function) = &self.guard_function_name {
-            args.push(quote! {guard = #guard_function});
+            let prefixed_guard_function_name = guard_function.with_user_defined_prefix();
+            args.push(quote! {guard = #prefixed_guard_function_name});
         };
 
         quote!(#(#args),*)
@@ -41,13 +44,13 @@ impl Deref for UpdateMethod {
 
 impl Declare<Context> for UpdateMethod {
     fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+        let user_defined_name = &self.name;
         let function_declaration = self.generate_function_body(context);
-
         let macro_args = self.generate_macro_args(&context.cdk_name);
 
         Some(quote! {
             #[ic_cdk_macros::update(#macro_args)]
-            #[candid::candid_method(update)]
+            #[candid::candid_method(update, rename = #user_defined_name)]
             #function_declaration
         })
     }
