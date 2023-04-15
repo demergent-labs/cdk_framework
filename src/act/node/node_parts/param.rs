@@ -7,7 +7,6 @@ use crate::{
     },
     traits::{HasInlineName, ToIdent},
 };
-use quote::quote;
 
 #[derive(Debug, Clone)]
 pub struct Param {

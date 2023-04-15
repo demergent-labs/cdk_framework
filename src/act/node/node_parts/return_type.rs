@@ -4,7 +4,6 @@ use crate::{
     act::node::{CandidType, Context},
     traits::{Declare, HasInlineName, ToTypeAnnotation},
 };
-use quote::quote;
 
 #[derive(Clone, Debug)]
 pub struct ReturnType {
