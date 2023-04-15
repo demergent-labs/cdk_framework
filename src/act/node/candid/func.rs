@@ -78,16 +78,15 @@ impl Declare<Context> for Func {
             #func_from_vm_value
             #func_list_from_vm_value
 
-            // TODO figure these out better
-            impl std::cmp::PartialOrd for #name {
-                fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-                    None
+            impl std::cmp::Ord for #name {
+                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+                    self.partial_cmp(other).unwrap_or(std::cmp::Ordering::Equal)
                 }
             }
 
-            impl std::cmp::Ord for #name {
-                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-                    self.partial_cmp(other).unwrap_or(std::cmp::Ordering::Less)
+            impl std::cmp::PartialOrd for #name {
+                fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+                    None
                 }
             }
         })

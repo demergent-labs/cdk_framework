@@ -65,6 +65,18 @@ impl Declare<Context> for Service {
                 #(#service_funcs);*
             });
 
+            impl std::cmp::Ord for #service_name {
+                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+                    self.partial_cmp(other).unwrap_or(std::cmp::Ordering::Equal)
+                }
+            }
+
+            impl std::cmp::PartialOrd for #service_name {
+                fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+                    None
+                }
+            }
+
             #service_to_vm_value
             #service_list_to_vm_value
             #service_from_vm_value
