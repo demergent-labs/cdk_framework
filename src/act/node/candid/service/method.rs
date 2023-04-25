@@ -49,13 +49,7 @@ impl Method {
             quote! {async}
         };
 
-        let function_name = format_ident!(
-            "_{}_{}_{}_{}",
-            context.cdk_name,
-            function_type,
-            canister_name,
-            &self.name
-        );
+        let function_name = format_ident!("{}_{}_{}", function_type, canister_name, &self.name);
 
         let param_types = self.param_types_as_tuple(context, canister_name);
 
