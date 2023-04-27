@@ -8,6 +8,7 @@ use super::node::{
     },
 };
 
+#[derive(Clone)]
 pub struct CanisterMethods {
     pub heartbeat_method: Option<HeartbeatMethod>,
     pub init_method: Option<InitMethod>,

@@ -2,6 +2,7 @@ use crate::traits::{HasDefinedNames, HasTypeRefs};
 
 use super::node::candid::{Func, Record, Service, Tuple, TypeAlias, TypeRef, Variant};
 
+#[derive(Clone)]
 pub struct CandidTypes {
     pub funcs: Vec<Func>,
     pub records: Vec<Record>,
