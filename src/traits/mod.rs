@@ -1,3 +1,4 @@
+pub mod collect_results;
 pub mod has_defined_names;
 pub mod has_inline_name;
 pub mod has_inline_types;
@@ -10,6 +11,7 @@ pub mod with_user_defined_prefix;
 
 pub use crate::act::Declare;
 pub use crate::act::ToTypeAnnotation;
+pub use collect_results::CollectResults;
 pub use has_defined_names::HasDefinedNames;
 pub use has_inline_name::HasInlineName;
 pub use has_inline_types::HasInlines;
