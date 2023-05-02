@@ -67,4 +67,8 @@ impl HasMembers for Record {
     fn get_members(&self) -> Vec<Member> {
         self.members.clone()
     }
+
+    fn get_type_params(&self) -> TypeParams {
+        self.type_params.clone()
+    }
 }
