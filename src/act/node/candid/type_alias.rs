@@ -45,7 +45,7 @@ impl HasTypeRefs for TypeAlias {
         let type_ref_names: Vec<_> = self.type_params.iter().map(|tp| tp.name.clone()).collect();
         // Return all of the type refs that aren't defined by the type params
         self.aliased_type
-            .as_type_ref()
+            .get_type_refs()
             .into_iter()
             .map(|type_ref| type_ref)
             .filter(|member| !type_ref_names.contains(&member.name))

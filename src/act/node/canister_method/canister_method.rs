@@ -2,9 +2,12 @@ use super::{
     HeartbeatMethod, InitMethod, InspectMessageMethod, PostUpgradeMethod, PreUpgradeMethod,
     QueryMethod, UpdateMethod,
 };
-use crate::act::{
-    node::{candid::TypeRef, AsNode, Context, Node, Param, ReturnType},
-    Declaration, Declare,
+use crate::{
+    act::{
+        node::{candid::TypeRef, AsNode, Context, Node, Param, ReturnType},
+        Declaration, Declare,
+    },
+    traits::HasTypeRefs,
 };
 
 #[derive(Clone)]
@@ -60,17 +63,12 @@ pub fn get_type_refs(params: &Vec<Param>, return_type: Option<&ReturnType>) -> V
     vec![
         params
             .iter()
-            .map(|param| param.candid_type.as_type_ref())
+            .flat_map(|param| param.candid_type.get_type_refs())
             .collect(),
         match return_type {
-            Some(return_type) => {
-                vec![return_type.as_type_ref()]
-            }
+            Some(return_type) => return_type.get_type_refs(),
             None => vec![],
         },
     ]
-    .into_iter()
-    .flatten()
-    .filter_map(|f| f)
-    .collect()
+    .concat()
 }

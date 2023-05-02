@@ -32,8 +32,8 @@ where
         // Return all of the type refs that aren't defined by the type params
         self.get_members()
             .iter()
-            .filter_map(|member| member.candid_type.as_type_ref())
-            .filter(|member| !type_ref_names.contains(&member.name))
+            .flat_map(|m| m.candid_type.get_type_refs())
+            .filter(|tr| !type_ref_names.contains(&tr.name))
             .collect()
     }
 }
