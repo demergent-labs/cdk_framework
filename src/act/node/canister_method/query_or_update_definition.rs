@@ -3,9 +3,7 @@ use quote::quote;
 
 use crate::{
     act::node::{candid::TypeRef, CandidType, Context, Param, ReturnType},
-    traits::{
-        HasDefinedNames, HasTypeRefs, IsCallable, ToIdent, ToTypeAnnotation, WithUserDefinedPrefix,
-    },
+    traits::{HasTypeRefs, IsCallable, ToIdent, ToTypeAnnotation, WithUserDefinedPrefix},
 };
 
 use super::canister_method;
@@ -82,11 +80,5 @@ impl IsCallable for QueryOrUpdateDefinition {
 impl HasTypeRefs for QueryOrUpdateDefinition {
     fn get_type_refs(&self) -> Vec<TypeRef> {
         canister_method::get_type_refs(&self.params, Some(&self.return_type))
-    }
-}
-
-impl HasDefinedNames for QueryOrUpdateDefinition {
-    fn get_defined_names(&self) -> Vec<String> {
-        vec![self.name.clone()]
     }
 }

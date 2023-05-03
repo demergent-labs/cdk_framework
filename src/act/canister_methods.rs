@@ -1,4 +1,4 @@
-use crate::traits::{HasDefinedNames, HasTypeRefs};
+use crate::traits::HasTypeRefs;
 
 use super::node::{
     candid::TypeRef,
@@ -20,7 +20,7 @@ pub struct CanisterMethods {
 }
 
 impl CanisterMethods {
-    pub fn collected_used_guard_function_names(&self) -> Vec<String> {
+    pub fn collect_used_guard_function_names(&self) -> Vec<String> {
         self.heartbeat_method
             .iter()
             .filter_map(|m| m.guard_function_name.clone())
@@ -58,45 +58,12 @@ impl CanisterMethods {
     }
 }
 
-impl HasDefinedNames for CanisterMethods {
-    fn get_defined_names(&self) -> Vec<String> {
-        let queries: Vec<_> = self
-            .query_methods
-            .iter()
-            .map(|m| m.get_defined_names())
-            .flatten()
-            .collect();
-        let update: Vec<_> = self
-            .update_methods
-            .iter()
-            .map(|m| m.get_defined_names())
-            .flatten()
-            .collect();
-        vec![queries, update].concat()
-    }
-}
-
 impl HasTypeRefs for CanisterMethods {
     fn get_type_refs(&self) -> Vec<TypeRef> {
-        self.heartbeat_method
+        self.post_upgrade_method
             .iter()
             .flat_map(|m| m.get_type_refs())
             .chain(self.init_method.iter().flat_map(|m| m.get_type_refs()))
-            .chain(
-                self.inspect_message_method
-                    .iter()
-                    .flat_map(|m| m.get_type_refs()),
-            )
-            .chain(
-                self.pre_upgrade_method
-                    .iter()
-                    .flat_map(|m| m.get_type_refs()),
-            )
-            .chain(
-                self.post_upgrade_method
-                    .iter()
-                    .flat_map(|m| m.get_type_refs()),
-            )
             .chain(self.update_methods.iter().flat_map(|m| m.get_type_refs()))
             .chain(self.query_methods.iter().flat_map(|m| m.get_type_refs()))
             .collect()

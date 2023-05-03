@@ -2,14 +2,9 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::{
-        node::{candid::TypeRef, Context},
-        Declaration, Declare,
-    },
-    traits::{HasTypeRefs, WithUserDefinedPrefix},
+    act::{node::Context, Declaration, Declare},
+    traits::WithUserDefinedPrefix,
 };
-
-use super::canister_method;
 
 #[derive(Clone)]
 pub struct PreUpgradeMethod {
@@ -38,11 +33,5 @@ impl Declare<Context> for PreUpgradeMethod {
 
     fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
         vec![]
-    }
-}
-
-impl HasTypeRefs for PreUpgradeMethod {
-    fn get_type_refs(&self) -> Vec<TypeRef> {
-        canister_method::get_type_refs(&vec![], None)
     }
 }

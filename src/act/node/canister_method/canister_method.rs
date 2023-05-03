@@ -29,15 +29,15 @@ impl AsNode for CanisterMethod {
 
 impl Declare<Context> for CanisterMethod {
     fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
-        let f = |m: &dyn Declare<Context>| m.to_declaration(context, inline_name);
+        let to_declaration = |m: &dyn Declare<Context>| m.to_declaration(context, inline_name);
         match self {
-            CanisterMethod::Update(update_method) => f(update_method),
-            CanisterMethod::Query(query_method) => f(query_method),
-            CanisterMethod::Init(init) => f(init),
-            CanisterMethod::PreUpgrade(pre_upgrade) => f(pre_upgrade),
-            CanisterMethod::PostUpgrade(post_upgrade) => f(post_upgrade),
-            CanisterMethod::InspectMessage(inspect_message) => f(inspect_message),
-            CanisterMethod::Heartbeat(heartbeat) => f(heartbeat),
+            CanisterMethod::Update(update_method) => to_declaration(update_method),
+            CanisterMethod::Query(query_method) => to_declaration(query_method),
+            CanisterMethod::Init(init) => to_declaration(init),
+            CanisterMethod::PreUpgrade(pre_upgrade) => to_declaration(pre_upgrade),
+            CanisterMethod::PostUpgrade(post_upgrade) => to_declaration(post_upgrade),
+            CanisterMethod::InspectMessage(inspect_message) => to_declaration(inspect_message),
+            CanisterMethod::Heartbeat(heartbeat) => to_declaration(heartbeat),
         }
     }
 
@@ -46,15 +46,18 @@ impl Declare<Context> for CanisterMethod {
         context: &Context,
         inline_name: String,
     ) -> Vec<Declaration> {
-        let f = |m: &dyn Declare<Context>| m.collect_inline_declarations(context, inline_name);
+        let collect_inline_declarations =
+            |m: &dyn Declare<Context>| m.collect_inline_declarations(context, inline_name);
         match self {
-            CanisterMethod::Update(update_method) => f(update_method),
-            CanisterMethod::Query(query_method) => f(query_method),
-            CanisterMethod::Init(init) => f(init),
-            CanisterMethod::PreUpgrade(pre_upgrade) => f(pre_upgrade),
-            CanisterMethod::PostUpgrade(post_upgrade) => f(post_upgrade),
-            CanisterMethod::InspectMessage(inspect_message) => f(inspect_message),
-            CanisterMethod::Heartbeat(heartbeat) => f(heartbeat),
+            CanisterMethod::Update(update_method) => collect_inline_declarations(update_method),
+            CanisterMethod::Query(query_method) => collect_inline_declarations(query_method),
+            CanisterMethod::Init(init) => collect_inline_declarations(init),
+            CanisterMethod::PreUpgrade(pre_upgrade) => collect_inline_declarations(pre_upgrade),
+            CanisterMethod::PostUpgrade(post_upgrade) => collect_inline_declarations(post_upgrade),
+            CanisterMethod::InspectMessage(inspect_message) => {
+                collect_inline_declarations(inspect_message)
+            }
+            CanisterMethod::Heartbeat(heartbeat) => collect_inline_declarations(heartbeat),
         }
     }
 }

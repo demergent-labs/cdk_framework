@@ -210,7 +210,7 @@ impl AbstractCanisterTree {
     }
 
     fn verify_type_refs_have_corresponding_definitions(&self) -> Result<(), Vec<Error>> {
-        let defined_names: HashSet<_> = self.get_defined_names().into_iter().collect();
+        let defined_names: HashSet<_> = self.candid_types.get_defined_names().into_iter().collect();
         let used_names: HashSet<_> = self
             .get_type_refs()
             .iter()
@@ -236,7 +236,7 @@ impl AbstractCanisterTree {
             .collect();
         let used_guard_functions: HashSet<_> = self
             .canister_methods
-            .collected_used_guard_function_names()
+            .collect_used_guard_function_names()
             .into_iter()
             .collect();
 
@@ -261,16 +261,6 @@ impl HasTypeRefs for AbstractCanisterTree {
             .get_type_refs()
             .into_iter()
             .chain(self.candid_types.get_type_refs())
-            .collect()
-    }
-}
-
-impl HasDefinedNames for AbstractCanisterTree {
-    fn get_defined_names(&self) -> Vec<String> {
-        self.canister_methods
-            .get_defined_names()
-            .into_iter()
-            .chain(self.candid_types.get_defined_names())
             .collect()
     }
 }

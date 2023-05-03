@@ -2,7 +2,7 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{node::Context, Declaration, Declare, ToTypeAnnotation, TypeAnnotation},
-    traits::{ToIdent, ToTokenStream},
+    traits::{HasTypeRefs, ToIdent, ToTokenStream},
 };
 
 use super::TypeArg;
@@ -44,5 +44,18 @@ impl Declare<Context> for TypeRef {
                 ]
                 .concat()
             })
+    }
+}
+
+impl HasTypeRefs for TypeRef {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        vec![
+            vec![self.clone()],
+            self.type_arguments
+                .iter()
+                .flat_map(|ta| ta.get_type_refs())
+                .collect(),
+        ]
+        .concat()
     }
 }
