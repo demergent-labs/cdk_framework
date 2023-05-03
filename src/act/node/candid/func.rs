@@ -3,12 +3,14 @@ use quote::{quote, ToTokens};
 
 use crate::{
     act::{
-        node::{node_parts::mode::Mode, CandidType, Context, Param, ReturnType},
+        node::{canister_method, node_parts::mode::Mode, CandidType, Context, Param, ReturnType},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::{HasInlines, IsCallable, ToIdent},
+    traits::{HasInlines, HasTypeRefs, IsCallable, ToIdent},
     utils,
 };
+
+use super::TypeRef;
 
 #[derive(Clone, Debug)]
 pub struct Func {
@@ -119,5 +121,11 @@ impl IsCallable for Func {
 
     fn get_return_type(&self) -> Option<ReturnType> {
         Some(self.return_type.as_ref().clone())
+    }
+}
+
+impl HasTypeRefs for Func {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        canister_method::get_type_refs(&self.get_params(), Some(&self.return_type))
     }
 }
