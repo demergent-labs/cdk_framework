@@ -6,7 +6,7 @@ use crate::{
         node::{AsNode, Node},
         Declaration, Declare,
     },
-    traits::{ToIdent, WithUserDefinedPrefix},
+    traits::{HasDefinedNames, ToIdent, WithUserDefinedPrefix},
 };
 
 use super::Context;
@@ -38,5 +38,11 @@ impl Declare<Context> for GuardFunction {
 
     fn collect_inline_declarations(&self, _: &Context, _: String) -> Vec<Declaration> {
         vec![]
+    }
+}
+
+impl HasDefinedNames for Vec<GuardFunction> {
+    fn get_defined_names(&self) -> Vec<String> {
+        self.iter().map(|f| f.name.clone()).collect()
     }
 }

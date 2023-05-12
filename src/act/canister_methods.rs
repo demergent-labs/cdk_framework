@@ -1,4 +1,4 @@
-use crate::traits::HasTypeRefs;
+use crate::traits::{HasDefinedNames, HasTypeRefs};
 
 use super::node::{
     candid::TypeRef,
@@ -54,6 +54,16 @@ impl CanisterMethods {
                     .iter()
                     .filter_map(|m| m.guard_function_name.clone()),
             )
+            .collect()
+    }
+}
+
+impl HasDefinedNames for CanisterMethods {
+    fn get_defined_names(&self) -> Vec<String> {
+        self.query_methods
+            .iter()
+            .map(|f| f.name.clone())
+            .chain(self.update_methods.iter().map(|f| f.name.clone()))
             .collect()
     }
 }

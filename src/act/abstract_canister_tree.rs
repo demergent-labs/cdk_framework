@@ -43,12 +43,12 @@ impl AbstractCanisterTree {
             .verify_type_refs_have_corresponding_definitions()
             .err()
             .into_iter()
-            .chain(self.verify_type_refs_defs_are_unique().err())
+            .chain(self.verify_type_defs_are_unique().err())
             .chain(
                 self.verify_guard_function_names_have_corresponding_definitions()
                     .err(),
             )
-            .chain(self.verify_guard_functions_defs_are_unique().err())
+            .chain(self.verify_guard_function_defs_are_unique().err())
             .chain(self.verify_canister_method_defs_are_unique().err())
             .flatten()
             .collect::<Vec<_>>();
@@ -214,7 +214,7 @@ impl AbstractCanisterTree {
         vec![funcs, records, services, tuples, type_aliases, variants].concat()
     }
 
-    fn verify_type_refs_defs_are_unique(&self) -> Result<(), Vec<Error>> {
+    fn verify_type_defs_are_unique(&self) -> Result<(), Vec<Error>> {
         let defined_names = self.candid_types.get_defined_names();
         let duplicates = find_duplicates(&defined_names);
 
@@ -227,12 +227,8 @@ impl AbstractCanisterTree {
         }
     }
 
-    fn verify_guard_functions_defs_are_unique(&self) -> Result<(), Vec<Error>> {
-        let defined_names: Vec<_> = self
-            .guard_functions
-            .iter()
-            .map(|f| f.name.clone())
-            .collect();
+    fn verify_guard_function_defs_are_unique(&self) -> Result<(), Vec<Error>> {
+        let defined_names = self.guard_functions.get_defined_names();
         let duplicates = find_duplicates(&defined_names);
 
         match duplicates.is_empty() {
@@ -245,18 +241,7 @@ impl AbstractCanisterTree {
     }
 
     fn verify_canister_method_defs_are_unique(&self) -> Result<(), Vec<Error>> {
-        let defined_names: Vec<_> = self
-            .canister_methods
-            .query_methods
-            .iter()
-            .map(|f| f.name.clone())
-            .chain(
-                self.canister_methods
-                    .update_methods
-                    .iter()
-                    .map(|f| f.name.clone()),
-            )
-            .collect();
+        let defined_names = self.canister_methods.get_defined_names();
         let duplicates = find_duplicates(&defined_names);
 
         match duplicates.is_empty() {
@@ -325,13 +310,14 @@ impl HasTypeRefs for AbstractCanisterTree {
 }
 
 fn find_duplicates<T: Eq + std::hash::Hash>(list: &[T]) -> Vec<&T> {
-    let mut count_map = HashMap::new();
-    for item in list {
-        *count_map.entry(item).or_insert(0) += 1;
-    }
+    let count_map = list.iter().fold(HashMap::new(), |mut acc, item| {
+        *acc.entry(item).or_insert(0) += 1;
+        acc
+    });
+
     count_map
-        .into_iter()
-        .filter(|(_, count)| *count > 1)
-        .map(|(item, _)| item)
+        .iter()
+        .filter(|(_, &count)| count > 1)
+        .map(|(&item, _)| item)
         .collect()
 }
