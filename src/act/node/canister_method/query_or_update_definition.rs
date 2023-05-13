@@ -2,9 +2,11 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use crate::{
-    act::node::{CandidType, Context, Param, ReturnType},
-    traits::{IsCallable, ToIdent, ToTypeAnnotation, WithUserDefinedPrefix},
+    act::node::{candid::TypeRef, CandidType, Context, Param, ReturnType},
+    traits::{HasTypeRefs, IsCallable, ToIdent, ToTypeAnnotation, WithUserDefinedPrefix},
 };
+
+use super::canister_method;
 
 #[derive(Clone, Debug)]
 pub struct QueryOrUpdateDefinition {
@@ -72,5 +74,11 @@ impl IsCallable for QueryOrUpdateDefinition {
 
     fn get_return_type(&self) -> Option<ReturnType> {
         Some(self.return_type.clone())
+    }
+}
+
+impl HasTypeRefs for QueryOrUpdateDefinition {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        canister_method::get_type_refs(&self.params, Some(&self.return_type))
     }
 }

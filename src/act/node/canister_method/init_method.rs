@@ -3,11 +3,13 @@ use quote::quote;
 
 use crate::{
     act::{
-        node::{Context, Param, ReturnType},
+        node::{candid::TypeRef, Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlines, IsCallable, ToIdent, WithUserDefinedPrefix},
+    traits::{HasInlines, HasTypeRefs, IsCallable, ToIdent, WithUserDefinedPrefix},
 };
+
+use super::canister_method;
 
 #[derive(Clone)]
 pub struct InitMethod {
@@ -56,5 +58,11 @@ impl IsCallable for InitMethod {
 
     fn get_return_type(&self) -> Option<ReturnType> {
         None
+    }
+}
+
+impl HasTypeRefs for InitMethod {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        canister_method::get_type_refs(&self.params, None)
     }
 }

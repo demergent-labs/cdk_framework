@@ -5,10 +5,10 @@ use crate::{
         node::{CandidType, Context},
         Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
     },
-    traits::ToIdent,
+    traits::{HasTypeRefs, ToIdent},
 };
 
-use super::type_param::TypeParams;
+use super::{type_param::TypeParams, TypeRef};
 
 #[derive(Clone, Debug)]
 pub struct TypeAlias {
@@ -37,5 +37,18 @@ impl Declare<Context> for TypeAlias {
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
         self.aliased_type.flatten(context, self.name.clone())
+    }
+}
+
+impl HasTypeRefs for TypeAlias {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        let type_ref_names: Vec<_> = self.type_params.iter().map(|tp| tp.name.clone()).collect();
+        // Return all of the type refs that aren't defined by the type params
+        self.aliased_type
+            .get_type_refs()
+            .into_iter()
+            .map(|type_ref| type_ref)
+            .filter(|member| !type_ref_names.contains(&member.name))
+            .collect()
     }
 }

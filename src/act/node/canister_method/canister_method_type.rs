@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum CanisterMethodType {
     Heartbeat,
     Init,
@@ -11,7 +11,6 @@ pub enum CanisterMethodType {
     Update,
 }
 
-// TODO can we get rid of this?
 impl fmt::Display for CanisterMethodType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {

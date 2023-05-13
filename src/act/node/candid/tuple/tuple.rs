@@ -80,4 +80,8 @@ impl HasMembers for Tuple {
             .map(|(index, elem)| elem.to_member(index))
             .collect()
     }
+
+    fn get_type_params(&self) -> TypeParams {
+        self.type_params.clone()
+    }
 }

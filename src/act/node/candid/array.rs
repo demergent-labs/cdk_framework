@@ -1,9 +1,14 @@
 use quote::quote;
 
-use crate::act::{
-    node::{CandidType, Context},
-    Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
+use crate::{
+    act::{
+        node::{CandidType, Context},
+        Declaration, Declare, ToTypeAnnotation, TypeAnnotation,
+    },
+    traits::HasTypeRefs,
 };
+
+use super::TypeRef;
 
 #[derive(Clone, Debug)]
 pub struct Array {
@@ -28,5 +33,11 @@ impl Declare<Context> for Array {
         inline_name: String,
     ) -> Vec<Declaration> {
         self.enclosed_type.flatten(context, inline_name)
+    }
+}
+
+impl HasTypeRefs for Array {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        self.enclosed_type.get_type_refs()
     }
 }

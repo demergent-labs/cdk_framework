@@ -1,14 +1,21 @@
+use std::collections::HashSet;
+
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::act::{
-    candid_file_generation, float32, float64, random, vm_value_conversion, CandidTypes,
-    CanisterMethods, VmValueConversion,
-    {
-        node::{AsNode, CandidType, CanisterMethod, Context, GuardFunction},
-        Declaration, Declare,
+use crate::{
+    act::{
+        candid_file_generation, float32, float64, random, vm_value_conversion, CandidTypes,
+        CanisterMethods, VmValueConversion,
+        {
+            node::{AsNode, CandidType, CanisterMethod, Context, GuardFunction},
+            Declaration, Declare,
+        },
     },
+    traits::{HasDefinedNames, HasTypeRefs},
 };
+
+use super::node::candid::TypeRef;
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -22,8 +29,29 @@ pub struct AbstractCanisterTree {
     pub keywords: Vec<String>,
 }
 
+pub enum Error {
+    TypeNotFound(String),
+    GuardFunctionNotFound(String),
+}
+
 impl AbstractCanisterTree {
-    pub fn to_token_stream(&self) -> TokenStream {
+    pub fn to_token_stream(&self) -> Result<TokenStream, Vec<Error>> {
+        let errors = self
+            .verify_type_refs_have_corresponding_definitions()
+            .err()
+            .into_iter()
+            .chain(
+                self.verify_guard_function_names_have_corresponding_definitions()
+                    .err()
+                    .into_iter(),
+            )
+            .flatten()
+            .collect::<Vec<_>>();
+
+        if !errors.is_empty() {
+            return Err(errors);
+        }
+
         let header = &self.header;
 
         let randomness_implementation = random::generate_randomness_implementation();
@@ -45,7 +73,7 @@ impl AbstractCanisterTree {
         let azle_float64 = float64::generate();
         let azle_float32 = float32::generate();
 
-        quote! {
+        Ok(quote! {
             #header
 
             #randomness_implementation
@@ -65,23 +93,25 @@ impl AbstractCanisterTree {
 
             #azle_float64
             #azle_float32
-        }
+        })
     }
 
     fn generate_declarations<T: AsNode>(&self, list: Vec<T>) -> Vec<Declaration> {
         list.into_iter().fold(vec![], |acc, node| {
             vec![
                 acc,
-                node.as_node().flatten(
-                    &Context {
-                        keyword_list: self.keywords.clone(),
-                        cdk_name: self.cdk_name.clone(),
-                    },
-                    "".to_string(),
-                ),
+                node.as_node()
+                    .flatten(&self.build_context(), "".to_string()),
             ]
             .concat()
         })
+    }
+
+    fn build_context(&self) -> Context {
+        Context {
+            keyword_list: self.keywords.clone(),
+            cdk_name: self.cdk_name.clone(),
+        }
     }
 
     fn collect_canister_methods(&self) -> Vec<CanisterMethod> {
@@ -177,5 +207,60 @@ impl AbstractCanisterTree {
             .collect();
 
         vec![funcs, records, services, tuples, type_aliases, variants].concat()
+    }
+
+    fn verify_type_refs_have_corresponding_definitions(&self) -> Result<(), Vec<Error>> {
+        let defined_names: HashSet<_> = self.candid_types.get_defined_names().into_iter().collect();
+        let used_names: HashSet<_> = self
+            .get_type_refs()
+            .iter()
+            .map(|type_ref| type_ref.name.clone())
+            .collect();
+
+        let diff: Vec<_> = used_names.difference(&defined_names).cloned().collect();
+
+        match diff.is_empty() {
+            true => Ok(()),
+            false => Err(diff
+                .iter()
+                .map(|type_ref| Error::TypeNotFound(type_ref.clone()))
+                .collect()),
+        }
+    }
+
+    fn verify_guard_function_names_have_corresponding_definitions(&self) -> Result<(), Vec<Error>> {
+        let defined_names_set: HashSet<_> = self
+            .guard_functions
+            .iter()
+            .map(|f| f.name.clone())
+            .collect();
+        let used_guard_functions: HashSet<_> = self
+            .canister_methods
+            .collect_used_guard_function_names()
+            .into_iter()
+            .collect();
+
+        let diff: Vec<_> = used_guard_functions
+            .difference(&defined_names_set)
+            .cloned()
+            .collect();
+
+        match diff.is_empty() {
+            true => Ok(()),
+            false => Err(diff
+                .iter()
+                .map(|type_ref| Error::GuardFunctionNotFound(type_ref.clone()))
+                .collect()),
+        }
+    }
+}
+
+impl HasTypeRefs for AbstractCanisterTree {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        self.canister_methods
+            .get_type_refs()
+            .into_iter()
+            .chain(self.candid_types.get_type_refs())
+            .collect()
     }
 }

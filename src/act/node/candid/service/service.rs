@@ -3,8 +3,11 @@ use quote::{quote, ToTokens};
 
 use super::Method;
 use crate::{
-    act::{node::Context, Declaration, Declare, TypeAnnotation},
-    traits::{IsCallable, ToIdent, ToTypeAnnotation},
+    act::{
+        node::{candid::TypeRef, Context},
+        Declaration, Declare, TypeAnnotation,
+    },
+    traits::{HasTypeRefs, IsCallable, ToIdent, ToTypeAnnotation},
 };
 
 #[derive(Clone, Debug)]
@@ -94,5 +97,14 @@ impl Declare<Context> for Service {
             ]
             .concat()
         })
+    }
+}
+
+impl HasTypeRefs for Service {
+    fn get_type_refs(&self) -> Vec<TypeRef> {
+        self.methods
+            .iter()
+            .flat_map(|method| method.get_type_refs())
+            .collect()
     }
 }
