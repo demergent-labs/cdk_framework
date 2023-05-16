@@ -1,13 +1,46 @@
-pub trait CollectResults<T, X> {
-    fn collect_results(self) -> Result<T, Vec<X>>;
+pub trait CollectResults {
+    type OkValue;
+    type ErrValue;
+
+    fn collect_results(self) -> Result<Self::OkValue, Vec<Self::ErrValue>>;
 }
 
-impl<A, X> CollectResults<(A,), X> for (Result<A, Vec<X>>,)
+impl<Value, Error> CollectResults for Vec<Result<Value, Vec<Error>>>
+where
+    Value: Clone,
+    Error: Clone,
+{
+    type OkValue = Vec<Value>;
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<Self::OkValue, Vec<Self::ErrValue>> {
+        let mut errors = Vec::new();
+        let mut ok_values = Vec::new();
+
+        for result in self {
+            match result {
+                Ok(ok_value) => ok_values.push(ok_value),
+                Err(errs) => errors.extend(errs),
+            };
+        }
+
+        if errors.is_empty() {
+            Ok(ok_values)
+        } else {
+            Err(errors)
+        }
+    }
+}
+
+impl<A, Error> CollectResults for (Result<A, Vec<Error>>,)
 where
     A: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A,), Vec<X>> {
+    type OkValue = (A,);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<Self::OkValue, Vec<Self::ErrValue>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
 
         let errors = vec![a_errs].concat();
@@ -20,13 +53,16 @@ where
     }
 }
 
-impl<A, B, X> CollectResults<(A, B), X> for (Result<A, Vec<X>>, Result<B, Vec<X>>)
+impl<A, B, Error> CollectResults for (Result<A, Vec<Error>>, Result<B, Vec<Error>>)
 where
     A: Clone,
     B: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B), Vec<X>> {
+    type OkValue = (A, B);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<Self::OkValue, Vec<Self::ErrValue>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
 
@@ -40,15 +76,22 @@ where
     }
 }
 
-impl<A, B, C, X> CollectResults<(A, B, C), X>
-    for (Result<A, Vec<X>>, Result<B, Vec<X>>, Result<C, Vec<X>>)
+impl<A, B, C, Error> CollectResults
+    for (
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+    )
 where
     A: Clone,
     B: Clone,
     C: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C), Vec<X>> {
+    type OkValue = (A, B, C);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
@@ -63,21 +106,24 @@ where
     }
 }
 
-impl<A, B, C, D, X> CollectResults<(A, B, C, D), X>
+impl<A, B, C, D, Error> CollectResults
     for (
-        Result<A, Vec<X>>,
-        Result<B, Vec<X>>,
-        Result<C, Vec<X>>,
-        Result<D, Vec<X>>,
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+        Result<D, Vec<Error>>,
     )
 where
     A: Clone,
     B: Clone,
     C: Clone,
     D: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C, D), Vec<X>> {
+    type OkValue = (A, B, C, D);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C, D), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
@@ -93,13 +139,13 @@ where
     }
 }
 
-impl<A, B, C, D, E, X> CollectResults<(A, B, C, D, E), X>
+impl<A, B, C, D, E, Error> CollectResults
     for (
-        Result<A, Vec<X>>,
-        Result<B, Vec<X>>,
-        Result<C, Vec<X>>,
-        Result<D, Vec<X>>,
-        Result<E, Vec<X>>,
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+        Result<D, Vec<Error>>,
+        Result<E, Vec<Error>>,
     )
 where
     A: Clone,
@@ -107,9 +153,12 @@ where
     C: Clone,
     D: Clone,
     E: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C, D, E), Vec<X>> {
+    type OkValue = (A, B, C, D, E);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C, D, E), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
@@ -126,14 +175,14 @@ where
     }
 }
 
-impl<A, B, C, D, E, F, X> CollectResults<(A, B, C, D, E, F), X>
+impl<A, B, C, D, E, F, Error> CollectResults
     for (
-        Result<A, Vec<X>>,
-        Result<B, Vec<X>>,
-        Result<C, Vec<X>>,
-        Result<D, Vec<X>>,
-        Result<E, Vec<X>>,
-        Result<F, Vec<X>>,
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+        Result<D, Vec<Error>>,
+        Result<E, Vec<Error>>,
+        Result<F, Vec<Error>>,
     )
 where
     A: Clone,
@@ -142,9 +191,12 @@ where
     D: Clone,
     E: Clone,
     F: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C, D, E, F), Vec<X>> {
+    type OkValue = (A, B, C, D, E, F);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C, D, E, F), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
@@ -169,15 +221,15 @@ where
     }
 }
 
-impl<A, B, C, D, E, F, G, X> CollectResults<(A, B, C, D, E, F, G), X>
+impl<A, B, C, D, E, F, G, Error> CollectResults
     for (
-        Result<A, Vec<X>>,
-        Result<B, Vec<X>>,
-        Result<C, Vec<X>>,
-        Result<D, Vec<X>>,
-        Result<E, Vec<X>>,
-        Result<F, Vec<X>>,
-        Result<G, Vec<X>>,
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+        Result<D, Vec<Error>>,
+        Result<E, Vec<Error>>,
+        Result<F, Vec<Error>>,
+        Result<G, Vec<Error>>,
     )
 where
     A: Clone,
@@ -187,9 +239,12 @@ where
     E: Clone,
     F: Clone,
     G: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C, D, E, F, G), Vec<X>> {
+    type OkValue = (A, B, C, D, E, F, G);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C, D, E, F, G), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
@@ -216,16 +271,16 @@ where
     }
 }
 
-impl<A, B, C, D, E, F, G, H, X> CollectResults<(A, B, C, D, E, F, G, H), X>
+impl<A, B, C, D, E, F, G, H, Error> CollectResults
     for (
-        Result<A, Vec<X>>,
-        Result<B, Vec<X>>,
-        Result<C, Vec<X>>,
-        Result<D, Vec<X>>,
-        Result<E, Vec<X>>,
-        Result<F, Vec<X>>,
-        Result<G, Vec<X>>,
-        Result<H, Vec<X>>,
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+        Result<D, Vec<Error>>,
+        Result<E, Vec<Error>>,
+        Result<F, Vec<Error>>,
+        Result<G, Vec<Error>>,
+        Result<H, Vec<Error>>,
     )
 where
     A: Clone,
@@ -236,9 +291,12 @@ where
     F: Clone,
     G: Clone,
     H: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C, D, E, F, G, H), Vec<X>> {
+    type OkValue = (A, B, C, D, E, F, G, H);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C, D, E, F, G, H), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
@@ -270,17 +328,17 @@ where
     }
 }
 
-impl<A, B, C, D, E, F, G, H, I, X> CollectResults<(A, B, C, D, E, F, G, H, I), X>
+impl<A, B, C, D, E, F, G, H, I, Error> CollectResults
     for (
-        Result<A, Vec<X>>,
-        Result<B, Vec<X>>,
-        Result<C, Vec<X>>,
-        Result<D, Vec<X>>,
-        Result<E, Vec<X>>,
-        Result<F, Vec<X>>,
-        Result<G, Vec<X>>,
-        Result<H, Vec<X>>,
-        Result<I, Vec<X>>,
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+        Result<D, Vec<Error>>,
+        Result<E, Vec<Error>>,
+        Result<F, Vec<Error>>,
+        Result<G, Vec<Error>>,
+        Result<H, Vec<Error>>,
+        Result<I, Vec<Error>>,
     )
 where
     A: Clone,
@@ -292,9 +350,12 @@ where
     G: Clone,
     H: Clone,
     I: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C, D, E, F, G, H, I), Vec<X>> {
+    type OkValue = (A, B, C, D, E, F, G, H, I);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C, D, E, F, G, H, I), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
@@ -328,18 +389,18 @@ where
     }
 }
 
-impl<A, B, C, D, E, F, G, H, I, J, X> CollectResults<(A, B, C, D, E, F, G, H, I, J), X>
+impl<A, B, C, D, E, F, G, H, I, J, Error> CollectResults
     for (
-        Result<A, Vec<X>>,
-        Result<B, Vec<X>>,
-        Result<C, Vec<X>>,
-        Result<D, Vec<X>>,
-        Result<E, Vec<X>>,
-        Result<F, Vec<X>>,
-        Result<G, Vec<X>>,
-        Result<H, Vec<X>>,
-        Result<I, Vec<X>>,
-        Result<J, Vec<X>>,
+        Result<A, Vec<Error>>,
+        Result<B, Vec<Error>>,
+        Result<C, Vec<Error>>,
+        Result<D, Vec<Error>>,
+        Result<E, Vec<Error>>,
+        Result<F, Vec<Error>>,
+        Result<G, Vec<Error>>,
+        Result<H, Vec<Error>>,
+        Result<I, Vec<Error>>,
+        Result<J, Vec<Error>>,
     )
 where
     A: Clone,
@@ -352,9 +413,12 @@ where
     H: Clone,
     I: Clone,
     J: Clone,
-    X: Clone,
+    Error: Clone,
 {
-    fn collect_results(self) -> Result<(A, B, C, D, E, F, G, H, I, J), Vec<X>> {
+    type OkValue = (A, B, C, D, E, F, G, H, I, J);
+    type ErrValue = Error;
+
+    fn collect_results(self) -> Result<(A, B, C, D, E, F, G, H, I, J), Vec<Error>> {
         let (a, a_errs) = (self.0.clone().ok(), self.0.err().unwrap_or_default());
         let (b, b_errs) = (self.1.clone().ok(), self.1.err().unwrap_or_default());
         let (c, c_errs) = (self.2.clone().ok(), self.2.err().unwrap_or_default());
