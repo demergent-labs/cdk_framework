@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -30,6 +30,9 @@ pub struct AbstractCanisterTree {
 }
 
 pub enum Error {
+    MultipleTypeDefinitions(String),
+    MultipleGuardFunctionDefinitions(String),
+    MultipleCanisterMethodDefinitions(String),
     TypeNotFound(String),
     GuardFunctionNotFound(String),
 }
@@ -40,11 +43,13 @@ impl AbstractCanisterTree {
             .verify_type_refs_have_corresponding_definitions()
             .err()
             .into_iter()
+            .chain(self.verify_type_defs_are_unique().err())
             .chain(
                 self.verify_guard_function_names_have_corresponding_definitions()
-                    .err()
-                    .into_iter(),
+                    .err(),
             )
+            .chain(self.verify_guard_function_defs_are_unique().err())
+            .chain(self.verify_canister_method_defs_are_unique().err())
             .flatten()
             .collect::<Vec<_>>();
 
@@ -209,6 +214,45 @@ impl AbstractCanisterTree {
         vec![funcs, records, services, tuples, type_aliases, variants].concat()
     }
 
+    fn verify_type_defs_are_unique(&self) -> Result<(), Vec<Error>> {
+        let defined_names = self.candid_types.get_defined_names();
+        let duplicates = find_duplicates(&defined_names);
+
+        match duplicates.is_empty() {
+            true => Ok(()),
+            false => Err(duplicates
+                .into_iter()
+                .map(|type_ref| Error::MultipleTypeDefinitions(type_ref.clone()))
+                .collect()),
+        }
+    }
+
+    fn verify_guard_function_defs_are_unique(&self) -> Result<(), Vec<Error>> {
+        let defined_names = self.guard_functions.get_defined_names();
+        let duplicates = find_duplicates(&defined_names);
+
+        match duplicates.is_empty() {
+            true => Ok(()),
+            false => Err(duplicates
+                .into_iter()
+                .map(|type_ref| Error::MultipleGuardFunctionDefinitions(type_ref.clone()))
+                .collect()),
+        }
+    }
+
+    fn verify_canister_method_defs_are_unique(&self) -> Result<(), Vec<Error>> {
+        let defined_names = self.canister_methods.get_defined_names();
+        let duplicates = find_duplicates(&defined_names);
+
+        match duplicates.is_empty() {
+            true => Ok(()),
+            false => Err(duplicates
+                .into_iter()
+                .map(|type_ref| Error::MultipleCanisterMethodDefinitions(type_ref.clone()))
+                .collect()),
+        }
+    }
+
     fn verify_type_refs_have_corresponding_definitions(&self) -> Result<(), Vec<Error>> {
         let defined_names: HashSet<_> = self.candid_types.get_defined_names().into_iter().collect();
         let used_names: HashSet<_> = self
@@ -263,4 +307,17 @@ impl HasTypeRefs for AbstractCanisterTree {
             .chain(self.candid_types.get_type_refs())
             .collect()
     }
+}
+
+fn find_duplicates<T: Eq + std::hash::Hash>(list: &[T]) -> Vec<&T> {
+    let count_map = list.iter().fold(HashMap::new(), |mut acc, item| {
+        *acc.entry(item).or_insert(0) += 1;
+        acc
+    });
+
+    count_map
+        .iter()
+        .filter(|(_, &count)| count > 1)
+        .map(|(&item, _)| item)
+        .collect()
 }
