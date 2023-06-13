@@ -24,11 +24,7 @@ pub fn generate_randomness_implementation() -> TokenStream {
         #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
         fn rng_seed() {
             ic_cdk::spawn(async move {
-                let result: ic_cdk::api::call::CallResult<(Vec<u8>,)> = ic_cdk::api::call::call(
-                    candid::Principal::from_text("aaaaa-aa").unwrap(),
-                    "raw_rand",
-                    ()
-                ).await;
+                let result: ic_cdk::api::call::CallResult<(Vec<u8>,)> = ic_cdk::api::management_canister::main::raw_rand().await;
 
                 _CDK_RNG_REF_CELL.with(|rng_ref_cell| {
                     let mut rng = rng_ref_cell.borrow_mut();
