@@ -10,7 +10,7 @@ The CDK Framework helps CDK authors build CDKs for the [Internet Computer](https
 -   [Advanced Usage](#advanced-usage)
     -   [Inline Names](#inline-names)
     -   [Flatten](#flatten)
-    -   [ToTypeAnnotation](#to-type-annotation)
+    -   [ToTypeAnnotation](#totypeannotation)
     -   [Traits](#traits)
 
 ## Installation
@@ -128,14 +128,14 @@ With the high level overview of the ACT in mind, let's now explore each part req
     -   [Params](#params)
     -   [Return Type](#return-type)
     -   [Function Body](#body)
--   [External Canisters](#external-canisters)
+-   [Services](#services)
 -   [Guard Functions](#guard-functions)
 -   [Custom Rust](#custom-rust)
--   [Generated Cargo.toml](#your-cdk)
+-   [Generated Cargo.toml](#generated-cargotoml)
 
 ### Candid Types
 
-Besides the candid types that are part of [canister methods](#canister-methods) or [external canisters](#external-cansiters), any complex candid types will need to be provided to the ACT so that they can be fully defined in the generated lib files. The `act::CandidTypes` struct enumerates all of the types you might need to provide. Do not confuse this with `act::node::CandidType` which is an enum with all of the possible candid types.
+Besides the candid types that are part of [canister methods](#canister-methods) or [services](#services), any complex candid types will need to be provided to the ACT so that they can be fully defined in the generated lib files. The `act::CandidTypes` struct enumerates all of the types you might need to provide. Do not confuse this with `act::node::CandidType` which is an enum with all of the possible candid types.
 
 > **Note**
 > The primitive types and other types such as arrays and opts do not need this additional definition because the CDK framework already knows how to define them, therefore they are not included in `act::CandidTypes`.
@@ -168,9 +168,9 @@ The return type is simply a wrapper around `CandidType` that is used for naming 
 
 The body will be a Rust token stream that will determine how the function interacts with your CDK's VM.
 
-### External Canisters
+### Services
 
-External Canisters are simply the name of the external canister and a list of methods that that canister has. The methods are represented by `act::node::service::Method`, which is simply a name, list of [params](#params), and a [return type](#return-type)
+Services are simply the name of the canister and a list of methods that that canister has. The methods are represented by `act::node::service::Method`, which is simply a name, list of [params](#params), and a [return type](#return-type)
 
 ### Guard Functions
 
