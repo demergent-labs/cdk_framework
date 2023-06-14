@@ -53,7 +53,7 @@ impl QueryOrUpdateDefinition {
         let wrapped_return_type =
             if self.is_manual || (self.is_async && context.cdk_name != "kybra") {
                 quote! {
-                    ic_cdk::api::call::ManualReply<#return_type_token>
+                    ic_cdk::api::call::ManualReply<(#return_type_token)>
                 }
             } else {
                 return_type_token
