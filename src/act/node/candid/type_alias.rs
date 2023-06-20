@@ -32,7 +32,7 @@ impl Declare<Context> for TypeAlias {
         let type_params_token_stream = self.type_params.get_type_params_token_stream();
         let where_clause_token_stream = self.type_params.get_where_clause_token_stream();
 
-        Some(quote!(type #name #type_params_token_stream #where_clause_token_stream = #alias;))
+        Some(quote!(type #name #type_params_token_stream #where_clause_token_stream = (#alias);))
     }
 
     fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
