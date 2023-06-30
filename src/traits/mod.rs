@@ -11,6 +11,7 @@ pub mod with_user_defined_prefix;
 
 pub use crate::act::Declare;
 pub use crate::act::ToTypeAnnotation;
+pub use collect_results::CollectIterResults;
 pub use collect_results::CollectResults;
 pub use has_defined_names::HasDefinedNames;
 pub use has_inline_name::HasInlineName;
