@@ -14,21 +14,7 @@ impl<Value, Error> CollectResults for Vec<Result<Value, Vec<Error>>> {
     type ErrValue = Error;
 
     fn collect_results(self) -> Result<Self::OkValue, Vec<Self::ErrValue>> {
-        let mut errors = Vec::new();
-        let mut ok_values = Vec::new();
-
-        for result in self {
-            match result {
-                Ok(ok_value) => ok_values.push(ok_value),
-                Err(errs) => errors.extend(errs),
-            };
-        }
-
-        if errors.is_empty() {
-            Ok(ok_values)
-        } else {
-            Err(errors)
-        }
+        collect_results(self.into_iter())
     }
 }
 
@@ -37,19 +23,7 @@ where
     I: Iterator<Item = Result<T, Vec<Error>>>,
 {
     fn collect_results(self) -> Result<Vec<T>, Vec<Error>> {
-        let mut errors = Vec::new();
-        let mut ok_values = Vec::new();
-
-        self.for_each(|result| match result {
-            Ok(ok_value) => ok_values.push(ok_value),
-            Err(errs) => errors.extend(errs),
-        });
-
-        if errors.is_empty() {
-            Ok(ok_values)
-        } else {
-            Err(errors)
-        }
+        collect_results(self)
     }
 }
 
@@ -472,5 +446,23 @@ where
             i.unwrap(),
             j.unwrap(),
         ))
+    }
+}
+
+fn collect_results<T, Error, I: Iterator<Item = Result<T, Vec<Error>>>>(
+    iterator: I,
+) -> Result<Vec<T>, Vec<Error>> {
+    let mut errors = Vec::new();
+    let mut ok_values = Vec::new();
+
+    iterator.for_each(|result| match result {
+        Ok(ok_value) => ok_values.push(ok_value),
+        Err(errs) => errors.extend(errs),
+    });
+
+    if errors.is_empty() {
+        Ok(ok_values)
+    } else {
+        Err(errors)
     }
 }
