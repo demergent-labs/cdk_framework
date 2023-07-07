@@ -43,7 +43,7 @@ pub fn generate_randomness_implementation() -> TokenStream {
                 let result: ic_cdk::api::call::CallResult<(Vec<u8>,)> = ic_cdk::api::management_canister::main::raw_rand().await;
 
                 match result {
-                    Ok(randomness) => ic_wasi_polyfill::init(u64::from_be_bytes(randomness.0[..8].try_into().unwrap())),
+                    Ok(randomness) => unsafe { ic_wasi_polyfill::init_seed(&randomness.0) },
                     Err(err) => panic!(err)
                 };
             });
