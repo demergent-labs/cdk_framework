@@ -73,7 +73,7 @@ impl Declare<Context> for Func {
         let func_list_from_vm_value = (self.list_from_vm_value)(self.get_name(inline_name.clone()));
 
         Some(quote! {
-            ic_cdk::export::candid::define_function!(pub #name : #func_macro_token_stream);
+            candid::define_function!(pub #name : #func_macro_token_stream);
 
             #func_to_vm_value
             #func_list_to_vm_value
