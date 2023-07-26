@@ -97,7 +97,7 @@ impl Method {
         quote! {
             #[allow(non_snake_case)]
             #async_or_not fn #function_name(
-                canister_id_principal: ic_cdk::export::Principal,
+                canister_id_principal: candid::Principal,
                 params: #param_types
                 #cycles_param
             ) -> #return_type {

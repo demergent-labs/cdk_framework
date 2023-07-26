@@ -53,7 +53,7 @@ impl Declare<Context> for Service {
                 );
 
                 quote! {
-                    #method_name: ic_cdk::export::candid::func!(#func_macro_token_stream)
+                    #method_name: candid::func!(#func_macro_token_stream)
                 }
             })
             .collect();
@@ -64,7 +64,7 @@ impl Declare<Context> for Service {
         let service_list_from_vm_value = (self.list_from_vm_value)(self.name.clone());
 
         Some(quote! {
-            ic_cdk::export::candid::define_service!(#service_name : {
+            candid::define_service!(#service_name : {
                 #(#service_funcs);*
             });
 
