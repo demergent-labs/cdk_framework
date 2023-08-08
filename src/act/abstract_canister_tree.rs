@@ -12,7 +12,7 @@ use crate::{
             Declaration, Declare,
         },
     },
-    traits::{HasDefinedNames, HasTypeRefs},
+    traits::{HasDefinedNames, HasTypeRefs, ToIdent},
 };
 
 use super::node::candid::TypeRef;
@@ -20,103 +20,23 @@ use super::node::candid::TypeRef;
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
     pub cdk_name: String,
-    pub canister_methods: CanisterMethods,
-    pub candid_types: CandidTypes,
-    pub guard_functions: Vec<GuardFunction>,
     pub header: TokenStream,
     pub body: TokenStream,
     pub vm_value_conversion: VmValueConversion,
     pub keywords: Vec<String>,
+    pub modules: Vec<Module>,
 }
 
-pub enum Error {
-    MultipleTypeDefinitions(String),
-    MultipleGuardFunctionDefinitions(String),
-    MultipleCanisterMethodDefinitions(String),
-    TypeNotFound(String),
-    GuardFunctionNotFound(String),
+pub struct Module {
+    pub path: Vec<String>,
+    pub canister_methods: CanisterMethods,
+    pub candid_types: CandidTypes,
+    pub guard_functions: Vec<GuardFunction>,
 }
 
-impl AbstractCanisterTree {
-    pub fn to_token_stream(&self) -> Result<TokenStream, Vec<Error>> {
-        let errors = self
-            .verify_type_refs_have_corresponding_definitions()
-            .err()
-            .into_iter()
-            .chain(self.verify_type_defs_are_unique().err())
-            .chain(
-                self.verify_guard_function_names_have_corresponding_definitions()
-                    .err(),
-            )
-            .chain(self.verify_guard_function_defs_are_unique().err())
-            .chain(self.verify_canister_method_defs_are_unique().err())
-            .flatten()
-            .collect::<Vec<_>>();
-
-        if !errors.is_empty() {
-            return Err(errors);
-        }
-
-        let header = &self.header;
-
-        let randomness_implementation = random::generate_randomness_implementation();
-
-        let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
-        let try_into_vm_value_impls = &self.vm_value_conversion.try_into_vm_value_impls;
-        let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
-        let try_from_vm_value_impls = &self.vm_value_conversion.try_from_vm_value_impls;
-
-        let body = &self.body;
-
-        let canister_method_decls = self.generate_declarations(self.collect_canister_methods());
-        let candid_type_decls = self.generate_declarations(self.collect_candid_types());
-        let guard_function_decls = self.generate_declarations(self.guard_functions.clone());
-
-        let candid_file_generation_code =
-            candid_file_generation::generate_candid_file_generation_code();
-
-        let azle_float64 = float64::generate();
-        let azle_float32 = float32::generate();
-
-        Ok(quote! {
-            #header
-
-            #randomness_implementation
-
-            #try_into_vm_value_trait
-            #try_into_vm_value_impls
-            #try_from_vm_value_trait
-            #try_from_vm_value_impls
-
-            #body
-
-            #(#canister_method_decls)*
-            #(#candid_type_decls)*
-            #(#guard_function_decls)*
-
-            #candid_file_generation_code
-
-            #azle_float64
-            #azle_float32
-        })
-    }
-
-    fn generate_declarations<T: AsNode>(&self, list: Vec<T>) -> Vec<Declaration> {
-        list.into_iter().fold(vec![], |acc, node| {
-            vec![
-                acc,
-                node.as_node()
-                    .flatten(&self.build_context(), "".to_string()),
-            ]
-            .concat()
-        })
-    }
-
-    fn build_context(&self) -> Context {
-        Context {
-            keyword_list: self.keywords.clone(),
-            cdk_name: self.cdk_name.clone(),
-        }
+impl Module {
+    fn get_name(&self) -> String {
+        self.path.join("_").to_string()
     }
 
     fn collect_canister_methods(&self) -> Vec<CanisterMethod> {
@@ -213,9 +133,126 @@ impl AbstractCanisterTree {
 
         vec![funcs, records, services, tuples, type_aliases, variants].concat()
     }
+}
+
+pub enum Error {
+    MultipleTypeDefinitions(String),
+    MultipleGuardFunctionDefinitions(String),
+    MultipleCanisterMethodDefinitions(String),
+    TypeNotFound(String),
+    GuardFunctionNotFound(String),
+}
+
+impl AbstractCanisterTree {
+    pub fn to_token_stream(&self) -> Result<TokenStream, Vec<Error>> {
+        println!("WE ARE DEFINITELY HERE");
+
+        // TODO these verifications need to be redone for all modules
+        let errors = self
+            .verify_type_refs_have_corresponding_definitions()
+            .err()
+            .into_iter()
+            .chain(self.verify_type_defs_are_unique().err())
+            .chain(
+                self.verify_guard_function_names_have_corresponding_definitions()
+                    .err(),
+            )
+            .chain(self.verify_guard_function_defs_are_unique().err())
+            .chain(self.verify_canister_method_defs_are_unique().err())
+            .flatten()
+            .collect::<Vec<_>>();
+
+        if !errors.is_empty() {
+            return Err(errors);
+        }
+
+        let header = &self.header;
+
+        let randomness_implementation = random::generate_randomness_implementation();
+
+        let try_into_vm_value_trait = vm_value_conversion::generate_try_into_vm_value();
+        let try_into_vm_value_impls = &self.vm_value_conversion.try_into_vm_value_impls;
+        let try_from_vm_value_trait = vm_value_conversion::generate_try_from_vm_value();
+        let try_from_vm_value_impls = &self.vm_value_conversion.try_from_vm_value_impls;
+
+        let body = &self.body;
+
+        let modules = self.modules.iter().map(|module| {
+            let module_name = module.get_name().to_ident();
+
+            let canister_method_decls =
+                self.generate_declarations(module.collect_canister_methods(), &None);
+            let candid_type_decls =
+                self.generate_declarations(module.collect_candid_types(), &None);
+            let guard_function_decls =
+                self.generate_declarations(module.guard_functions.clone(), &None);
+
+            quote! {
+                mod #module_name {
+                    use crate::CdkActTryIntoVmValue;
+                    use crate::CdkActTryFromVmValue;
+                    use crate::CdkActTryIntoVmValueError;
+                    use crate::ToJsError;
+                    use crate::unwrap_or_trap;
+
+                    #(#canister_method_decls)*
+                    #(#candid_type_decls)*
+                    #(#guard_function_decls)*
+                }
+            }
+        });
+
+        let candid_file_generation_code =
+            candid_file_generation::generate_candid_file_generation_code();
+
+        let azle_float64 = float64::generate();
+        let azle_float32 = float32::generate();
+
+        Ok(quote! {
+            #header
+
+            #randomness_implementation
+
+            #try_into_vm_value_trait
+            #try_into_vm_value_impls
+            #try_from_vm_value_trait
+            #try_from_vm_value_impls
+
+            #body
+
+            #(#modules)*
+
+            #candid_file_generation_code
+
+            #azle_float64
+            #azle_float32
+        })
+    }
+
+    fn generate_declarations<T: AsNode>(
+        &self,
+        list: Vec<T>,
+        module_name: &Option<String>,
+    ) -> Vec<Declaration> {
+        list.into_iter().fold(vec![], |acc, node| {
+            vec![
+                acc,
+                node.as_node()
+                    .flatten(&self.build_context(), "".to_string(), module_name),
+            ]
+            .concat()
+        })
+    }
+
+    fn build_context(&self) -> Context {
+        Context {
+            keyword_list: self.keywords.clone(),
+            cdk_name: self.cdk_name.clone(),
+        }
+    }
 
     fn verify_type_defs_are_unique(&self) -> Result<(), Vec<Error>> {
-        let defined_names = self.candid_types.get_defined_names();
+        let defined_names = self.modules[0].candid_types.get_defined_names();
         let duplicates = find_duplicates(&defined_names);
 
         match duplicates.is_empty() {
@@ -228,7 +265,7 @@ impl AbstractCanisterTree {
     }
 
     fn verify_guard_function_defs_are_unique(&self) -> Result<(), Vec<Error>> {
-        let defined_names = self.guard_functions.get_defined_names();
+        let defined_names = self.modules[0].guard_functions.get_defined_names();
         let duplicates = find_duplicates(&defined_names);
 
         match duplicates.is_empty() {
@@ -241,7 +278,7 @@ impl AbstractCanisterTree {
     }
 
     fn verify_canister_method_defs_are_unique(&self) -> Result<(), Vec<Error>> {
-        let defined_names = self.canister_methods.get_defined_names();
+        let defined_names = self.modules[0].canister_methods.get_defined_names();
         let duplicates = find_duplicates(&defined_names);
 
         match duplicates.is_empty() {
@@ -254,7 +291,11 @@ impl AbstractCanisterTree {
     }
 
     fn verify_type_refs_have_corresponding_definitions(&self) -> Result<(), Vec<Error>> {
-        let defined_names: HashSet<_> = self.candid_types.get_defined_names().into_iter().collect();
+        let defined_names: HashSet<_> = self.modules[0]
+            .candid_types
+            .get_defined_names()
+            .into_iter()
+            .collect();
         let used_names: HashSet<_> = self
             .get_type_refs()
             .iter()
@@ -273,12 +314,12 @@ impl AbstractCanisterTree {
     }
 
     fn verify_guard_function_names_have_corresponding_definitions(&self) -> Result<(), Vec<Error>> {
-        let defined_names_set: HashSet<_> = self
+        let defined_names_set: HashSet<_> = self.modules[0]
             .guard_functions
             .iter()
             .map(|f| f.name.clone())
             .collect();
-        let used_guard_functions: HashSet<_> = self
+        let used_guard_functions: HashSet<_> = self.modules[0]
             .canister_methods
             .collect_used_guard_function_names()
             .into_iter()
@@ -301,10 +342,11 @@ impl AbstractCanisterTree {
 
 impl HasTypeRefs for AbstractCanisterTree {
     fn get_type_refs(&self) -> Vec<TypeRef> {
-        self.canister_methods
+        self.modules[0]
+            .canister_methods
             .get_type_refs()
             .into_iter()
-            .chain(self.candid_types.get_type_refs())
+            .chain(self.modules[0].candid_types.get_type_refs())
             .collect()
     }
 }
@@ -321,3 +363,24 @@ fn find_duplicates<T: Eq + std::hash::Hash>(list: &[T]) -> Vec<&T> {
         .map(|(&item, _)| item)
         .collect()
 }
+
+use syn::{Ident, Path};
+
+fn create_module_path(parts: &Vec<String>) -> Path {
+    let mut segments = vec![];
+
+    for part in parts {
+        segments.push(Ident::new(&part, proc_macro2::Span::call_site()));
+    }
+
+    Path {
+        // leading_colon: Some(syn::token::Colon2::default()),
+        leading_colon: None,
+        segments: segments.into_iter().map(syn::PathSegment::from).collect(),
+    }
+}
+
+// let crate_name = self.crate_path.join("::").to_ident();
+// let record_name = self.get_name(&inline_name).to_ident().to_token_stream();
+
+// quote!(#crate_name::#record_name)

@@ -19,9 +19,14 @@ impl Param {
         self.name.with_user_defined_prefix()
     }
 
-    pub fn to_token_stream(&self, context: &Context, function_name: String) -> TokenStream {
+    pub fn to_token_stream(
+        &self,
+        context: &Context,
+        function_name: String,
+        module_name: &Option<String>,
+    ) -> TokenStream {
         let name = self.get_prefixed_name().to_ident();
-        let function_name = self.to_type_annotation(context, function_name);
+        let function_name = self.to_type_annotation(context, function_name, module_name);
         quote::quote! {
             #name: #function_name
         }
@@ -35,14 +40,27 @@ impl HasInlineName for Param {
 }
 
 impl ToTypeAnnotation<Context> for Param {
-    fn to_type_annotation(&self, context: &Context, function_name: String) -> TypeAnnotation {
-        self.candid_type
-            .to_type_annotation(context, self.get_inline_name(&function_name))
+    fn to_type_annotation(
+        &self,
+        context: &Context,
+        function_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
+        self.candid_type.to_type_annotation(
+            context,
+            self.get_inline_name(&function_name),
+            module_name,
+        )
     }
 }
 
 impl Declare<Context> for Param {
-    fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        _: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         None
     }
 
@@ -50,8 +68,9 @@ impl Declare<Context> for Param {
         &self,
         context: &Context,
         function_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
         self.candid_type
-            .flatten(context, self.get_inline_name(&function_name))
+            .flatten(context, self.get_inline_name(&function_name), module_name)
     }
 }

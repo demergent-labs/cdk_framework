@@ -16,22 +16,25 @@ impl Member {
         &self,
         context: &Context,
         parent_name: String,
+        module_name: &Option<String>,
     ) -> TokenStream {
         let member_type_token_stream = match self.candid_type.clone() {
             CandidType::Primitive(_) => {
                 if self
-                    .to_type_annotation(context, parent_name.clone())
+                    .to_type_annotation(context, parent_name.clone(), module_name)
                     .to_string()
                     == quote!((())).to_string()
                 {
                     quote!()
                 } else {
-                    let member_type_token_stream = self.to_type_annotation(context, parent_name);
+                    let member_type_token_stream =
+                        self.to_type_annotation(context, parent_name, module_name);
                     quote!((#member_type_token_stream))
                 }
             }
             _ => {
-                let member_type_annotation = self.to_type_annotation(context, parent_name);
+                let member_type_annotation =
+                    self.to_type_annotation(context, parent_name, module_name);
                 quote!((Box<#member_type_annotation>))
             }
         };

@@ -28,8 +28,14 @@ impl AsNode for CanisterMethod {
 }
 
 impl Declare<Context> for CanisterMethod {
-    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
-        let to_declaration = |m: &dyn Declare<Context>| m.to_declaration(context, inline_name);
+    fn to_declaration(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
+        let to_declaration =
+            |m: &dyn Declare<Context>| m.to_declaration(context, inline_name, module_name);
         match self {
             CanisterMethod::Update(update_method) => to_declaration(update_method),
             CanisterMethod::Query(query_method) => to_declaration(query_method),
@@ -45,9 +51,11 @@ impl Declare<Context> for CanisterMethod {
         &self,
         context: &Context,
         inline_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        let collect_inline_declarations =
-            |m: &dyn Declare<Context>| m.collect_inline_declarations(context, inline_name);
+        let collect_inline_declarations = |m: &dyn Declare<Context>| {
+            m.collect_inline_declarations(context, inline_name, module_name)
+        };
         match self {
             CanisterMethod::Update(update_method) => collect_inline_declarations(update_method),
             CanisterMethod::Query(query_method) => collect_inline_declarations(query_method),

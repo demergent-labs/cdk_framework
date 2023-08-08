@@ -28,20 +28,35 @@ impl Tuple {
 }
 
 impl<C> ToTypeAnnotation<C> for Tuple {
-    fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
+    fn to_type_annotation(
+        &self,
+        _: &C,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
         self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }
 
 impl Declare<Context> for Tuple {
-    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         let tuple_ident = self.get_name(&inline_name).to_ident();
         let member_idents: Vec<TokenStream> = self
             .elems
             .iter()
             .enumerate()
             .map(|(index, elem)| {
-                elem.to_tuple_elem_token_stream(index, &self.get_name(&inline_name), context)
+                elem.to_tuple_elem_token_stream(
+                    index,
+                    &self.get_name(&inline_name),
+                    context,
+                    module_name,
+                )
             })
             .collect();
 
@@ -67,8 +82,9 @@ impl Declare<Context> for Tuple {
         &self,
         context: &Context,
         inline_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(&inline_name), context)
+        self.flatten_inlines(self.get_name(&inline_name), context, module_name)
     }
 }
 

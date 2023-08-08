@@ -43,20 +43,30 @@ impl Deref for UpdateMethod {
 }
 
 impl Declare<Context> for UpdateMethod {
-    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
-        let user_defined_name = &self.name;
-        let function_declaration = self.generate_function_body(context);
+    fn to_declaration(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
+        // let user_defined_name = &self.name;
+        let function_declaration = self.generate_function_body(context, module_name);
         let macro_args = self.generate_macro_args(&context.cdk_name);
 
         Some(quote! {
             #[ic_cdk_macros::update(#macro_args)]
-            #[candid::candid_method(update, rename = #user_defined_name)]
+            #[candid::candid_method(update)]
             #function_declaration
         })
     }
 
-    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        self.flatten_inlines(self.name.clone(), context)
+    fn collect_inline_declarations(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Vec<Declaration> {
+        self.flatten_inlines(self.name.clone(), context, module_name)
     }
 }
 

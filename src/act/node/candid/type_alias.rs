@@ -18,25 +18,41 @@ pub struct TypeAlias {
 }
 
 impl ToTypeAnnotation<Context> for TypeAlias {
-    fn to_type_annotation(&self, _: &Context, _: String) -> TypeAnnotation {
+    fn to_type_annotation(
+        &self,
+        _: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
         self.name.to_ident().to_token_stream()
     }
 }
 
 impl Declare<Context> for TypeAlias {
-    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         let name = self.name.to_ident();
         let alias = self
             .aliased_type
-            .to_type_annotation(context, self.name.clone());
+            .to_type_annotation(context, self.name.clone(), module_name);
         let type_params_token_stream = self.type_params.get_type_params_token_stream();
         let where_clause_token_stream = self.type_params.get_where_clause_token_stream();
 
         Some(quote!(type #name #type_params_token_stream #where_clause_token_stream = (#alias);))
     }
 
-    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        self.aliased_type.flatten(context, self.name.clone())
+    fn collect_inline_declarations(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Vec<Declaration> {
+        self.aliased_type
+            .flatten(context, self.name.clone(), module_name)
     }
 }
 

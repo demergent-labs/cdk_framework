@@ -15,14 +15,21 @@ pub trait AsNode {
 }
 
 impl Declare<Context> for Node {
-    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         match self {
             Node::CanisterMethod(canister_method) => {
-                canister_method.to_declaration(context, inline_name)
+                canister_method.to_declaration(context, inline_name, module_name)
             }
-            Node::CandidType(candid_type) => candid_type.to_declaration(context, inline_name),
+            Node::CandidType(candid_type) => {
+                candid_type.to_declaration(context, inline_name, module_name)
+            }
             Node::GuardFunction(guard_function) => {
-                guard_function.to_declaration(context, inline_name)
+                guard_function.to_declaration(context, inline_name, module_name)
             }
         }
     }
@@ -31,16 +38,17 @@ impl Declare<Context> for Node {
         &self,
         context: &Context,
         inline_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
         match self {
             Node::CanisterMethod(canister_method) => {
-                canister_method.collect_inline_declarations(context, inline_name)
+                canister_method.collect_inline_declarations(context, inline_name, module_name)
             }
             Node::CandidType(candid_type) => {
-                candid_type.collect_inline_declarations(context, inline_name)
+                candid_type.collect_inline_declarations(context, inline_name, module_name)
             }
             Node::GuardFunction(guard_function) => {
-                guard_function.collect_inline_declarations(context, inline_name)
+                guard_function.collect_inline_declarations(context, inline_name, module_name)
             }
         }
     }

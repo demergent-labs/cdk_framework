@@ -56,16 +56,26 @@ impl Func {
 }
 
 impl<C> ToTypeAnnotation<C> for Func {
-    fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
+    fn to_type_annotation(
+        &self,
+        _: &C,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
         self.get_name(inline_name).to_ident().to_token_stream()
     }
 }
 
 impl Declare<Context> for Func {
-    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         let name = self.get_name(inline_name.clone()).to_ident();
         let func_macro_token_stream =
-            self.get_func_macro_token_stream(&inline_name, context, &self.mode);
+            self.get_func_macro_token_stream(&inline_name, context, &self.mode, module_name);
 
         let func_to_vm_value = (self.to_vm_value)(self.get_name(inline_name.clone()));
         let func_list_to_vm_value = (self.list_to_vm_value)(self.get_name(inline_name.clone()));
@@ -98,8 +108,9 @@ impl Declare<Context> for Func {
         &self,
         context: &Context,
         inline_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(inline_name), context)
+        self.flatten_inlines(self.get_name(inline_name), context, module_name)
     }
 }
 

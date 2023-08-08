@@ -25,10 +25,16 @@ impl InitMethod {
 }
 
 impl Declare<Context> for InitMethod {
-    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         let function_name = self.get_name().to_ident();
         let body = &self.body;
-        let params = self.create_parameter_list_token_stream(&self.get_name(), context);
+        let params =
+            self.create_parameter_list_token_stream(&self.get_name(), context, module_name);
         let macro_args = match &self.guard_function_name {
             Some(guard_function_name) => {
                 let prefixed_guard_function_name = guard_function_name.with_user_defined_prefix();
@@ -46,8 +52,13 @@ impl Declare<Context> for InitMethod {
         })
     }
 
-    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(), context)
+    fn collect_inline_declarations(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Vec<Declaration> {
+        self.flatten_inlines(self.get_name(), context, module_name)
     }
 }
 

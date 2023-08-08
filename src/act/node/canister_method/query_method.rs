@@ -64,9 +64,14 @@ impl Deref for QueryMethod {
 }
 
 impl Declare<Context> for QueryMethod {
-    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
-        let user_defined_name = &self.name;
-        let function_declaration = self.generate_function_body(context);
+    fn to_declaration(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
+        // let user_defined_name = &self.name;
+        let function_declaration = self.generate_function_body(context, module_name);
         let macro_args = if context.cdk_name == "kybra" {
             self.generate_kybra_macro_args()
         } else {
@@ -75,13 +80,18 @@ impl Declare<Context> for QueryMethod {
 
         Some(quote! {
             #[ic_cdk_macros::query(#macro_args)]
-            #[candid::candid_method(query, rename = #user_defined_name)]
+            #[candid::candid_method(query)]
             #function_declaration
         })
     }
 
-    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
-        self.flatten_inlines(self.name.clone(), context)
+    fn collect_inline_declarations(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Vec<Declaration> {
+        self.flatten_inlines(self.name.clone(), context, module_name)
     }
 }
 

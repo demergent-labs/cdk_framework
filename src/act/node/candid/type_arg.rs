@@ -33,8 +33,11 @@ impl ToTokenStream<Context> for Vec<TypeArg> {
             .iter()
             .enumerate()
             .map(|(index, type_argument)| {
-                type_argument
-                    .to_type_annotation(context, type_argument.get_inline_name(&inline_name, index))
+                type_argument.to_type_annotation(
+                    context,
+                    type_argument.get_inline_name(&inline_name, index),
+                    &None,
+                )
             })
             .collect();
         let type_arguments_token_stream = if type_argument_token_streams.len() != 0 {

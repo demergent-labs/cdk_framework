@@ -16,14 +16,26 @@ pub struct Array {
 }
 
 impl ToTypeAnnotation<Context> for Array {
-    fn to_type_annotation(&self, context: &Context, inline_name: String) -> TypeAnnotation {
-        let enclosed_rust_ident = self.enclosed_type.to_type_annotation(context, inline_name);
+    fn to_type_annotation(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
+        let enclosed_rust_ident =
+            self.enclosed_type
+                .to_type_annotation(context, inline_name, module_name);
         quote!(Vec<#enclosed_rust_ident>)
     }
 }
 
 impl Declare<Context> for Array {
-    fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        _: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         None
     }
 
@@ -31,8 +43,10 @@ impl Declare<Context> for Array {
         &self,
         context: &Context,
         inline_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        self.enclosed_type.flatten(context, inline_name)
+        self.enclosed_type
+            .flatten(context, inline_name, module_name)
     }
 }
 

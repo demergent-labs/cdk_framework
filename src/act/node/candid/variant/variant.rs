@@ -27,19 +27,33 @@ impl Variant {
 }
 
 impl<C> ToTypeAnnotation<C> for Variant {
-    fn to_type_annotation(&self, _: &C, inline_name: String) -> TypeAnnotation {
+    fn to_type_annotation(
+        &self,
+        _: &C,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
         self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }
 
 impl Declare<Context> for Variant {
-    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         let variant_ident = self.get_name(&inline_name).to_ident();
         let member_token_streams: Vec<TokenStream> = self
             .members
             .iter()
             .map(|member| {
-                member.to_variant_member_token_stream(context, self.get_name(&inline_name))
+                member.to_variant_member_token_stream(
+                    context,
+                    self.get_name(&inline_name),
+                    module_name,
+                )
             })
             .collect();
         let type_params_token_stream = self.type_params.get_type_params_token_stream();
@@ -58,8 +72,9 @@ impl Declare<Context> for Variant {
         &self,
         context: &Context,
         inline_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(self.get_name(&inline_name), context)
+        self.flatten_inlines(self.get_name(&inline_name), context, module_name)
     }
 }
 

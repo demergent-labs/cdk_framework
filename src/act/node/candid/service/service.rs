@@ -27,17 +27,27 @@ impl Service {
 }
 
 impl ToTypeAnnotation<Context> for Service {
-    fn to_type_annotation(&self, _: &Context, inline_name: String) -> TypeAnnotation {
+    fn to_type_annotation(
+        &self,
+        _: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
         self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }
 
 impl Declare<Context> for Service {
-    fn to_declaration(&self, context: &Context, _: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         let cross_canister_call_functions: Vec<_> = self
             .methods
             .iter()
-            .filter_map(|method| method.to_declaration(context, self.name.clone()))
+            .filter_map(|method| method.to_declaration(context, self.name.clone(), module_name))
             .collect();
 
         let service_name = self.name.to_ident();
@@ -50,6 +60,7 @@ impl Declare<Context> for Service {
                     &method.create_qualified_name(&self.name),
                     context,
                     &method.mode,
+                    module_name,
                 );
 
                 quote! {
@@ -89,11 +100,16 @@ impl Declare<Context> for Service {
         })
     }
 
-    fn collect_inline_declarations(&self, context: &Context, _: String) -> Vec<Declaration> {
+    fn collect_inline_declarations(
+        &self,
+        context: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Vec<Declaration> {
         self.methods.iter().fold(vec![], |acc, method| {
             vec![
                 acc,
-                method.collect_inline_declarations(context, self.name.clone()),
+                method.collect_inline_declarations(context, self.name.clone(), module_name),
             ]
             .concat()
         })

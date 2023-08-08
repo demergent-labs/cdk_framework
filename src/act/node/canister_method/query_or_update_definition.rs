@@ -3,7 +3,7 @@ use quote::quote;
 
 use crate::{
     act::node::{candid::TypeRef, CandidType, Context, Param, ReturnType},
-    traits::{HasTypeRefs, IsCallable, ToIdent, ToTypeAnnotation, WithUserDefinedPrefix},
+    traits::{HasTypeRefs, IsCallable, ToIdent, ToTypeAnnotation},
 };
 
 use super::canister_method;
@@ -40,15 +40,20 @@ impl QueryOrUpdateDefinition {
         }
     }
 
-    pub fn generate_function_body(&self, context: &Context) -> TokenStream {
-        let function_name = self.name.with_user_defined_prefix().to_ident();
-        let params = self.create_parameter_list_token_stream(&self.name, context);
+    pub fn generate_function_body(
+        &self,
+        context: &Context,
+        module_name: &Option<String>,
+    ) -> TokenStream {
+        // let function_name = self.name.with_user_defined_prefix().to_ident();
+        let function_name = self.name.to_ident();
+        let params = self.create_parameter_list_token_stream(&self.name, context, module_name);
 
         let function_body = &self.body;
 
-        let return_type_token = self
-            .return_type
-            .to_type_annotation(context, self.name.clone());
+        let return_type_token =
+            self.return_type
+                .to_type_annotation(context, self.name.clone(), module_name);
 
         let wrapped_return_type =
             if self.is_manual || (self.is_async && context.cdk_name != "kybra") {

@@ -19,10 +19,11 @@ impl Elem {
         index: usize,
         parent_name: &String,
         context: &Context,
+        module_name: &Option<String>,
     ) -> TokenStream {
-        let type_annotation = self
-            .to_member(index)
-            .to_type_annotation(context, parent_name.clone());
+        let type_annotation =
+            self.to_member(index)
+                .to_type_annotation(context, parent_name.clone(), module_name);
         quote!(Box<#type_annotation>)
     }
 

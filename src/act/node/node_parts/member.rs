@@ -13,14 +13,27 @@ pub struct Member {
 }
 
 impl ToTypeAnnotation<Context> for Member {
-    fn to_type_annotation(&self, context: &Context, parent_name: String) -> TypeAnnotation {
-        self.candid_type
-            .to_type_annotation(context, self.get_inline_name(&parent_name))
+    fn to_type_annotation(
+        &self,
+        context: &Context,
+        parent_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
+        self.candid_type.to_type_annotation(
+            context,
+            self.get_inline_name(&parent_name),
+            module_name,
+        )
     }
 }
 
 impl Declare<Context> for Member {
-    fn to_declaration(&self, _: &Context, _: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        _: &Context,
+        _: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         None
     }
 
@@ -28,9 +41,10 @@ impl Declare<Context> for Member {
         &self,
         context: &Context,
         parent_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
         self.candid_type
-            .flatten(context, self.get_inline_name(&parent_name))
+            .flatten(context, self.get_inline_name(&parent_name), module_name)
     }
 }
 

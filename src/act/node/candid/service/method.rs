@@ -43,6 +43,7 @@ impl Method {
         canister_name: &String,
         function_type: &str,
         context: &Context,
+        module_name: &Option<String>,
     ) -> TokenStream {
         let is_oneway = function_type.contains("notify");
 
@@ -54,7 +55,7 @@ impl Method {
 
         let function_name = format_ident!("{}_{}_{}", function_type, canister_name, &self.name);
 
-        let param_types = self.param_types_as_tuple(context, canister_name);
+        let param_types = self.param_types_as_tuple(context, canister_name, module_name);
 
         let cycles_param = if function_type.contains("with_payment128") {
             quote! { , cycles: u128 }
@@ -64,9 +65,11 @@ impl Method {
             quote! {}
         };
 
-        let function_return_type = self
-            .return_type
-            .to_type_annotation(context, self.create_qualified_name(canister_name));
+        let function_return_type = self.return_type.to_type_annotation(
+            context,
+            self.create_qualified_name(canister_name),
+            module_name,
+        );
         let return_type = if is_oneway {
             quote! {Result<(), ic_cdk::api::call::RejectionCode>}
         } else {
@@ -111,12 +114,21 @@ impl Method {
         }
     }
 
-    fn param_types_as_tuple(&self, context: &Context, canister_name: &String) -> TokenStream {
+    fn param_types_as_tuple(
+        &self,
+        context: &Context,
+        canister_name: &String,
+        module_name: &Option<String>,
+    ) -> TokenStream {
         let param_types: Vec<_> = self
             .params
             .iter()
             .map(|param| {
-                param.to_type_annotation(context, self.create_qualified_name(canister_name))
+                param.to_type_annotation(
+                    context,
+                    self.create_qualified_name(canister_name),
+                    module_name,
+                )
             })
             .collect();
 
@@ -130,15 +142,30 @@ impl Method {
 }
 
 impl Declare<Context> for Method {
-    fn to_declaration(&self, context: &Context, canister_name: String) -> Option<Declaration> {
-        let call_function = self.generate_call_function(&canister_name, "call", &context);
+    fn to_declaration(
+        &self,
+        context: &Context,
+        canister_name: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
+        let call_function =
+            self.generate_call_function(&canister_name, "call", &context, module_name);
         let call_with_payment_function =
-            self.generate_call_function(&canister_name, "call_with_payment", &context);
-        let call_with_payment128_function =
-            self.generate_call_function(&canister_name, "call_with_payment128", &context);
-        let notify_function = self.generate_call_function(&canister_name, "notify", &context);
-        let notify_with_payment128_function =
-            self.generate_call_function(&canister_name, "notify_with_payment128", &context);
+            self.generate_call_function(&canister_name, "call_with_payment", &context, module_name);
+        let call_with_payment128_function = self.generate_call_function(
+            &canister_name,
+            "call_with_payment128",
+            &context,
+            module_name,
+        );
+        let notify_function =
+            self.generate_call_function(&canister_name, "notify", &context, module_name);
+        let notify_with_payment128_function = self.generate_call_function(
+            &canister_name,
+            "notify_with_payment128",
+            &context,
+            module_name,
+        );
 
         Some(quote! {
             #call_function
@@ -153,8 +180,13 @@ impl Declare<Context> for Method {
         &self,
         context: &Context,
         canister_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        self.flatten_inlines(self.create_qualified_name(&canister_name), context)
+        self.flatten_inlines(
+            self.create_qualified_name(&canister_name),
+            context,
+            module_name,
+        )
     }
 }
 

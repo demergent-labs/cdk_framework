@@ -53,9 +53,15 @@ impl AsNode for CandidType {
 }
 
 impl ToTypeAnnotation<Context> for CandidType {
-    fn to_type_annotation(&self, context: &Context, inline_name: String) -> TypeAnnotation {
-        let to_type_annotation =
-            |m: &dyn ToTypeAnnotation<Context>| m.to_type_annotation(context, inline_name.clone());
+    fn to_type_annotation(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> TypeAnnotation {
+        let to_type_annotation = |m: &dyn ToTypeAnnotation<Context>| {
+            m.to_type_annotation(context, inline_name.clone(), module_name)
+        };
         match self {
             CandidType::Array(array) => to_type_annotation(array),
             CandidType::Func(func) => to_type_annotation(func),
@@ -68,16 +74,21 @@ impl ToTypeAnnotation<Context> for CandidType {
             CandidType::TypeRef(type_ref) => to_type_annotation(type_ref),
             CandidType::Variant(variant) => to_type_annotation(variant),
             CandidType::Primitive(primitive) => {
-                primitive.to_type_annotation(&context.keyword_list, inline_name)
+                primitive.to_type_annotation(&context.keyword_list, inline_name, module_name)
             }
         }
     }
 }
 
 impl Declare<Context> for CandidType {
-    fn to_declaration(&self, context: &Context, inline_name: String) -> Option<Declaration> {
+    fn to_declaration(
+        &self,
+        context: &Context,
+        inline_name: String,
+        module_name: &Option<String>,
+    ) -> Option<Declaration> {
         let to_declaration =
-            |m: &dyn Declare<Context>| m.to_declaration(context, inline_name.clone());
+            |m: &dyn Declare<Context>| m.to_declaration(context, inline_name.clone(), module_name);
         match self {
             CandidType::Array(array) => to_declaration(array),
             CandidType::Func(func) => to_declaration(func),
@@ -90,7 +101,7 @@ impl Declare<Context> for CandidType {
             CandidType::TypeRef(type_ref) => to_declaration(type_ref),
             CandidType::Variant(variant) => to_declaration(variant),
             CandidType::Primitive(primitive) => {
-                primitive.to_declaration(&context.keyword_list, inline_name)
+                primitive.to_declaration(&context.keyword_list, inline_name, module_name)
             }
         }
     }
@@ -99,9 +110,11 @@ impl Declare<Context> for CandidType {
         &self,
         context: &Context,
         inline_name: String,
+        module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        let collect_inline_declarations =
-            |m: &dyn Declare<Context>| m.collect_inline_declarations(context, inline_name.clone());
+        let collect_inline_declarations = |m: &dyn Declare<Context>| {
+            m.collect_inline_declarations(context, inline_name.clone(), module_name)
+        };
         match self {
             CandidType::Array(array) => collect_inline_declarations(array),
             CandidType::Func(func) => collect_inline_declarations(func),
@@ -113,9 +126,11 @@ impl Declare<Context> for CandidType {
             CandidType::TypeParam(type_param) => collect_inline_declarations(type_param),
             CandidType::TypeRef(type_ref) => collect_inline_declarations(type_ref),
             CandidType::Variant(variant) => collect_inline_declarations(variant),
-            CandidType::Primitive(primitive) => {
-                primitive.collect_inline_declarations(&context.keyword_list, inline_name)
-            }
+            CandidType::Primitive(primitive) => primitive.collect_inline_declarations(
+                &context.keyword_list,
+                inline_name,
+                module_name,
+            ),
         }
     }
 }

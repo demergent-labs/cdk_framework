@@ -35,9 +35,13 @@ impl ToTypeAnnotation<Context> for ReturnType {
         &self,
         context: &Context,
         function_name: String,
+        module_name: &Option<String>,
     ) -> crate::act::TypeAnnotation {
-        self.candid_type
-            .to_type_annotation(context, self.get_inline_name(&function_name))
+        self.candid_type.to_type_annotation(
+            context,
+            self.get_inline_name(&function_name),
+            module_name,
+        )
     }
 }
 
@@ -46,17 +50,22 @@ impl Declare<Context> for ReturnType {
         &self,
         context: &Context,
         function_name: String,
+        module_name: &Option<String>,
     ) -> Option<crate::act::Declaration> {
         self.candid_type
-            .to_declaration(context, self.get_inline_name(&function_name))
+            .to_declaration(context, self.get_inline_name(&function_name), module_name)
     }
 
     fn collect_inline_declarations(
         &self,
         context: &Context,
         function_name: String,
+        module_name: &Option<String>,
     ) -> Vec<crate::act::Declaration> {
-        self.candid_type
-            .collect_inline_declarations(context, self.get_inline_name(&function_name))
+        self.candid_type.collect_inline_declarations(
+            context,
+            self.get_inline_name(&function_name),
+            module_name,
+        )
     }
 }
