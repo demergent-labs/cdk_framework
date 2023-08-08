@@ -28,12 +28,7 @@ impl ToTypeAnnotation<Context> for Member {
 }
 
 impl Declare<Context> for Member {
-    fn to_declaration(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> Option<Declaration> {
+    fn to_declaration(&self, _: &Context, _: String, _: &Option<String>) -> Option<Declaration> {
         None
     }
 

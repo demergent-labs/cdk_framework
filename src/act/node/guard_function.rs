@@ -24,12 +24,7 @@ impl AsNode for GuardFunction {
 }
 
 impl Declare<Context> for GuardFunction {
-    fn to_declaration(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> Option<Declaration> {
+    fn to_declaration(&self, _: &Context, _: String, _: &Option<String>) -> Option<Declaration> {
         // TODO we will eventually need that _keyword list for when we analyze function names for keywords
         let name = self.name.with_user_defined_prefix().to_ident();
         let body = &self.body;
@@ -45,7 +40,7 @@ impl Declare<Context> for GuardFunction {
         &self,
         _: &Context,
         _: String,
-        module_name: &Option<String>,
+        _: &Option<String>,
     ) -> Vec<Declaration> {
         vec![]
     }

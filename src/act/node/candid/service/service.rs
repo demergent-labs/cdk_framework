@@ -31,7 +31,7 @@ impl ToTypeAnnotation<Context> for Service {
         &self,
         _: &Context,
         inline_name: String,
-        module_name: &Option<String>,
+        _: &Option<String>,
     ) -> TypeAnnotation {
         self.get_name(&inline_name).to_ident().to_token_stream()
     }

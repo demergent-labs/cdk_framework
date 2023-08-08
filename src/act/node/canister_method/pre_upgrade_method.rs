@@ -13,12 +13,7 @@ pub struct PreUpgradeMethod {
 }
 
 impl Declare<Context> for PreUpgradeMethod {
-    fn to_declaration(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> Option<Declaration> {
+    fn to_declaration(&self, _: &Context, _: String, _: &Option<String>) -> Option<Declaration> {
         let body = &self.body;
         let macro_args = match &self.guard_function_name {
             Some(guard_function_name) => {
@@ -40,7 +35,7 @@ impl Declare<Context> for PreUpgradeMethod {
         &self,
         _: &Context,
         _: String,
-        module_name: &Option<String>,
+        _: &Option<String>,
     ) -> Vec<Declaration> {
         vec![]
     }

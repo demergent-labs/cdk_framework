@@ -16,24 +16,14 @@ pub struct TypeParam {
 }
 
 impl ToTypeAnnotation<Context> for TypeParam {
-    fn to_type_annotation(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> TypeAnnotation {
+    fn to_type_annotation(&self, _: &Context, _: String, _: &Option<String>) -> TypeAnnotation {
         let ident = self.name.to_ident();
         quote!(#ident)
     }
 }
 
 impl Declare<Context> for TypeParam {
-    fn to_declaration(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> Option<Declaration> {
+    fn to_declaration(&self, _: &Context, _: String, _: &Option<String>) -> Option<Declaration> {
         None
     }
 
@@ -41,7 +31,7 @@ impl Declare<Context> for TypeParam {
         &self,
         _: &Context,
         _: String,
-        module_name: &Option<String>,
+        _: &Option<String>,
     ) -> Vec<Declaration> {
         vec![]
     }

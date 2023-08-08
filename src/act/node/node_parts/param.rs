@@ -55,12 +55,7 @@ impl ToTypeAnnotation<Context> for Param {
 }
 
 impl Declare<Context> for Param {
-    fn to_declaration(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> Option<Declaration> {
+    fn to_declaration(&self, _: &Context, _: String, _: &Option<String>) -> Option<Declaration> {
         None
     }
 

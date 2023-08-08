@@ -28,12 +28,7 @@ impl Tuple {
 }
 
 impl<C> ToTypeAnnotation<C> for Tuple {
-    fn to_type_annotation(
-        &self,
-        _: &C,
-        inline_name: String,
-        module_name: &Option<String>,
-    ) -> TypeAnnotation {
+    fn to_type_annotation(&self, _: &C, inline_name: String, _: &Option<String>) -> TypeAnnotation {
         self.get_name(&inline_name).to_ident().to_token_stream()
     }
 }

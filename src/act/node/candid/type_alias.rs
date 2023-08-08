@@ -18,12 +18,7 @@ pub struct TypeAlias {
 }
 
 impl ToTypeAnnotation<Context> for TypeAlias {
-    fn to_type_annotation(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> TypeAnnotation {
+    fn to_type_annotation(&self, _: &Context, _: String, _: &Option<String>) -> TypeAnnotation {
         self.name.to_ident().to_token_stream()
     }
 }

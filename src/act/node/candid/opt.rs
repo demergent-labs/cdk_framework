@@ -30,12 +30,7 @@ impl ToTypeAnnotation<Context> for Opt {
 }
 
 impl Declare<Context> for Opt {
-    fn to_declaration(
-        &self,
-        _: &Context,
-        _: String,
-        module_name: &Option<String>,
-    ) -> Option<Declaration> {
+    fn to_declaration(&self, _: &Context, _: String, _: &Option<String>) -> Option<Declaration> {
         None
     }
 

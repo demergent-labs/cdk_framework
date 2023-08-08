@@ -145,8 +145,6 @@ pub enum Error {
 
 impl AbstractCanisterTree {
     pub fn to_token_stream(&self) -> Result<TokenStream, Vec<Error>> {
-        println!("WE ARE DEFINITELY HERE");
-
         // TODO these verifications need to be redone for all modules
         let errors = self
             .verify_type_refs_have_corresponding_definitions()
@@ -178,17 +176,20 @@ impl AbstractCanisterTree {
         let body = &self.body;
 
         let modules = self.modules.iter().map(|module| {
-            let module_name = module.get_name().to_ident();
+            let module_name_string = module.get_name();
+            let module_name_ident = module_name_string.to_ident();
 
-            let canister_method_decls =
-                self.generate_declarations(module.collect_canister_methods(), &None);
+            let canister_method_decls = self.generate_declarations(
+                module.collect_canister_methods(),
+                &Some(module_name_string),
+            );
             let candid_type_decls =
                 self.generate_declarations(module.collect_candid_types(), &None);
             let guard_function_decls =
                 self.generate_declarations(module.guard_functions.clone(), &None);
 
             quote! {
-                mod #module_name {
+                mod #module_name_ident {
                     use crate::CdkActTryIntoVmValue;
                     use crate::CdkActTryFromVmValue;
                     use crate::CdkActTryIntoVmValueError;
@@ -234,10 +235,10 @@ impl AbstractCanisterTree {
         list: Vec<T>,
         module_name: &Option<String>,
     ) -> Vec<Declaration> {
-        list.into_iter().fold(vec![], |acc, node| {
+        list.into_iter().fold(vec![], |acc, t| {
             vec![
                 acc,
-                node.as_node()
+                t.as_node()
                     .flatten(&self.build_context(), "".to_string(), module_name),
             ]
             .concat()
@@ -364,21 +365,22 @@ fn find_duplicates<T: Eq + std::hash::Hash>(list: &[T]) -> Vec<&T> {
         .collect()
 }
 
-use syn::{Ident, Path};
+// TODO remove if not needed for modularization
+// use syn::{Ident, Path};
 
-fn create_module_path(parts: &Vec<String>) -> Path {
-    let mut segments = vec![];
+// fn create_module_path(parts: &Vec<String>) -> Path {
+//     let mut segments = vec![];
 
-    for part in parts {
-        segments.push(Ident::new(&part, proc_macro2::Span::call_site()));
-    }
+//     for part in parts {
+//         segments.push(Ident::new(&part, proc_macro2::Span::call_site()));
+//     }
 
-    Path {
-        // leading_colon: Some(syn::token::Colon2::default()),
-        leading_colon: None,
-        segments: segments.into_iter().map(syn::PathSegment::from).collect(),
-    }
-}
+//     Path {
+//         // leading_colon: Some(syn::token::Colon2::default()),
+//         leading_colon: None,
+//         segments: segments.into_iter().map(syn::PathSegment::from).collect(),
+//     }
+// }
 
 // let crate_name = self.crate_path.join("::").to_ident();
 // let record_name = self.get_name(&inline_name).to_ident().to_token_stream();

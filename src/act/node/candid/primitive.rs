@@ -27,7 +27,7 @@ pub enum Primitive {
 }
 
 impl<C> ToTypeAnnotation<C> for Primitive {
-    fn to_type_annotation(&self, _: &C, _: String, module_name: &Option<String>) -> TypeAnnotation {
+    fn to_type_annotation(&self, _: &C, _: String, _: &Option<String>) -> TypeAnnotation {
         match self {
             Primitive::Bool => quote!(bool),
             Primitive::Blob => quote!(Vec<u8>),
@@ -58,7 +58,7 @@ impl Declare<Vec<String>> for Primitive {
         &self,
         _: &Vec<String>,
         _: String,
-        module_name: &Option<String>,
+        _: &Option<String>,
     ) -> Option<Declaration> {
         None
     }
@@ -67,7 +67,7 @@ impl Declare<Vec<String>> for Primitive {
         &self,
         _: &Vec<String>,
         _: String,
-        module_name: &Option<String>,
+        _: &Option<String>,
     ) -> Vec<Declaration> {
         vec![]
     }
