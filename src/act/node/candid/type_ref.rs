@@ -11,7 +11,6 @@ use super::TypeArg;
 pub struct TypeRef {
     pub name: String,
     pub type_arguments: Vec<TypeArg>,
-    pub crate_path: Vec<String>,
 }
 
 impl ToTypeAnnotation<Context> for TypeRef {

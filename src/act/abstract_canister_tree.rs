@@ -15,7 +15,7 @@ use crate::{
     traits::{HasDefinedNames, HasTypeRefs, ToIdent},
 };
 
-use super::node::candid::TypeRef;
+use super::node::{candid::TypeRef, canister_method::InitMethod};
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -25,6 +25,7 @@ pub struct AbstractCanisterTree {
     pub vm_value_conversion: VmValueConversion,
     pub keywords: Vec<String>,
     pub modules: Vec<Module>,
+    // pub default_init_method: InitMethod,
 }
 
 pub struct Module {
@@ -32,6 +33,7 @@ pub struct Module {
     pub canister_methods: CanisterMethods,
     pub candid_types: CandidTypes,
     pub guard_functions: Vec<GuardFunction>,
+    pub body: TokenStream,
 }
 
 impl Module {
@@ -133,6 +135,11 @@ impl Module {
 
         vec![funcs, records, services, tuples, type_aliases, variants].concat()
     }
+
+    // fn init_method_defined() -> bool {
+    //     // TODO search all modules for an init method
+    //     false
+    // }
 }
 
 pub enum Error {
@@ -188,6 +195,10 @@ impl AbstractCanisterTree {
             let guard_function_decls =
                 self.generate_declarations(module.guard_functions.clone(), &None);
 
+            let body = &module.body;
+
+            // TODO working on not glob importing into yourself
+            // TODO working on _AzleResult...see if we can resolve this thing entirely and get rid of it
             quote! {
                 mod #module_name_ident {
                     use crate::CdkActTryIntoVmValue;
@@ -195,10 +206,16 @@ impl AbstractCanisterTree {
                     use crate::CdkActTryIntoVmValueError;
                     use crate::ToJsError;
                     use crate::unwrap_or_trap;
+                    use crate::UnwrapJsResultOrTrap;
+                    use crate::ToStdString;
+                    use crate::UnwrapOrTrapWithMessage;
+                    use crate::home_lastmjs_development_azle_canisters_management_bitcoin::*; // TODO this is cheating
 
                     #(#canister_method_decls)*
                     #(#candid_type_decls)*
                     #(#guard_function_decls)*
+
+                    #body
                 }
             }
         });
@@ -208,6 +225,12 @@ impl AbstractCanisterTree {
 
         let azle_float64 = float64::generate();
         let azle_float32 = float32::generate();
+
+        // TODO we should only use the default if no modules have an init method
+        // let init_method_default =
+        //     &self
+        //         .default_init_method
+        //         .to_declaration(context, inline_name, module_name);
 
         Ok(quote! {
             #header
