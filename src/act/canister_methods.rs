@@ -1,4 +1,4 @@
-use crate::traits::{HasDefinedNames, HasTypeRefs};
+use crate::traits::{ContainsNodeWithName, HasDefinedNames, HasTypeRefs};
 
 use super::node::{
     candid::TypeRef,
@@ -77,5 +77,17 @@ impl HasTypeRefs for CanisterMethods {
             .chain(self.update_methods.iter().flat_map(|m| m.get_type_refs()))
             .chain(self.query_methods.iter().flat_map(|m| m.get_type_refs()))
             .collect()
+    }
+}
+
+impl ContainsNodeWithName for CanisterMethods {
+    fn contains_node_with_name(&self, name: &str) -> bool {
+        if self.query_methods.iter().any(|method| method.name == name) {
+            return true;
+        }
+        if self.update_methods.iter().any(|method| method.name == name) {
+            return true;
+        }
+        return false;
     }
 }

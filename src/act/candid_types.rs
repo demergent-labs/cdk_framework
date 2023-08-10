@@ -1,4 +1,4 @@
-use crate::traits::{HasDefinedNames, HasTypeRefs};
+use crate::traits::{ContainsNodeWithName, HasDefinedNames, HasTypeRefs};
 
 use super::node::candid::{Func, Record, Service, Tuple, TypeAlias, TypeRef, Variant};
 
@@ -38,5 +38,45 @@ impl HasDefinedNames for CandidTypes {
             .chain(self.services.iter().map(|s| s.name.clone()))
             .chain(self.type_aliases.iter().map(|t| t.name.clone()))
             .collect()
+    }
+}
+
+impl ContainsNodeWithName for CandidTypes {
+    fn contains_node_with_name(&self, name: &str) -> bool {
+        if self.funcs.iter().any(|func| opt_eq(&func.name, name)) {
+            return true;
+        }
+        if self.records.iter().any(|record| opt_eq(&record.name, name)) {
+            return true;
+        }
+        if self.services.iter().any(|service| service.name == name) {
+            return true;
+        }
+        if self.tuples.iter().any(|tuple| opt_eq(&tuple.name, name)) {
+            return true;
+        }
+        if self
+            .type_aliases
+            .iter()
+            .any(|type_alias| type_alias.name == name)
+        {
+            return true;
+        }
+        if self
+            .variants
+            .iter()
+            .any(|variant| opt_eq(&variant.name, name))
+        {
+            return true;
+        }
+
+        false
+    }
+}
+
+fn opt_eq(option: &Option<String>, str: &str) -> bool {
+    match option.as_deref() {
+        Some(s) if s == str => true,
+        _ => false,
     }
 }

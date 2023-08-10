@@ -12,7 +12,7 @@ use crate::{
             Declaration, Declare,
         },
     },
-    traits::{HasDefinedNames, HasTypeRefs, ToIdent},
+    traits::{ContainsNodeWithName, HasDefinedNames, HasTypeRefs, ToIdent},
 };
 
 use super::node::{candid::TypeRef, canister_method::InitMethod};
@@ -34,13 +34,29 @@ pub struct Module {
     pub candid_types: CandidTypes,
     pub guard_functions: Vec<GuardFunction>,
     pub body: TokenStream,
+    pub imports: Vec<Import>,
+    pub exports: Vec<Export>,
+}
+
+// TODO For import names we need to follow all renaming rules like as or whatever
+#[derive(Debug)]
+pub struct Import {
+    pub names: Vec<String>,
+    pub path: Vec<String>,
+}
+
+// TODO For export names we need to follow all renaming rules like as or whatever
+#[derive(Debug)]
+pub struct Export {
+    pub names: Vec<String>,
+    pub path: Vec<String>,
+}
+
+pub fn convert_module_path_to_name(path: &Vec<String>) -> String {
+    path.join("_").to_string()
 }
 
 impl Module {
-    fn get_name(&self) -> String {
-        self.path.join("_").to_string()
-    }
-
     fn collect_canister_methods(&self) -> Vec<CanisterMethod> {
         let init_method = match &self.canister_methods.init_method {
             Some(init_method) => Some(CanisterMethod::Init(init_method.clone())),
@@ -136,10 +152,95 @@ impl Module {
         vec![funcs, records, services, tuples, type_aliases, variants].concat()
     }
 
+    fn generate_imports(&self, act: &AbstractCanisterTree) -> Vec<TokenStream> {
+        // use module_specifer::{list, of, imports}
+        // let imports = self.imports.iter().filter(|import| act.contains_node_with_name(import))
+
+        let deduplicated_imports = self.deduplicate_imports();
+
+        deduplicated_imports
+            .iter()
+            .map(|import| import.generate_imports(act))
+            .collect()
+    }
+
+    fn generate_exports(&self, act: &AbstractCanisterTree) -> Vec<TokenStream> {
+        // use module_specifer::{list, of, imports}
+        // let imports = self.imports.iter().filter(|import| act.contains_node_with_name(import))
+        self.exports
+            .iter()
+            .map(|export| export.generate_exports(act))
+            .collect()
+    }
+
+    // We cannot both import and export the same thing
+    // If an import exists in the exports, then we will favor the export
+    // because the export will achieve both purposes, importing and exporting
+    // because of the pub use
+    fn deduplicate_imports<'a>(&'a self) -> Vec<&'a Import> {
+        self.imports
+            .iter()
+            .filter(|import| {
+                !self.exports.iter().any(|export| {
+                    export.names.iter().any(|export_name| {
+                        import
+                            .names
+                            .iter()
+                            .any(|import_name| export_name == import_name)
+                    })
+                })
+            })
+            .collect()
+    }
+
     // fn init_method_defined() -> bool {
     //     // TODO search all modules for an init method
     //     false
     // }
+}
+
+impl Import {
+    fn generate_imports(&self, act: &AbstractCanisterTree) -> TokenStream {
+        let names: Vec<_> = self
+            .names
+            .iter()
+            .filter(|import| act.contains_node_with_name(import))
+            .map(|name| {
+                println!("import name: {}", name);
+
+                name.to_ident()
+            })
+            .collect();
+
+        if names.len() > 0 {
+            let path = convert_module_path_to_name(&self.path).to_ident();
+            quote! {use crate::#path::{#(#names),*};}
+        } else {
+            quote!()
+        }
+    }
+}
+
+impl Export {
+    fn generate_exports(&self, act: &AbstractCanisterTree) -> TokenStream {
+        let names: Vec<_> = self
+            .names
+            .iter()
+            .filter(|import| act.contains_node_with_name(import))
+            .map(|name| {
+                println!("export name: {}", name);
+
+                name.to_ident()
+            })
+            .collect();
+
+        if names.len() > 0 {
+            let path = convert_module_path_to_name(&self.path).to_ident();
+            quote! {pub use crate::#path::{#(#names),*};}
+        } else {
+            quote!()
+        }
+    }
 }
 
 pub enum Error {
@@ -183,7 +284,7 @@ impl AbstractCanisterTree {
         let body = &self.body;
 
         let modules = self.modules.iter().map(|module| {
-            let module_name_string = module.get_name();
+            let module_name_string = convert_module_path_to_name(&module.path);
             let module_name_ident = module_name_string.to_ident();
 
             let canister_method_decls = self.generate_declarations(
@@ -197,7 +298,9 @@ impl AbstractCanisterTree {
 
             let body = &module.body;
 
-            // TODO working on not glob importing into yourself
+            let imports = module.generate_imports(&self);
+            let exports = module.generate_exports(&self);
+
             // TODO working on _AzleResult...see if we can resolve this thing entirely and get rid of it
             quote! {
                 mod #module_name_ident {
@@ -209,7 +312,10 @@ impl AbstractCanisterTree {
                     use crate::UnwrapJsResultOrTrap;
                     use crate::ToStdString;
                     use crate::UnwrapOrTrapWithMessage;
-                    use crate::home_lastmjs_development_azle_canisters_management_bitcoin::*; // TODO this is cheating
+
+                    #(#imports)*
+
+                    #(#exports)*
 
                     #(#canister_method_decls)*
                     #(#candid_type_decls)*
@@ -386,6 +492,33 @@ fn find_duplicates<T: Eq + std::hash::Hash>(list: &[T]) -> Vec<&T> {
         .filter(|(_, &count)| count > 1)
         .map(|(&item, _)| item)
         .collect()
+}
+
+impl ContainsNodeWithName for Module {
+    fn contains_node_with_name(&self, name: &str) -> bool {
+        if self.canister_methods.contains_node_with_name(name) {
+            return true;
+        }
+        if self.candid_types.contains_node_with_name(name) {
+            return true;
+        }
+        if self
+            .guard_functions
+            .iter()
+            .any(|guard_function| guard_function.name == name)
+        {
+            return true;
+        }
+        false
+    }
+}
+
+impl ContainsNodeWithName for AbstractCanisterTree {
+    fn contains_node_with_name(&self, name: &str) -> bool {
+        self.modules
+            .iter()
+            .any(|module| module.contains_node_with_name(name))
+    }
 }
 
 // TODO remove if not needed for modularization

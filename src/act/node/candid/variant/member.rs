@@ -40,6 +40,6 @@ impl Member {
         };
         let member_name = keyword::make_rust_safe(&self.name, &context.keyword_list).to_ident();
         let rename_attr = keyword::generate_rename_attribute(&member_name, &context.keyword_list);
-        quote! {#rename_attr #member_name #member_type_token_stream}
+        quote! {pub #rename_attr #member_name #member_type_token_stream}
     }
 }

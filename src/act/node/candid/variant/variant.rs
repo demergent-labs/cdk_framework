@@ -56,7 +56,7 @@ impl Declare<Context> for Variant {
 
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue, Ord, PartialOrd, Eq, PartialEq)]
-            enum #variant_ident #type_params_token_stream #where_clause_token_stream
+            pub enum #variant_ident #type_params_token_stream #where_clause_token_stream
             {
                 #(#member_token_streams),*
             }

@@ -1,4 +1,5 @@
 pub use abstract_canister_tree::AbstractCanisterTree;
+pub use abstract_canister_tree::Import;
 pub use candid_types::CandidTypes;
 pub use canister_methods::CanisterMethods;
 pub use declaration::Declaration;

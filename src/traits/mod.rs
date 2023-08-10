@@ -1,4 +1,5 @@
 pub mod collect_results;
+pub mod contains_node_with_name;
 pub mod has_defined_names;
 pub mod has_inline_name;
 pub mod has_inline_types;
@@ -13,6 +14,7 @@ pub use crate::act::Declare;
 pub use crate::act::ToTypeAnnotation;
 pub use collect_results::CollectIterResults;
 pub use collect_results::CollectResults;
+pub use contains_node_with_name::ContainsNodeWithName;
 pub use has_defined_names::HasDefinedNames;
 pub use has_inline_name::HasInlineName;
 pub use has_inline_types::HasInlines;
