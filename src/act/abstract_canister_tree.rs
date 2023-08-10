@@ -15,7 +15,10 @@ use crate::{
     traits::{ContainsNodeWithName, HasDefinedNames, HasTypeRefs, ToIdent},
 };
 
-use super::node::{candid::TypeRef, canister_method::InitMethod};
+use super::node::{
+    candid::TypeRef,
+    canister_method::{InitMethod, PostUpgradeMethod},
+};
 
 /// An easily traversable representation of a rust canister
 pub struct AbstractCanisterTree {
@@ -25,7 +28,8 @@ pub struct AbstractCanisterTree {
     pub vm_value_conversion: VmValueConversion,
     pub keywords: Vec<String>,
     pub modules: Vec<Module>,
-    // pub default_init_method: InitMethod,
+    pub default_init_method: InitMethod,
+    pub default_post_upgrade_method: PostUpgradeMethod,
 }
 
 pub struct Module {
@@ -193,10 +197,13 @@ impl Module {
             .collect()
     }
 
-    // fn init_method_defined() -> bool {
-    //     // TODO search all modules for an init method
-    //     false
-    // }
+    fn is_init_method_defined(&self) -> bool {
+        self.canister_methods.init_method.is_some()
+    }
+
+    fn is_post_upgrade_method_defined(&self) -> bool {
+        self.canister_methods.post_upgrade_method.is_some()
+    }
 }
 
 impl Import {
@@ -332,11 +339,25 @@ impl AbstractCanisterTree {
         let azle_float64 = float64::generate();
         let azle_float32 = float32::generate();
 
-        // TODO we should only use the default if no modules have an init method
-        // let init_method_default =
-        //     &self
-        //         .default_init_method
-        //         .to_declaration(context, inline_name, module_name);
+        let default_init_method = if !self.is_init_method_defined() {
+            Some(self.default_init_method.to_declaration(
+                &self.build_context(),
+                "".to_string(),
+                &None,
+            ))
+        } else {
+            None
+        };
+
+        let default_post_upgrade_method = if !self.is_post_upgrade_method_defined() {
+            Some(self.default_post_upgrade_method.to_declaration(
+                &self.build_context(),
+                "".to_string(),
+                &None,
+            ))
+        } else {
+            None
+        };
 
         Ok(quote! {
             #header
@@ -347,6 +368,10 @@ impl AbstractCanisterTree {
             #try_into_vm_value_impls
             #try_from_vm_value_trait
             #try_from_vm_value_impls
+
+            #default_init_method
+
+            #default_post_upgrade_method
 
             #body
 
@@ -468,6 +493,18 @@ impl AbstractCanisterTree {
                 .collect()),
         }
     }
+
+    fn is_init_method_defined(&self) -> bool {
+        self.modules
+            .iter()
+            .any(|module| module.is_init_method_defined())
+    }
+
+    fn is_post_upgrade_method_defined(&self) -> bool {
+        self.modules
+            .iter()
+            .any(|module| module.is_post_upgrade_method_defined())
+    }
 }
 
 impl HasTypeRefs for AbstractCanisterTree {
@@ -520,25 +557,3 @@ impl ContainsNodeWithName for AbstractCanisterTree {
             .any(|module| module.contains_node_with_name(name))
     }
 }
-
-// TODO remove if not needed for modularization
-// use syn::{Ident, Path};
-
-// fn create_module_path(parts: &Vec<String>) -> Path {
-//     let mut segments = vec![];
-
-//     for part in parts {
-//         segments.push(Ident::new(&part, proc_macro2::Span::call_site()));
-//     }
-
-//     Path {
-//         // leading_colon: Some(syn::token::Colon2::default()),
-//         leading_colon: None,
-//         segments: segments.into_iter().map(syn::PathSegment::from).collect(),
-//     }
-// }
-
-// let crate_name = self.crate_path.join("::").to_ident();
-// let record_name = self.get_name(&inline_name).to_ident().to_token_stream();
-
-// quote!(#crate_name::#record_name)
