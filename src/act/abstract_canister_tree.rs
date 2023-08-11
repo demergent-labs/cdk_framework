@@ -212,16 +212,12 @@ impl Import {
             .names
             .iter()
             .filter(|import| act.contains_node_with_name(import))
-            .map(|name| {
-                println!("import name: {}", name);
-
-                name.to_ident()
-            })
+            .map(|name| name.to_ident())
             .collect();
 
         if names.len() > 0 {
             let path = convert_module_path_to_name(&self.path).to_ident();
-            quote! {use crate::#path::{#(#names),*};}
+            quote! {pub use crate::#path::{#(#names),*};}
         } else {
             quote!()
         }
@@ -234,11 +230,7 @@ impl Export {
             .names
             .iter()
             .filter(|import| act.contains_node_with_name(import))
-            .map(|name| {
-                println!("export name: {}", name);
-
-                name.to_ident()
-            })
+            .map(|name| name.to_ident())
             .collect();
 
         if names.len() > 0 {
