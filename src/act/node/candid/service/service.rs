@@ -75,7 +75,7 @@ impl Declare<Context> for Service {
         let service_list_from_vm_value = (self.list_from_vm_value)(self.name.clone());
 
         Some(quote! {
-            candid::define_service!(#service_name : {
+            candid::define_service!(pub #service_name : {
                 #(#service_funcs);*
             });
 
