@@ -1,3 +1,6 @@
+// TODO hashing the module names might be a solution to having
+// TODO absolute file paths show up in the binary potentially
+
 use std::collections::{HashMap, HashSet};
 
 use proc_macro2::TokenStream;

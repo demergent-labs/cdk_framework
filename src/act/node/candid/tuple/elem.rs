@@ -24,7 +24,7 @@ impl Elem {
         let type_annotation =
             self.to_member(index)
                 .to_type_annotation(context, parent_name.clone(), module_name);
-        quote!(Box<#type_annotation>)
+        quote!(pub Box<#type_annotation>)
     }
 
     pub fn to_member(&self, index: usize) -> Member {

@@ -28,8 +28,21 @@ impl Tuple {
 }
 
 impl<C> ToTypeAnnotation<C> for Tuple {
-    fn to_type_annotation(&self, _: &C, inline_name: String, _: &Option<String>) -> TypeAnnotation {
-        self.get_name(&inline_name).to_ident().to_token_stream()
+    fn to_type_annotation(
+        &self,
+        _: &C,
+        inline_name: String,
+        module_name_option: &Option<String>,
+    ) -> TypeAnnotation {
+        let name = self.get_name(&inline_name).to_ident().to_token_stream();
+
+        let module_name_ident = if let Some(module_name) = module_name_option {
+            Some(module_name.to_string().to_ident())
+        } else {
+            None
+        };
+
+        quote!(crate::#module_name_ident::#name)
     }
 }
 
@@ -67,7 +80,7 @@ impl Declare<Context> for Tuple {
 
         Some(quote!(
             #[derive(serde::Deserialize, Debug, candid::CandidType, Clone, CdkActTryIntoVmValue, CdkActTryFromVmValue, Ord, PartialOrd, Eq, PartialEq)]
-            struct #tuple_ident #type_params_token_stream (
+            pub struct #tuple_ident #type_params_token_stream (
                 #member_idents
             ) #where_clause_token_stream;
         ))
