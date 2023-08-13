@@ -25,12 +25,12 @@ pub trait IsCallable {
         &self,
         function_name: &String,
         context: &Context,
-        module_name: &Option<String>,
+        module_name_option: &Option<String>,
     ) -> TokenStream {
         let params: Vec<_> = self
             .get_params()
             .iter()
-            .map(|param| param.to_token_stream(context, function_name.clone(), module_name))
+            .map(|param| param.to_token_stream(context, function_name.clone(), module_name_option))
             .collect();
         quote!(#(#params),*)
     }

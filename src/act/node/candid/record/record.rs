@@ -32,9 +32,14 @@ impl ToTypeAnnotation<Context> for Record {
         &self,
         _: &Context,
         inline_name: String,
-        _: &Option<String>,
+        module_name_option: &Option<String>,
     ) -> TypeAnnotation {
-        self.get_name(&inline_name).to_ident().to_token_stream()
+        let name = self.get_name(&inline_name).to_ident().to_token_stream();
+        let module_name_ident = module_name_option
+            .as_ref()
+            .map(|module_name| module_name.to_string().to_ident());
+
+        quote!(crate::#module_name_ident::#name)
     }
 }
 

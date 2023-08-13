@@ -20,11 +20,11 @@ impl ToTypeAnnotation<Context> for Array {
         &self,
         context: &Context,
         inline_name: String,
-        module_name: &Option<String>,
+        module_name_option: &Option<String>,
     ) -> TypeAnnotation {
         let enclosed_rust_ident =
             self.enclosed_type
-                .to_type_annotation(context, inline_name, module_name);
+                .to_type_annotation(context, inline_name, module_name_option);
         quote!(Vec<#enclosed_rust_ident>)
     }
 }

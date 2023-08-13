@@ -18,15 +18,16 @@ impl ToTypeAnnotation<Context> for TypeRef {
         &self,
         context: &Context,
         inline_name: String,
-        module_name: &Option<String>,
+        module_name_option: &Option<String>,
     ) -> TypeAnnotation {
-        if let Some(module_name_string) = module_name {
+        if let Some(module_name_string) = module_name_option {
             let module_name_ident = module_name_string.to_ident();
 
             // TODO use the keyword list to make the identifier rust safe
             let name = self.name.to_ident().to_token_stream();
             let type_arguments_token_stream =
-                self.type_arguments.to_token_stream(context, &inline_name);
+                self.type_arguments
+                    .to_token_stream(context, &inline_name, module_name_option);
 
             // TODO this will break with nested modules
             quote!(crate::#module_name_ident::#name #type_arguments_token_stream)
@@ -34,7 +35,8 @@ impl ToTypeAnnotation<Context> for TypeRef {
             // TODO use the keyword list to make the identifier rust safe
             let name = self.name.to_ident().to_token_stream();
             let type_arguments_token_stream =
-                self.type_arguments.to_token_stream(context, &inline_name);
+                self.type_arguments
+                    .to_token_stream(context, &inline_name, module_name_option);
 
             quote!(#name #type_arguments_token_stream)
         }

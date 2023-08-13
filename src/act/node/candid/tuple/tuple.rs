@@ -35,12 +35,9 @@ impl<C> ToTypeAnnotation<C> for Tuple {
         module_name_option: &Option<String>,
     ) -> TypeAnnotation {
         let name = self.get_name(&inline_name).to_ident().to_token_stream();
-
-        let module_name_ident = if let Some(module_name) = module_name_option {
-            Some(module_name.to_string().to_ident())
-        } else {
-            None
-        };
+        let module_name_ident = module_name_option
+            .as_ref()
+            .map(|module_name| module_name.to_string().to_ident());
 
         quote!(crate::#module_name_ident::#name)
     }

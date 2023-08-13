@@ -28,7 +28,12 @@ impl Deref for TypeArg {
 }
 
 impl ToTokenStream<Context> for Vec<TypeArg> {
-    fn to_token_stream(&self, context: &Context, inline_name: &str) -> proc_macro2::TokenStream {
+    fn to_token_stream(
+        &self,
+        context: &Context,
+        inline_name: &str,
+        module_name_option: &Option<String>,
+    ) -> proc_macro2::TokenStream {
         let type_argument_token_streams: Vec<TokenStream> = self
             .iter()
             .enumerate()
@@ -36,7 +41,7 @@ impl ToTokenStream<Context> for Vec<TypeArg> {
                 type_argument.to_type_annotation(
                     context,
                     type_argument.get_inline_name(&inline_name, index),
-                    &None,
+                    module_name_option,
                 )
             })
             .collect();
