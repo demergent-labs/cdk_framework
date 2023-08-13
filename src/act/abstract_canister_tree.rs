@@ -314,6 +314,7 @@ impl AbstractCanisterTree {
                     use crate::UnwrapJsResultOrTrap;
                     use crate::ToStdString;
                     use crate::UnwrapOrTrapWithMessage;
+                    use candid::{Decode, Encode};
 
                     #(#imports)*
 
