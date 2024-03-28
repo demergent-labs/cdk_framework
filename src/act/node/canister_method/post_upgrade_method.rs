@@ -6,14 +6,13 @@ use crate::{
         node::{candid::TypeRef, Context, Param, ReturnType},
         Declaration, Declare,
     },
-    traits::{HasInlines, HasTypeRefs, IsCallable, ToIdent, WithUserDefinedPrefix},
+    traits::{HasInlines, HasTypeRefs, IsCallable, ToIdent},
 };
 
 use super::canister_method;
 
 #[derive(Clone)]
 pub struct PostUpgradeMethod {
-    pub guard_function_name: Option<String>,
     pub params: Vec<Param>,
     pub body: TokenStream,
 }
@@ -29,16 +28,9 @@ impl Declare<Context> for PostUpgradeMethod {
         let function_name = self.get_name().to_ident();
         let body = &self.body;
         let params = self.create_parameter_list_token_stream(&self.get_name(), context);
-        let macro_args = match &self.guard_function_name {
-            Some(guard_function_name) => {
-                let prefixed_guard_function_name = guard_function_name.with_user_defined_prefix();
-                quote! {guard = #prefixed_guard_function_name}
-            }
-            None => quote!(),
-        };
 
         Some(quote! {
-            #[ic_cdk_macros::post_upgrade(#macro_args)]
+            #[ic_cdk_macros::post_upgrade]
             fn #function_name(#params) {
                 #body
             }

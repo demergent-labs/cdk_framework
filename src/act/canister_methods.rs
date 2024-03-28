@@ -21,34 +21,9 @@ pub struct CanisterMethods {
 
 impl CanisterMethods {
     pub fn collect_used_guard_function_names(&self) -> Vec<String> {
-        self.heartbeat_method
+        self.query_methods
             .iter()
             .filter_map(|m| m.guard_function_name.clone())
-            .chain(
-                self.init_method
-                    .iter()
-                    .filter_map(|m| m.guard_function_name.clone()),
-            )
-            .chain(
-                self.inspect_message_method
-                    .iter()
-                    .filter_map(|m| m.guard_function_name.clone()),
-            )
-            .chain(
-                self.post_upgrade_method
-                    .iter()
-                    .filter_map(|m| m.guard_function_name.clone()),
-            )
-            .chain(
-                self.pre_upgrade_method
-                    .iter()
-                    .filter_map(|m| m.guard_function_name.clone()),
-            )
-            .chain(
-                self.query_methods
-                    .iter()
-                    .filter_map(|m| m.guard_function_name.clone()),
-            )
             .chain(
                 self.update_methods
                     .iter()
