@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CanisterMethodType {
     Heartbeat,
     Init,
